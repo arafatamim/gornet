@@ -1,24 +1,24 @@
-import 'dart:math';
-
+import 'package:chillyflix/Models/FtpbdModel.dart';
+import 'package:chillyflix/Pages/DetailPage.dart';
+import 'package:chillyflix/Pages/SearchPage.dart';
+import 'package:chillyflix/theme/modern.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import 'package:chillyflix/Services/FanartService.dart';
 import 'package:chillyflix/Pages/HomePage.dart';
-import 'package:chillyflix/Services/TraktService.dart';
+import 'package:chillyflix/Services/FtpbdService.dart';
 
-extension Precision on double {
-      double toPrecision(int fractionDigits) {
-      double mod = pow(10, fractionDigits.toDouble());
-      return ((this * mod).round().toDouble() / mod);
-    }
-}
-
+// extension Precision on double {
+//   double toPrecision(int fractionDigits) {
+//     double mod = pow(10, fractionDigits.toDouble());
+//     return ((this * mod).round().toDouble() / mod);
+//   }
+// }
 
 void main() {
-  return runApp(MyApp()); 
+  return runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -27,20 +27,32 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<TraktService>(create: (_) => TraktService()),
-        Provider<FanartService>(create: (_) => FanartService()),
+        Provider<FtpbdService>(create: (_) => FtpbdService()),
       ],
       child: Shortcuts(
         // needed for AndroidTV to be able to select
-        shortcuts: {LogicalKeySet(LogicalKeyboardKey.select): const Intent(ActivateAction.key)},
+        shortcuts: {
+          LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent()
+        },
         child: MaterialApp(
-          title: 'ChillyFlix',
-          theme: ThemeData(
-            fontFamily: GoogleFonts.openSans().fontFamily,
-            primarySwatch: Colors.blueGrey,
-            backgroundColor: Color.fromARGB(255, 35, 40, 50)
-          ),
-          home: HomePage(title: 'ChillyFlix'),
+          title: 'Goriber Netflix',
+          theme: ModernTheme.darkTheme,
+          home: HomePage(title: 'Goriber Netflix'),
+          onGenerateRoute: (settings) {
+            if (settings.name == "/detail") {
+              return MaterialPageRoute(
+                settings: RouteSettings(name: "detail"),
+                builder: (context) =>
+                    DetailPage(settings.arguments as SearchResult),
+              );
+            }
+            if (settings.name == "/search") {
+              return MaterialPageRoute(
+                settings: RouteSettings(name: "search"),
+                builder: (context) => SearchPage(),
+              );
+            }
+          },
         ),
       ),
     );

@@ -1,13 +1,11 @@
-import 'package:chillyflix/Pages/SettingsPage.dart';
+import 'package:chillyflix/Pages/SearchPage.dart';
 import 'package:chillyflix/Tabs/HomeTab.dart';
-import 'package:chillyflix/Tabs/ShowsTab.dart';
-import 'package:chillyflix/Tabs/MoviesTab.dart';
+import 'package:chillyflix/Tabs/ItemsTab.dart';
 import 'package:flutter/material.dart';
-
+import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key, this.title}) : super(key: key);
-
+  HomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
@@ -16,8 +14,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _counter = 0;
-
   @override
   void initState() {
     super.initState();
@@ -26,42 +22,69 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-        length: 3,
-        child: Scaffold(
-          backgroundColor: Color.fromARGB(255, 35, 40, 50),
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            title: Row(
-              children: <Widget>[
-                Text(widget.title),
-                SizedBox(width: 50),
-                TabBar(
-                  isScrollable: true,
-                  indicatorColor: Color.fromARGB(255, 255, 60, 70),
-                  tabs: <Widget>[
-                    Tab(text: 'Home'),
-                    Tab(text: 'Movies'),
-                    Tab(text: 'Shows'),
-                  ],
-                )
-              ],
-            ),
-            actions: <Widget>[
-              IconButton(icon: Icon(Icons.search),onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()));}),
-              IconButton(icon: Icon(Icons.settings),onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()));}),
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          // backgroundColor: Colors.transparent,
+          // elevation: 6,
+          toolbarHeight: 84,
+          bottomOpacity: 0.0,
+          title: Row(
+            children: <Widget>[
+              Text(
+                widget.title,
+                style: GoogleFonts.gloriaHallelujah(fontSize: 24.0),
+              ),
+              SizedBox(width: 50),
+              TabBar(
+                indicator: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6.0),
+                ),
+                labelStyle: GoogleFonts.sourceSansPro(fontSize: 20.0),
+                overlayColor: MaterialStateProperty.resolveWith((states) {
+                  const Set<MaterialState> interactiveStates = {
+                    MaterialState.pressed,
+                    MaterialState.hovered,
+                    MaterialState.focused,
+                  };
+                  if (states.any(interactiveStates.contains)) {
+                    return Colors.white.withAlpha(100);
+                  }
+                  return Colors.teal;
+                }),
+                labelColor: Colors.black,
+                unselectedLabelColor: Colors.white,
+                isScrollable: true,
+                // indicatorColor: Color.fromARGB(255, 255, 60, 70),
+                tabs: <Widget>[
+                  Tab(text: 'Home', icon: Icon(Icons.home)),
+                  Tab(text: 'Movies', icon: Icon(Icons.movie)),
+                  Tab(text: 'Shows', icon: Icon(Icons.tv)),
+                ],
+              ),
             ],
           ),
-          body: Center(
-            child: TabBarView(
-              children: <Widget>[
-                HomeTab(),
-                MoviesTab(),
-                ShowsTab(),
-              ],
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.search),
+              focusColor: Colors.white.withAlpha(100),
+              onPressed: () {
+                Navigator.pushNamed(context, "/search");
+              },
             ),
+          ],
+        ),
+        body: Center(
+          child: TabBarView(
+            children: <Widget>[
+              HomeTab(),
+              ItemsTab("movie"),
+              ItemsTab("series"),
+            ],
           ),
         ),
+      ),
     );
   }
 }

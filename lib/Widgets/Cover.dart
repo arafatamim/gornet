@@ -1,95 +1,92 @@
+import 'package:chillyflix/Models/FtpbdModel.dart';
+import 'package:chillyflix/Services/FtpbdService.dart';
+import 'package:chillyflix/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-
-import 'package:chillyflix/Pages/DetailPage.dart';
-import 'package:chillyflix/Services/FanartService.dart';
-import 'package:chillyflix/Services/TraktService.dart';
+Widget coverListView(
+  BuildContext context,
+  String endpoint, {
+  bool showIcon = false,
+  VoidCallback? onRefresh,
+}) {
+  return FutureBuilder<List<SearchResult>>(
+    future: Provider.of<FtpbdService>(context).search(endpoint, limit: 6),
+    builder: (context, snapshot) {
+      switch (snapshot.connectionState) {
+        case ConnectionState.waiting:
+          return Center(child: CircularProgressIndicator());
+        case ConnectionState.done:
+          if (snapshot.hasData && snapshot.data?.length != 0) {
+            final items = snapshot.data!;
+            return OrientationBuilder(builder: (context, orientation) {
+              int itemCount = orientation == Orientation.landscape ? 3 : 6;
+              return GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: itemCount,
+                  childAspectRatio: 0.55,
+                ),
+                itemCount: itemCount,
+                shrinkWrap: true,
+                itemBuilder: (BuildContext context, int index) {
+                  SearchResult item = items[index];
+                  return Cover(
+                    searchResult: item,
+                    showIcon: showIcon,
+                    onTap: () {
+                      Navigator.pushNamed(context, "/detail", arguments: item);
+                    },
+                  );
+                },
+              );
+            });
+          } else {
+            return Center(
+              child: buildError(
+                snapshot.error?.toString() ?? "Error fetching data",
+                onRefresh: onRefresh,
+              ),
+            );
+          }
+        default:
+          return Container();
+      }
+    },
+  );
+}
 
 class Cover extends StatefulWidget {
+  final SearchResult searchResult;
+  final bool showIcon;
+
+  final Function onTap;
+  final Function? onFocus;
   const Cover({
-    Key key,
-    @required this.item,
-    @required this.onTap,
+    Key? key,
+    required this.searchResult,
+    required this.showIcon,
+    required this.onTap,
     this.onFocus,
   }) : super(key: key);
-
-  final TraktModel item;
-  final Function onTap;
-  final Function onFocus;
-
 
   @override
   _CoverState createState() => _CoverState();
 }
 
-class _CoverState extends State<Cover> with SingleTickerProviderStateMixin  {
-
-  FocusNode _node;
-  AnimationController _controller;
-  Animation<double> _animation;
+class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
+  late FocusNode _node;
+  late AnimationController _controller;
+  late Animation<double> _animation;
   int _focusAlpha = 100;
-
-  Widget image;
-
-  @override
-  void initState() {
-    _node = FocusNode();
-    _node.addListener(_onFocusChange);
-    _controller = AnimationController(duration: const Duration(milliseconds: 100), vsync: this, lowerBound: 0.9, upperBound: 1);
-    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _node.dispose();
-    super.dispose();
-  }
-
-  void _onFocusChange() {
-      if(_node.hasFocus) {
-        _controller.forward();
-        if(widget.onFocus != null) {
-          widget.onFocus();
-        }
-    } else {
-        _controller.reverse();
-      }
-  }
-
-  void _onTap() {
-    _node.requestFocus();
-    if(widget.onTap != null) {
-      widget.onTap();
-    }
-  }
-
-  // void _openDetails() {
-  //   Navigator.push(context, MaterialPageRoute(builder: (context) => DetailPage(widget.item)));
-  // }
-
-
-  // bool _onKey(FocusNode node, RawKeyEvent event) {
-  //   if(event is RawKeyDownEvent) {
-  //     if(event.logicalKey == LogicalKeyboardKey.select || event.logicalKey == LogicalKeyboardKey.enter) {
-  //       _onTap();
-  //       return true;
-  //     } else {
-  //       return false;
-  //     }
-  //   }
-  //   return false;
-  // }
-
 
   @override
   Widget build(BuildContext context) {
-
     return RawMaterialButton(
+      key: ValueKey(
+        widget.searchResult,
+      ), // Necessary otherwise image doesn't change
       onPressed: _onTap,
       focusNode: _node,
       focusColor: Colors.transparent,
@@ -108,18 +105,16 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin  {
     // );
   }
 
-  
-
   Widget buildCover(BuildContext context) {
-    return  ScaleTransition(
-      scale: _animation, 
+    return ScaleTransition(
+      scale: _animation,
       alignment: Alignment.center,
       child: GestureDetector(
         onTap: _onTap,
         child: Column(
           children: <Widget>[
             Container(
-              child: buildPosterImage(context),
+              child: buildPosterImage(context, widget.searchResult.imageUris),
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
@@ -127,77 +122,141 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin  {
                     blurRadius: 15,
                     offset: Offset(10, 15),
                   )
-                ]
+                ],
               ),
             ),
-            SizedBox(height: 5),
-            Align(child: Text(widget.item.title, maxLines: 1, style: TextStyle(color: Colors.white),), alignment: Alignment.topLeft,),
-            Align(child: Text(widget.item.year.toString(), style: TextStyle(color: Color.fromARGB(70, 255, 255, 255), fontSize: 10)), alignment: Alignment.topLeft,),
+            SizedBox(height: 10),
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 11,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.searchResult.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.fade,
+                          softWrap: false,
+                          style: GoogleFonts.sourceSansPro(
+                            color: Colors.white,
+                            fontSize: 20,
+                          ),
+                        ),
+                        if (widget.searchResult.year != null)
+                          Text(
+                            widget.searchResult.year!.toString(),
+                            style: GoogleFonts.sourceSansPro(
+                              color: Colors.grey.shade300,
+                              fontSize: 18,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  if (widget.showIcon) ...[
+                    Spacer(),
+                    Icon(
+                      widget.searchResult.isMovie ? Icons.movie : Icons.tv,
+                      color: Colors.white,
+                    )
+                  ]
+                ],
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  FutureProvider<FanartItem> buildPosterImage(BuildContext context) {
-    return FutureProvider<FanartItem>(
-      create: (_) => Provider.of<FanartService>(context).getImages(widget.item),
-      child: Consumer<FanartItem>(
-        builder: (context, fanart, _) {
-          if(fanart != null && fanart.poster != null) {
-            widget.item.fanart = fanart;
-            return FadeInImage.memoryNetwork(
+  Widget buildPosterImage(BuildContext context, ImageUris? imageUris) {
+    return Container(
+      child: (imageUris != null && imageUris.primary != null)
+          ? FadeInImage.memoryNetwork(
+              key: Key(imageUris.primary!),
               placeholder: kTransparentImage,
-              image: widget.item.fanart.poster,
-              fit: BoxFit.fill,
-            );
-          } else {
-            return Image.memory(kTransparentImage, fit: BoxFit.fill);
-            // return Image.memory(kTransparentImage);
-          }
-        },
-      ),
+              image: imageUris.primary!,
+              fit: BoxFit.cover,
+            )
+          : ConstrainedBox(
+              constraints: BoxConstraints.expand(),
+              child: Container(
+                decoration: BoxDecoration(color: Colors.blue.shade900),
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      '${widget.searchResult.name} (${widget.searchResult.year})',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.oswald(
+                          fontSize: 24, color: Colors.grey.shade400),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+      height: 350.0,
     );
   }
-}
 
-
-
-Widget CoverListView(BuildContext context, String endpoint) {
-
-    
-  return FutureProvider<List<TraktModel>>(
-    create: (_) {
-      switch (endpoint) {
-        case 'movies': return Provider.of<TraktService>(context).getMovies(6);
-        case 'shows': return Provider.of<TraktService>(context).getShows(6);
-      }
-    },
-    child: Consumer<List<TraktModel>>(
-      builder: (context,items,_) {
-        if(items != null) {
-          return OrientationBuilder(
-            builder: (context, orientation) {
-              int itemCount = orientation == Orientation.landscape ? 3 : 6;
-              return GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: itemCount, childAspectRatio: 0.55),
-                itemCount: itemCount,
-                shrinkWrap: true,
-                itemBuilder: (BuildContext context, int index) {
-                  TraktModel item = items[index];
-                  return Cover(item: item, onTap: () { Navigator.push(context, MaterialPageRoute(builder: (context) => DetailPage(item)));},);
-                },
-              );
-            });
-        }
-        return Text('loading');
-      },
-    ),
-  );
-
-    
-    
+  @override
+  void dispose() {
+    _controller.dispose();
+    _node.dispose();
+    super.dispose();
   }
 
+  // void _openDetails() {
+  //   Navigator.push(context, MaterialPageRoute(builder: (context) => DetailPage(widget.item)));
+  // }
 
-  
+  // bool _onKey(FocusNode node, RawKeyEvent event) {
+  //   if(event is RawKeyDownEvent) {
+  //     if(event.logicalKey == LogicalKeyboardKey.select || event.logicalKey == LogicalKeyboardKey.enter) {
+  //       _onTap();
+  //       return true;
+  //     } else {
+  //       return false;
+  //     }
+  //   }
+  //   return false;
+  // }
+
+  @override
+  void initState() {
+    _node = FocusNode();
+    _node.addListener(_onFocusChange);
+    _controller = AnimationController(
+        duration: const Duration(milliseconds: 100),
+        vsync: this,
+        lowerBound: 0.9,
+        upperBound: 1);
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    super.initState();
+  }
+
+  void _onFocusChange() {
+    Scrollable.ensureVisible(
+      _node.context!,
+      alignment: 1.0,
+      alignmentPolicy: ScrollPositionAlignmentPolicy.explicit,
+    );
+
+    if (_node.hasFocus) {
+      _controller.forward();
+      if (widget.onFocus != null) {
+        widget.onFocus!();
+      }
+    } else {
+      _controller.reverse();
+    }
+  }
+
+  void _onTap() {
+    _node.requestFocus();
+    widget.onTap();
+  }
+}
