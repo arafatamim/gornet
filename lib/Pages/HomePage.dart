@@ -1,4 +1,3 @@
-import 'package:chillyflix/Pages/SearchPage.dart';
 import 'package:chillyflix/Tabs/HomeTab.dart';
 import 'package:chillyflix/Tabs/ItemsTab.dart';
 import 'package:flutter/material.dart';

@@ -43,6 +43,11 @@ class MediaSource {
         fileName = json["fileName"],
         fileSize = json["fileSize"],
         streamUri = json["streamUri"];
+
+  static List<MediaSource> fromList(List<dynamic> payload) =>
+      List<Map<String, dynamic>>.from(payload)
+          .map((item) => MediaSource.fromJson(item))
+          .toList();
 }
 
 class Media {
@@ -173,10 +178,9 @@ class Episode {
   final int? index;
   final String name;
   final String? synopsis;
-  final Duration runtime;
+  final Duration? runtime;
   final DateTime? airDate;
   final ImageUris imageUris;
-  final List<MediaSource> mediaSources;
 
   Episode.fromJson(Map<String, dynamic> json)
       : id = json["id"],
@@ -185,11 +189,10 @@ class Episode {
         index = json["index"],
         name = json["name"],
         synopsis = json["synopsis"],
-        runtime = Duration(milliseconds: json['runtime'].toInt()),
+        runtime = json["runtime"] != null
+            ? Duration(milliseconds: json['runtime'].toInt())
+            : null,
         airDate =
             json["airDate"] != null ? DateTime.parse(json["airDate"]) : null,
-        imageUris = ImageUris.fromJson(json["imageUris"]),
-        mediaSources = List<Map<String, dynamic>>.from(json["mediaSources"])
-            .map((item) => MediaSource.fromJson(item))
-            .toList();
+        imageUris = ImageUris.fromJson(json["imageUris"]);
 }

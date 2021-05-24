@@ -4,7 +4,7 @@ import 'package:chillyflix/Models/FtpbdModel.dart';
 import 'package:http/http.dart' as http;
 
 class FtpbdService {
-  String baseUrl = "192.168.0.100:3000";
+  String baseUrl = "192.168.0.100:6565";
 
   /// [endpoint] must be `movie` or `series`
   Future<List<SearchResult>> search(String endpoint,
@@ -77,6 +77,18 @@ class FtpbdService {
       return payload.map((e) => Episode.fromJson(e)).toList();
     } else {
       throw Exception("Unhandled status when fetching episodes");
+    }
+  }
+
+  Future<List<MediaSource>> getSources(String id) async {
+    final res = await http.get(Uri.http(baseUrl, "/api/v2/sources/$id"));
+
+    if (res.statusCode == 200) {
+      Map decoded = json.decode(res.body);
+      List payload = decoded['payload'];
+      return MediaSource.fromList(payload);
+    } else {
+      throw Exception("Unhandled status when fetching sources");
     }
   }
 }

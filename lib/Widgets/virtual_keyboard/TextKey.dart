@@ -26,13 +26,13 @@ class _TextKeyState extends State<TextKey> with TickerProviderStateMixin {
   late FocusNode _node;
   late Color _primaryColor;
   late Color _textColor;
-  late Color _mutedTextColor;
+  // late Color _mutedTextColor;
 
   @override
   void initState() {
     _primaryColor = widget.style.primaryColor;
     _textColor = widget.style.textColor;
-    _mutedTextColor = widget.style.mutedTextColor;
+    // _mutedTextColor = widget.style.mutedTextColor;
 
     _node = FocusNode();
     _node.addListener(_onFocusChange);
@@ -45,13 +45,13 @@ class _TextKeyState extends State<TextKey> with TickerProviderStateMixin {
       setState(() {
         _primaryColor = widget.style.focusPrimaryColor;
         _textColor = widget.style.focusTextColor;
-        _mutedTextColor = widget.style.focusMutedTextColor;
+        // _mutedTextColor = widget.style.focusMutedTextColor;
       });
     } else {
       setState(() {
         _primaryColor = widget.style.primaryColor;
         _textColor = widget.style.textColor;
-        _mutedTextColor = widget.style.mutedTextColor;
+        // _mutedTextColor = widget.style.mutedTextColor;
       });
     }
   }

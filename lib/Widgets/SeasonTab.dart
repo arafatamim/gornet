@@ -60,28 +60,30 @@ class _SeasonTabState extends State<SeasonTab>
       child: GestureDetector(
         onTap: _onTap,
         child: Container(
-          padding: EdgeInsets.all(4),
+          padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
             color: _primaryColor,
           ),
           child: Column(
             children: <Widget>[
-              if (widget.season.imageUris?.primary != null) ...[
-                Container(
+              SizedBox(
+                height: 150,
+                width: 100,
+                child: Container(
                   child: buildPosterImage(context, widget.season.imageUris),
                   decoration: BoxDecoration(
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withAlpha(50),
                         blurRadius: 15,
-                        offset: Offset(5, 5),
+                        offset: const Offset(5, 5),
                       )
                     ],
                   ),
                 ),
-                SizedBox(height: 10),
-              ],
+              ),
+              const SizedBox(height: 10),
               Expanded(
                 child: Text(
                   widget.season.name,
@@ -113,23 +115,22 @@ class _SeasonTabState extends State<SeasonTab>
           : ConstrainedBox(
               constraints: BoxConstraints.expand(),
               child: Container(
-                decoration: BoxDecoration(color: Colors.blue.shade900),
+                decoration:
+                    BoxDecoration(color: Theme.of(context).primaryColor),
                 child: Center(
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      '${widget.season.name}',
+                      widget.season.index?.toString() ?? "?",
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.oswald(
-                        fontSize: 24,
-                        color: Colors.grey.shade400,
-                      ),
+                      style: Theme.of(context).textTheme.headline1?.apply(
+                            color: Colors.grey.shade800,
+                          ),
                     ),
                   ),
                 ),
               ),
             ),
-      height: 150.0,
     );
   }
 

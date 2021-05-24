@@ -10,7 +10,6 @@ import 'package:duration/duration.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import "package:remote_state/remote_state.dart";
 
 class Episodes extends StatefulWidget {
   final Season season;
@@ -162,15 +161,16 @@ class EpisodeDetails extends StatelessWidget {
                 const SizedBox(height: 15),
                 Row(
                   children: [
-                    ...buildLabel(
-                      printDuration(
-                        episode.runtime,
-                        tersity: DurationTersity.minute,
-                        abbreviated: true,
-                        delimiter: " ",
+                    if (episode.runtime != null)
+                      ...buildLabel(
+                        printDuration(
+                          episode.runtime!,
+                          tersity: DurationTersity.minute,
+                          abbreviated: true,
+                          delimiter: " ",
+                        ),
+                        icon: Icons.timer,
                       ),
-                      icon: Icons.timer,
-                    ),
                     if (episode.airDate != null)
                       ...buildLabel(
                         "Aired on ${episode.airDate!.year}-${episode.airDate!.month}-${episode.airDate!.day}",
@@ -192,40 +192,69 @@ class EpisodeDetails extends StatelessWidget {
           ),
           const Spacer(),
           Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Spacer(),
-                for (final source in episode.mediaSources)
-                  Expanded(
-                    child: RoundedCard(
-                      title: source.displayName +
-                          ", " +
-                          formatBytes(source.fileSize),
-                      subtitle: source.fileName,
-                      style: const RoundedCardStyle(),
-                      onTap: () {
-                        try {
-                          if (Platform.isAndroid) {
-                            final AndroidIntent intent = AndroidIntent(
-                              action: 'action_view',
-                              data: source.streamUri,
-                              type: "video/*",
-                            );
-                            intent.launch();
-                          }
-                        } on UnsupportedError {
-                          print("It's the web!");
-                        }
-                      },
-                    ),
-                  ),
-                const Spacer()
-              ],
-            ),
-          )
+            child: EpisodeSources(episode.id),
+          ),
         ],
       ),
+    );
+  }
+}
+
+class EpisodeSources extends StatelessWidget {
+  final String id;
+
+  const EpisodeSources(this.id);
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<MediaSource>>(
+      future: Provider.of<FtpbdService>(context).getSources(id),
+      builder: (context, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return Center(child: CircularProgressIndicator());
+          case ConnectionState.done:
+            if (snapshot.hasData) {
+              final mediaSources = snapshot.data!;
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(),
+                  for (final source in mediaSources)
+                    Expanded(
+                      child: RoundedCard(
+                        title: source.displayName +
+                            ", " +
+                            formatBytes(source.fileSize),
+                        subtitle: source.fileName,
+                        style: const RoundedCardStyle(),
+                        onTap: () {
+                          try {
+                            if (Platform.isAndroid) {
+                              final AndroidIntent intent = AndroidIntent(
+                                action: 'action_view',
+                                data: source.streamUri,
+                                type: "video/*",
+                              );
+                              intent.launch();
+                            }
+                          } on UnsupportedError {
+                            print("It's the web!");
+                          }
+                        },
+                      ),
+                    ),
+                  const Spacer()
+                ],
+              );
+            } else {
+              return buildError(
+                snapshot.error?.toString() ?? "No sources available",
+              );
+            }
+          default:
+            return Container();
+        }
+      },
     );
   }
 }

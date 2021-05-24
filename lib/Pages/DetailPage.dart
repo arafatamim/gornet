@@ -186,7 +186,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
-              return Center(child: CircularProgressIndicator());
+              return const Center(child: const CircularProgressIndicator());
             case ConnectionState.done:
               if (snapshot.hasData) {
                 return _buildSeasons(snapshot.data!);
@@ -236,14 +236,16 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: <Widget>[for (var season in seasons) Episodes(season)],
+              children: <Widget>[
+                for (final season in seasons) Episodes(season)
+              ],
             ),
           ),
         ],
       );
     } else
-      return Center(
-        child: CircularProgressIndicator(),
+      return const Center(
+        child: const CircularProgressIndicator(),
       );
   }
 

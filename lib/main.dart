@@ -4,7 +4,6 @@ import 'package:chillyflix/Pages/SearchPage.dart';
 import 'package:chillyflix/theme/modern.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'package:chillyflix/Pages/HomePage.dart';

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:chillyflix/Models/FtpbdModel.dart';
-import 'package:chillyflix/Pages/DetailPage.dart';
 import 'package:chillyflix/Services/FtpbdService.dart';
 import 'package:chillyflix/Widgets/Cover.dart';
 import 'package:chillyflix/Widgets/virtual_keyboard/virtual_keyboard.dart';
