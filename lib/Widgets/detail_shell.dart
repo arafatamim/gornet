@@ -50,9 +50,7 @@ class _DetailShellState extends State<DetailShell>
                         ),
                 ),
                 SizedBox(height: 20),
-                AnimatedPositioned(
-                    duration: Duration(milliseconds: 200),
-                    child: Row(children: widget.meta)),
+                Row(children: widget.meta),
                 if (widget.genres?.length != 0) ...[
                   SizedBox(height: 20),
                   Align(
