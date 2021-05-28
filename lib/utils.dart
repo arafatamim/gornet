@@ -1,5 +1,6 @@
 import 'dart:math' as Math;
 import 'package:flutter/material.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 String formatBytes(int bytes, {int decimals = 1}) {
@@ -13,30 +14,54 @@ String formatBytes(int bytes, {int decimals = 1}) {
   return finalSize + " " + sizes[i];
 }
 
-List<Widget> buildLabel(String label, {IconData? icon, String? imageAsset}) {
-  return [
-    if (icon != null) ...[
-      Icon(
-        icon,
-        color: Colors.white,
-        size: 30,
-      ),
-      SizedBox(width: 10),
-    ],
-    if (imageAsset != null) ...[
-      Image.asset(
-        imageAsset,
-        width: 30,
-        height: 30,
-      ),
-      SizedBox(width: 10),
-    ],
-    Text(
-      label,
-      style: TextStyle(color: Colors.white, fontSize: 16),
+Widget buildLabel(
+  String label, {
+  IconData? icon,
+  String? imageAsset,
+  bool hasBackground = false,
+}) {
+  return Container(
+    child: Row(
+      children: [
+        if (icon != null) ...[
+          Icon(
+            icon,
+            color: Colors.white,
+            size: 25,
+          ),
+          SizedBox(width: 10),
+        ],
+        if (imageAsset != null) ...[
+          Image.asset(
+            imageAsset,
+            width: 30,
+            height: 30,
+          ),
+          SizedBox(width: 10),
+        ],
+        Container(
+          padding: hasBackground
+              ? EdgeInsets.symmetric(horizontal: 10, vertical: 6)
+              : null,
+          decoration: hasBackground
+              ? BoxDecoration(
+                  color: Colors.grey.shade900.withAlpha(200),
+                  borderRadius: BorderRadius.circular(6),
+                )
+              : null,
+          child: Text(
+            label,
+            style: GoogleFonts.sourceSansPro(
+              color:
+                  hasBackground ? Colors.grey.shade300 : Colors.grey.shade200,
+              fontSize: hasBackground ? 16 : 18,
+            ),
+          ),
+        ),
+        SizedBox(width: 30),
+      ],
     ),
-    SizedBox(width: 30),
-  ];
+  );
 }
 
 Widget buildError(String message, {VoidCallback? onRefresh}) {
@@ -50,7 +75,7 @@ Widget buildError(String message, {VoidCallback? onRefresh}) {
       if (onRefresh != null)
         TextButton.icon(
           onPressed: onRefresh,
-          icon: Icon(Icons.refresh),
+          icon: Icon(FeatherIcons.refreshCcw),
           label: Text("Refresh"),
           style: ButtonStyle(
             textStyle: MaterialStateProperty.all(
@@ -60,4 +85,13 @@ Widget buildError(String message, {VoidCallback? onRefresh}) {
         )
     ],
   );
+}
+
+T coalesceException<T>(T Function() func, T defaultValue) {
+  try {
+    return func();
+  } catch (e) {
+    print(e);
+    return defaultValue;
+  }
 }

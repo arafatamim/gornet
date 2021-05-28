@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class DetailShell extends StatefulWidget {
   final String title;
+  final String? logoUrl;
   final List<String>? genres;
   final String? synopsis;
   final List<Widget> meta;
@@ -10,6 +12,7 @@ class DetailShell extends StatefulWidget {
 
   DetailShell({
     required this.title,
+    this.logoUrl,
     this.genres,
     this.synopsis,
     required this.meta,
@@ -36,13 +39,20 @@ class _DetailShellState extends State<DetailShell>
               children: <Widget>[
                 Align(
                   alignment: Alignment.topLeft,
-                  child: Text(
-                    widget.title,
-                    style: Theme.of(context).textTheme.headline1,
-                  ),
+                  child: widget.logoUrl != null
+                      ? FadeInImage.memoryNetwork(
+                          image: widget.logoUrl!,
+                          placeholder: kTransparentImage,
+                        )
+                      : Text(
+                          widget.title,
+                          style: Theme.of(context).textTheme.headline1,
+                        ),
                 ),
                 SizedBox(height: 20),
-                Row(children: widget.meta),
+                AnimatedPositioned(
+                    duration: Duration(milliseconds: 200),
+                    child: Row(children: widget.meta)),
                 if (widget.genres?.length != 0) ...[
                   SizedBox(height: 20),
                   Align(
@@ -63,11 +73,7 @@ class _DetailShellState extends State<DetailShell>
                       widget.synopsis.toString(),
                       maxLines: 10,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.sourceSansPro(
-                        color: Colors.white,
-                        fontSize: 18,
-                        height: 1.5,
-                      ),
+                      style: Theme.of(context).textTheme.bodyText1,
                     ),
                   ),
                 ],
@@ -75,6 +81,7 @@ class _DetailShellState extends State<DetailShell>
               ],
             ),
           ),
+          SizedBox(width: 50),
           Flexible(
             flex: 5,
             child: widget.child,

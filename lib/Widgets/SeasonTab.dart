@@ -68,8 +68,8 @@ class _SeasonTabState extends State<SeasonTab>
           child: Column(
             children: <Widget>[
               SizedBox(
-                height: 150,
-                width: 100,
+                height: 160,
+                width: 120,
                 child: Container(
                   child: buildPosterImage(context, widget.season.imageUris),
                   decoration: BoxDecoration(
@@ -124,7 +124,7 @@ class _SeasonTabState extends State<SeasonTab>
                       widget.season.index?.toString() ?? "?",
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headline1?.apply(
-                            color: Colors.grey.shade800,
+                            color: Colors.grey.shade400,
                           ),
                     ),
                   ),

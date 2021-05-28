@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:chillyflix/Models/FtpbdModel.dart';
 import 'package:chillyflix/Services/FtpbdService.dart';
 import 'package:chillyflix/Widgets/Cover.dart';
+import 'package:chillyflix/Widgets/RoundedCard.dart';
 import 'package:chillyflix/Widgets/virtual_keyboard/virtual_keyboard.dart';
 import 'package:chillyflix/utils.dart';
 import 'package:flutter/material.dart';
@@ -61,9 +63,19 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Shortcuts(
-      // needed for AndroidTV to be able to select
       shortcuts: {LogicalKeySet(LogicalKeyboardKey.select): ActivateIntent()},
       child: Scaffold(
+        floatingActionButton: coalesceException(
+          () => Platform.isLinux
+              ? FloatingActionButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Icon(Icons.arrow_back),
+                )
+              : null,
+          null,
+        ),
+        floatingActionButtonLocation:
+            FloatingActionButtonLocation.miniStartFloat,
         body: Container(
           child: Padding(
             padding: const EdgeInsets.all(32.0),
@@ -148,7 +160,7 @@ class _SearchPageState extends State<SearchPage> {
       case ConnectionState.active:
       case ConnectionState.done:
         if (snapshot.hasData && snapshot.data!.length > 0) {
-          return _buildGridView(context, snapshot.data!);
+          return _buildResultsList(context, snapshot.data!);
         } else if (snapshot.hasError) {
           return Center(
             child: buildError(
@@ -164,7 +176,7 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-  Widget _buildGridView(BuildContext context, List<SearchResult> values) {
+  Widget _buildResultsList(BuildContext context, List<SearchResult> values) {
     return ListView.builder(
       scrollDirection: Axis.horizontal,
       itemCount: values.length,
@@ -176,6 +188,13 @@ class _SearchPageState extends State<SearchPage> {
           child: Cover(
             searchResult: item,
             showIcon: true,
+            style: RoundedCardStyle(
+              primaryColor: Colors.transparent,
+              textColor: Colors.grey.shade400,
+              focusTextColor: Colors.white,
+              mutedTextColor: Colors.grey.shade600,
+              focusMutedTextColor: Colors.grey.shade300,
+            ),
             onTap: () {
               Navigator.pushNamed(context, "/detail", arguments: item);
             },

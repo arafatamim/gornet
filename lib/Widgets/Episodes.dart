@@ -8,6 +8,7 @@ import 'package:chillyflix/Widgets/RoundedCard.dart';
 import 'package:chillyflix/utils.dart';
 import 'package:duration/duration.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -57,7 +58,7 @@ class _EpisodesState extends State<Episodes>
             episodes[index].index?.toString() ?? "?",
             style: GoogleFonts.sourceSansPro(
               fontSize: 25,
-              color: Colors.amber,
+              color: Theme.of(context).colorScheme.secondary,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -73,7 +74,7 @@ class _EpisodesState extends State<Episodes>
               useRootNavigator: true,
               isDismissible: false,
               routeSettings: const RouteSettings(name: "episode"),
-              backgroundColor: Colors.blueGrey.withAlpha(220),
+              backgroundColor: Colors.transparent,
               context: context,
               builder: (context) {
                 return _buildSheet(episodes[index]);
@@ -105,14 +106,14 @@ class _EpisodesState extends State<Episodes>
           ), 
         */
         Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            // color: Colors.white,
             gradient: LinearGradient(
               begin: FractionalOffset.centerLeft,
               end: FractionalOffset.centerRight,
               colors: [
-                Colors.blueGrey,
-                Colors.transparent,
+                Theme.of(context).colorScheme.primary,
+                Theme.of(context).colorScheme.secondary.withAlpha(200),
               ],
               stops: [0.0, 1.0],
             ),
@@ -143,11 +144,7 @@ class EpisodeDetails extends StatelessWidget {
                   episode.name,
                   maxLines: 3,
                   softWrap: true,
-                  style: GoogleFonts.oswald(
-                    fontSize: 40,
-                    color: Colors.white,
-                    height: 1,
-                  ),
+                  style: Theme.of(context).textTheme.headline2,
                 ),
                 const SizedBox(height: 6),
                 if (season.index != null && episode.index != null)
@@ -162,17 +159,17 @@ class EpisodeDetails extends StatelessWidget {
                 Row(
                   children: [
                     if (episode.runtime != null)
-                      ...buildLabel(
+                      buildLabel(
                         printDuration(
                           episode.runtime!,
                           tersity: DurationTersity.minute,
                           abbreviated: true,
                           delimiter: " ",
                         ),
-                        icon: Icons.timer,
+                        icon: FeatherIcons.clock,
                       ),
                     if (episode.airDate != null)
-                      ...buildLabel(
+                      buildLabel(
                         "Aired on ${episode.airDate!.year}-${episode.airDate!.month}-${episode.airDate!.day}",
                       ),
                   ],
@@ -215,35 +212,31 @@ class EpisodeSources extends StatelessWidget {
           case ConnectionState.done:
             if (snapshot.hasData) {
               final mediaSources = snapshot.data!;
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+              return ListView(
+                shrinkWrap: true,
                 children: [
-                  const Spacer(),
                   for (final source in mediaSources)
-                    Expanded(
-                      child: RoundedCard(
-                        title: source.displayName +
-                            ", " +
-                            formatBytes(source.fileSize),
-                        subtitle: source.fileName,
-                        style: const RoundedCardStyle(),
-                        onTap: () {
-                          try {
-                            if (Platform.isAndroid) {
-                              final AndroidIntent intent = AndroidIntent(
-                                action: 'action_view',
-                                data: source.streamUri,
-                                type: "video/*",
-                              );
-                              intent.launch();
-                            }
-                          } on UnsupportedError {
-                            print("It's the web!");
+                    RoundedCard(
+                      title: source.displayName +
+                          ", " +
+                          formatBytes(source.fileSize),
+                      subtitle: source.fileName,
+                      style: const RoundedCardStyle(),
+                      onTap: () {
+                        try {
+                          if (Platform.isAndroid) {
+                            final AndroidIntent intent = AndroidIntent(
+                              action: 'action_view',
+                              data: source.streamUri,
+                              type: "video/*",
+                            );
+                            intent.launch();
                           }
-                        },
-                      ),
+                        } on UnsupportedError {
+                          print("It's the web!");
+                        }
+                      },
                     ),
-                  const Spacer()
                 ],
               );
             } else {

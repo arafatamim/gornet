@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class RoundedCardStyle {
@@ -138,7 +139,7 @@ class _RoundedCardState extends State<RoundedCard>
                   child: widget.leading != null
                       ? widget.leading
                       : Icon(
-                          Icons.play_arrow,
+                          FeatherIcons.playCircle,
                           color: _textColor,
                         ),
                 ),

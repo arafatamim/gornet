@@ -1,73 +1,95 @@
 import 'package:chillyflix/Models/FtpbdModel.dart';
-import 'package:chillyflix/Services/FtpbdService.dart';
+import 'package:chillyflix/Widgets/RoundedCard.dart';
+import 'package:chillyflix/Widgets/shimmers.dart';
 import 'package:chillyflix/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-Widget coverListView(
-  BuildContext context,
-  String endpoint, {
-  bool showIcon = false,
-  VoidCallback? onRefresh,
-}) {
-  return FutureBuilder<List<SearchResult>>(
-    future: Provider.of<FtpbdService>(context).search(endpoint, limit: 6),
-    builder: (context, snapshot) {
-      switch (snapshot.connectionState) {
-        case ConnectionState.waiting:
-          return Center(child: CircularProgressIndicator());
-        case ConnectionState.done:
-          if (snapshot.hasData && snapshot.data?.length != 0) {
-            final items = snapshot.data!;
-            return OrientationBuilder(builder: (context, orientation) {
-              int itemCount = orientation == Orientation.landscape ? 3 : 6;
-              return GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: itemCount,
-                  childAspectRatio: 0.55,
+class CoverListView extends StatefulWidget {
+  final Future<List<SearchResult>> results;
+  final bool showIcon;
+
+  const CoverListView({required this.results, this.showIcon = false});
+
+  @override
+  State<CoverListView> createState() => _CoverListViewState();
+}
+
+class _CoverListViewState extends State<CoverListView> {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<SearchResult>>(
+      future: widget.results,
+      builder: (context, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return ShimmerList(itemCount: 6);
+          case ConnectionState.done:
+            if (snapshot.hasData && snapshot.data?.length != 0) {
+              final items = snapshot.data!;
+              return OrientationBuilder(builder: (context, orientation) {
+                int itemCount = orientation == Orientation.landscape ? 3 : 6;
+                return GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: itemCount,
+                    childAspectRatio: 0.5,
+                  ),
+                  itemCount: itemCount,
+                  shrinkWrap: true,
+                  itemBuilder: (BuildContext context, int index) {
+                    SearchResult item = items[index];
+                    return Cover(
+                      searchResult: item,
+                      showIcon: widget.showIcon,
+                      style: RoundedCardStyle(
+                        primaryColor: Colors.transparent,
+                        textColor: Colors.grey.shade400,
+                        focusTextColor: Colors.white,
+                        mutedTextColor: Colors.grey.shade600,
+                        focusMutedTextColor: Colors.grey.shade300,
+                      ),
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          "/detail",
+                          arguments: item,
+                        );
+                      },
+                    );
+                  },
+                );
+              });
+            } else {
+              return Center(
+                child: buildError(
+                  snapshot.error?.toString() ?? "Error fetching data",
+                  onRefresh: () => setState(() {}),
                 ),
-                itemCount: itemCount,
-                shrinkWrap: true,
-                itemBuilder: (BuildContext context, int index) {
-                  SearchResult item = items[index];
-                  return Cover(
-                    searchResult: item,
-                    showIcon: showIcon,
-                    onTap: () {
-                      Navigator.pushNamed(context, "/detail", arguments: item);
-                    },
-                  );
-                },
               );
-            });
-          } else {
-            return Center(
-              child: buildError(
-                snapshot.error?.toString() ?? "Error fetching data",
-                onRefresh: onRefresh,
-              ),
-            );
-          }
-        default:
-          return Container();
-      }
-    },
-  );
+            }
+          default:
+            return Container();
+        }
+      },
+    );
+  }
 }
 
 class Cover extends StatefulWidget {
   final SearchResult searchResult;
   final bool showIcon;
-
+  final RoundedCardStyle style;
   final Function onTap;
   final Function? onFocus;
+
   const Cover({
     Key? key,
     required this.searchResult,
     required this.showIcon,
     required this.onTap,
+    this.style = const RoundedCardStyle(),
     this.onFocus,
   }) : super(key: key);
 
@@ -79,7 +101,10 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
   late FocusNode _node;
   late AnimationController _controller;
   late Animation<double> _animation;
-  int _focusAlpha = 100;
+  int _focusAlpha = 60;
+  late Color _primaryColor;
+  late Color _textColor;
+  late Color _mutedTextColor;
 
   @override
   Widget build(BuildContext context) {
@@ -116,11 +141,13 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
             Container(
               child: buildPosterImage(context, widget.searchResult.imageUris),
               decoration: BoxDecoration(
+                border: Border.all(width: 4, color: _primaryColor),
+                borderRadius: BorderRadius.circular(6),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withAlpha(_focusAlpha),
                     blurRadius: 15,
-                    offset: Offset(10, 15),
+                    offset: Offset(2, 10),
                   )
                 ],
               ),
@@ -141,7 +168,7 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
                           overflow: TextOverflow.fade,
                           softWrap: false,
                           style: GoogleFonts.sourceSansPro(
-                            color: Colors.white,
+                            color: _textColor,
                             fontSize: 20,
                           ),
                         ),
@@ -149,7 +176,7 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
                           Text(
                             widget.searchResult.year!.toString(),
                             style: GoogleFonts.sourceSansPro(
-                              color: Colors.grey.shade300,
+                              color: _mutedTextColor,
                               fontSize: 18,
                             ),
                           ),
@@ -159,8 +186,10 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
                   if (widget.showIcon) ...[
                     Spacer(),
                     Icon(
-                      widget.searchResult.isMovie ? Icons.movie : Icons.tv,
-                      color: Colors.white,
+                      widget.searchResult.isMovie
+                          ? FeatherIcons.film
+                          : FeatherIcons.tv,
+                      color: _mutedTextColor,
                     )
                   ]
                 ],
@@ -227,31 +256,47 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
+    _primaryColor = widget.style.primaryColor;
+    _textColor = widget.style.textColor;
+    _mutedTextColor = widget.style.mutedTextColor;
     _node = FocusNode();
     _node.addListener(_onFocusChange);
     _controller = AnimationController(
-        duration: const Duration(milliseconds: 100),
-        vsync: this,
-        lowerBound: 0.9,
-        upperBound: 1);
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+      lowerBound: 0.98,
+      upperBound: 1,
+    );
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+
     super.initState();
   }
 
   void _onFocusChange() {
-    Scrollable.ensureVisible(
-      _node.context!,
-      alignment: 1.0,
-      alignmentPolicy: ScrollPositionAlignmentPolicy.explicit,
-    );
+    if (_node.context != null)
+      Scrollable.ensureVisible(
+        _node.context!,
+        alignment: 1.0,
+        alignmentPolicy: ScrollPositionAlignmentPolicy.explicit,
+      );
 
     if (_node.hasFocus) {
       _controller.forward();
+      setState(() {
+        _primaryColor = widget.style.focusPrimaryColor;
+        _textColor = widget.style.focusTextColor;
+        _mutedTextColor = widget.style.focusMutedTextColor;
+      });
       if (widget.onFocus != null) {
         widget.onFocus!();
       }
     } else {
       _controller.reverse();
+      setState(() {
+        _primaryColor = widget.style.primaryColor;
+        _textColor = widget.style.textColor;
+        _mutedTextColor = widget.style.mutedTextColor;
+      });
     }
   }
 

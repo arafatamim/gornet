@@ -1,7 +1,8 @@
+import 'package:chillyflix/Services/FtpbdService.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chillyflix/Widgets/Cover.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class HomeTab extends StatefulWidget {
   HomeTab({Key? key}) : super(key: key);
@@ -16,40 +17,54 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
   Widget build(BuildContext context) {
     super.build(context);
     return SingleChildScrollView(
-      child: Column(
-        children: <Widget>[
-          SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.only(left: 15),
-            child: Align(
-                child: Text(
-                  'Recent movies',
-                  style: GoogleFonts.oswald(color: Colors.white, fontSize: 30),
+      child: FocusTraversalGroup(
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: <Widget>[
+              const SizedBox(height: 40),
+              Container(
+                margin: const EdgeInsets.only(left: 16),
+                child: Align(
+                  child: Text(
+                    'Recent movies',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline2
+                        ?.apply(color: Theme.of(context).colorScheme.secondary),
+                  ),
+                  alignment: Alignment.topLeft,
                 ),
-                alignment: Alignment.topLeft),
-          ),
-          SizedBox(height: 20),
-          coverListView(
-            context,
-            'movie',
-            onRefresh: () => setState(() {}),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(15),
-            child: Align(
-              child: Text(
-                'Recent series uploads',
-                style: GoogleFonts.oswald(color: Colors.white, fontSize: 30),
               ),
-              alignment: Alignment.topLeft,
-            ),
+              CoverListView(
+                results: Provider.of<FtpbdService>(context).search(
+                  "movie",
+                  limit: 6,
+                ),
+              ),
+              const SizedBox(height: 40),
+              Container(
+                margin: const EdgeInsets.only(left: 16),
+                child: Align(
+                  child: Text(
+                    'Recent series uploads',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline2
+                        ?.apply(color: Theme.of(context).colorScheme.secondary),
+                  ),
+                  alignment: Alignment.topLeft,
+                ),
+              ),
+              CoverListView(
+                results: Provider.of<FtpbdService>(context).search(
+                  "series",
+                  limit: 6,
+                ),
+              ),
+            ],
           ),
-          coverListView(
-            context,
-            'series',
-            onRefresh: () => setState(() {}),
-          ),
-        ],
+        ),
       ),
     );
   }

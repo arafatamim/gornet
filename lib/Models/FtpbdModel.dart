@@ -1,37 +1,39 @@
 import 'package:meta/meta.dart';
 
 class ImageUris {
-  String? primary;
-  String? backdrop;
-  String? thumb;
-  ImageUris({this.primary, this.backdrop, this.thumb});
+  final String? primary;
+  final String? backdrop;
+  final String? thumb;
+  final String? logo;
+  const ImageUris({this.primary, this.backdrop, this.thumb, this.logo});
   ImageUris.fromJson(Map<String, dynamic> json)
       : primary = json["primary"],
         backdrop = json["backdrop"],
-        thumb = json["thumb"];
+        thumb = json["thumb"],
+        logo = json["logo"];
 
   @override
   String toString() {
-    return "ImageUris { primary: $primary, backdrop: $backdrop, thumb: $thumb }";
+    return "ImageUris { primary: $primary, backdrop: $backdrop, thumb: $thumb, logo: $logo }";
   }
 }
 
 class CriticRatings {
-  int? rottenTomatoes;
-  double? community;
-  CriticRatings({this.community, this.rottenTomatoes});
+  final int? rottenTomatoes;
+  final num? community;
+  const CriticRatings({this.community, this.rottenTomatoes});
   CriticRatings.fromJson(Map<String, dynamic> json)
       : rottenTomatoes = json["rottenTomatoes"],
         community = json["community"];
 }
 
 class MediaSource {
-  String streamUri;
-  int bitrate;
-  int fileSize;
-  String fileName;
-  String displayName;
-  MediaSource(
+  final String streamUri;
+  final int bitrate;
+  final int fileSize;
+  final String fileName;
+  final String displayName;
+  const MediaSource(
       {required this.bitrate,
       required this.displayName,
       required this.fileName,
@@ -44,7 +46,7 @@ class MediaSource {
         fileSize = json["fileSize"],
         streamUri = json["streamUri"];
 
-  static List<MediaSource> fromList(List<dynamic> payload) =>
+  static List<MediaSource> fromJsonList(List<dynamic> payload) =>
       List<Map<String, dynamic>>.from(payload)
           .map((item) => MediaSource.fromJson(item))
           .toList();
@@ -58,14 +60,15 @@ class Media {
   final String? ageRating;
   final String? synopsis;
   final ImageUris? imageUris;
-  Media(
-      {required this.id,
-      this.title,
-      this.year,
-      this.genres,
-      this.ageRating,
-      this.synopsis,
-      this.imageUris});
+  const Media({
+    required this.id,
+    this.title,
+    this.year,
+    this.genres,
+    this.ageRating,
+    this.synopsis,
+    this.imageUris,
+  });
 
   @override
   String toString() {
@@ -104,10 +107,10 @@ class Movie extends Media {
 
 @immutable
 class Series extends Media {
-  late final Duration? averageRuntime;
-  late final bool? hasEnded;
-  late final DateTime? endDate;
-  late final CriticRatings? criticRatings;
+  final Duration? averageRuntime;
+  final bool? hasEnded;
+  final DateTime? endDate;
+  final CriticRatings? criticRatings;
 
   Series.fromJson(Map<String, dynamic> payload)
       : averageRuntime = payload["averageRuntime"] != null
@@ -140,6 +143,14 @@ class SearchResult {
   final int? year;
   final ImageUris? imageUris;
   final bool isMovie;
+
+  const SearchResult({
+    required this.id,
+    required this.name,
+    this.year,
+    this.imageUris,
+    required this.isMovie,
+  });
 
   SearchResult.fromJson(Map<String, dynamic> json)
       : id = json["id"],

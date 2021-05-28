@@ -32,6 +32,10 @@ dependencies:
   cupertino_icons: ^1.0.3
   web_socket_channel: ^2.1.0
   remote_state: ^2.0.0
+  shimmer: ^2.0.0
+  localstorage: ^4.0.0+1
+  google_nav_bar: ^5.0.5
+  flutter_feather_icons: ^2.0.0+1
 
 dev_dependencies:
   flutter_test:

@@ -1,13 +1,18 @@
 import 'package:chillyflix/Models/FtpbdModel.dart';
-import 'package:chillyflix/Services/FtpbdService.dart';
+import 'package:chillyflix/Widgets/RoundedCard.dart';
+import 'package:chillyflix/Widgets/shimmers.dart';
 import 'package:chillyflix/utils.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chillyflix/Widgets/Cover.dart';
 
 class ItemsTab extends StatefulWidget {
-  final String endpoint;
-  ItemsTab(this.endpoint);
+  final Future<List<SearchResult>> future;
+  final bool showIcon;
+  const ItemsTab({
+    required this.future,
+    this.showIcon = false,
+  });
   @override
   _ItemsTabState createState() => _ItemsTabState();
 }
@@ -15,7 +20,6 @@ class ItemsTab extends StatefulWidget {
 class _ItemsTabState extends State<ItemsTab>
     with AutomaticKeepAliveClientMixin {
   // ScrollController _scrollController;
-  Future<List<SearchResult>>? results;
 
   @override
   void initState() {
@@ -24,17 +28,12 @@ class _ItemsTabState extends State<ItemsTab>
     //   keepScrollOffset: true,
     // );
     super.initState();
-    results = _getData();
   }
 
   @override
   void dispose() {
     // _scrollController.dispose();
     super.dispose();
-  }
-
-  Future<List<SearchResult>> _getData() {
-    return FtpbdService().search(widget.endpoint, limit: 24);
   }
 
   // void _toEnd(int index, int items) {
@@ -59,26 +58,26 @@ class _ItemsTabState extends State<ItemsTab>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Container(
-      child: FutureBuilder<List<SearchResult>>(
-        future: results,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.hasData && snapshot.data != null) {
-              return _buildGridView(context, snapshot.data!);
-            } else if (snapshot.hasError)
-              return Center(
-                child: buildError(
-                  snapshot.error?.toString() ?? "Error occurred",
-                  onRefresh: () => setState(() {}),
-                ),
-              );
-            else
-              return Container();
-          } else
-            return Center(child: CircularProgressIndicator());
-        },
-      ),
+    return FutureBuilder<List<SearchResult>>(
+      future: widget.future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasData && snapshot.data?.length != 0) {
+            return _buildGridView(context, snapshot.data!);
+          } else if (snapshot.hasError)
+            return Center(
+              child: buildError(
+                snapshot.error?.toString() ?? "Error occurred",
+                onRefresh: () => setState(() {}),
+              ),
+            );
+          else
+            return Center(
+              child: buildError("No favorites found"),
+            );
+        } else
+          return ShimmerList(itemCount: 12);
+      },
     );
   }
 
@@ -90,7 +89,7 @@ class _ItemsTabState extends State<ItemsTab>
           // controller: _scrollController,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: itemCount,
-            childAspectRatio: 0.55,
+            childAspectRatio: 0.5,
           ),
           itemCount: values.length,
 
@@ -98,7 +97,14 @@ class _ItemsTabState extends State<ItemsTab>
             SearchResult item = values[index];
             return Cover(
               searchResult: item,
-              showIcon: false,
+              showIcon: widget.showIcon,
+              style: RoundedCardStyle(
+                primaryColor: Colors.transparent,
+                textColor: Colors.grey.shade400,
+                focusTextColor: Colors.white,
+                mutedTextColor: Colors.grey.shade600,
+                focusMutedTextColor: Colors.grey.shade300,
+              ),
               onTap: () {
                 Navigator.pushNamed(context, "/detail", arguments: item);
               },

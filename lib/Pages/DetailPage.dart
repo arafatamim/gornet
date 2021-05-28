@@ -3,14 +3,17 @@ import 'dart:io';
 import 'package:android_intent/android_intent.dart';
 import 'package:chillyflix/Models/FtpbdModel.dart';
 import 'package:chillyflix/Services/FtpbdService.dart';
+import 'package:chillyflix/Services/StorageService.dart';
 import 'package:chillyflix/Widgets/Episodes.dart';
 import 'package:chillyflix/Widgets/RoundedCard.dart';
 import 'package:chillyflix/Widgets/SeasonTab.dart';
 import 'package:chillyflix/Widgets/detail_shell.dart';
+import 'package:chillyflix/Widgets/favorites.dart';
 import 'package:chillyflix/utils.dart';
 import 'package:duration/duration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -24,16 +27,15 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
-  Future<Movie?>? movie;
-  Future<Series?>? series;
+  Future<Media>? media;
 
   @override
   void initState() {
     super.initState();
     if (widget.searchResult.isMovie) {
-      movie = FtpbdService().getMovie(widget.searchResult.id);
+      media = FtpbdService().getMovie(widget.searchResult.id);
     } else {
-      series = FtpbdService().getSeries(widget.searchResult.id);
+      media = FtpbdService().getSeries(widget.searchResult.id);
     }
   }
 
@@ -45,11 +47,21 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Shortcuts(
-      // needed for AndroidTV to be able to select
       shortcuts: {
         LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent()
       },
       child: Scaffold(
+        floatingActionButton: coalesceException(
+          () => Platform.isLinux
+              ? FloatingActionButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Icon(Icons.arrow_back),
+                )
+              : null,
+          null,
+        ),
+        floatingActionButtonLocation:
+            FloatingActionButtonLocation.miniStartFloat,
         body: Container(
           color: Colors.black,
           child: Stack(
@@ -65,28 +77,29 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
                     colors: [Colors.black.withAlpha(230), Colors.transparent],
                   ),
                 ),
-                child: FutureBuilder<Series?>(
-                  future: series,
-                  builder: (context, seriesSnapshot) {
-                    return FutureBuilder<Movie?>(
-                      future: movie,
-                      builder: (context, movieSnapshot) {
-                        if (movieSnapshot.hasData) {
-                          return _buildMovieDetails(movieSnapshot.data!);
-                        } else if (seriesSnapshot.hasData) {
-                          return _buildSeriesDetails(seriesSnapshot.data!);
-                        } else if (movieSnapshot.hasError ||
-                            seriesSnapshot.hasError) {
-                          print(movieSnapshot.error);
-                          print(seriesSnapshot.error);
-                          return Center(
-                            child: Text("Error!"),
-                          );
-                        } else {
-                          return Center(child: CircularProgressIndicator());
-                        }
-                      },
-                    );
+                child: FutureBuilder<Media>(
+                  future: media,
+                  builder: (context, mediaSnapshot) {
+                    if (mediaSnapshot.hasData) {
+                      if (mediaSnapshot.data! is Movie)
+                        return _buildMovieDetails(
+                          mediaSnapshot.data! as Movie,
+                        );
+                      else
+                        return _buildSeriesDetails(
+                          mediaSnapshot.data! as Series,
+                        );
+                    } else if (mediaSnapshot.hasError) {
+                      print(mediaSnapshot.error);
+                      return Center(
+                        child: buildError(
+                          mediaSnapshot.error.toString(),
+                          onRefresh: () => setState(() {}),
+                        ),
+                      );
+                    } else {
+                      return Center(child: CircularProgressIndicator());
+                    }
                   },
                 ),
               ),
@@ -121,27 +134,34 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
   DetailShell _buildMovieDetails(Movie movie) {
     final _buildMeta = <Widget>[
       if (movie.criticRatings?.rottenTomatoes != null)
-        ...buildLabel(
+        buildLabel(
           "${movie.criticRatings?.rottenTomatoes.toString()}%",
           imageAsset: (movie.criticRatings?.rottenTomatoes! ?? -1) > 60
               ? "assets/fresh.png"
               : "assets/rotten.png",
         ),
-      ...buildLabel(
+      buildLabel(
         printDuration(
           movie.runtime,
           tersity: DurationTersity.minute,
           abbreviated: true,
           delimiter: " ",
         ),
-        icon: Icons.timer,
+        icon: FeatherIcons.clock,
       ),
-      if (movie.ageRating != null) ...buildLabel(movie.ageRating!),
-      ...buildLabel(movie.year.toString()),
+      if (movie.ageRating != null)
+        buildLabel(movie.ageRating!, hasBackground: true),
+      buildLabel(movie.year.toString())
+      /*
+      FavoriteIcon(
+        id: widget.searchResult.id,
+        mediaType: MediaType.Movie,
+      )*/
     ];
 
     return DetailShell(
       title: movie.title ?? "Untitled Movie",
+      logoUrl: movie.imageUris?.logo,
       meta: _buildMeta,
       genres: movie.genres,
       synopsis: movie.synopsis,
@@ -152,32 +172,44 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
   DetailShell _buildSeriesDetails(Series series) {
     final _buildMeta = <Widget>[
       if (series.criticRatings?.community != null)
-        ...buildLabel(series.criticRatings!.community!.toStringAsFixed(2),
-            icon: Icons.star),
+        buildLabel(
+          series.criticRatings!.community!.toStringAsFixed(2),
+          icon: FeatherIcons.star,
+        ),
       if (series.averageRuntime != null)
-        ...buildLabel(
+        buildLabel(
           printDuration(
             series.averageRuntime!,
             tersity: DurationTersity.minute,
             abbreviated: true,
             delimiter: " ",
           ),
-          icon: Icons.timer,
+          icon: FeatherIcons.clock,
         ),
       if (series.ageRating != null)
-        ...buildLabel(
-          series.ageRating!,
+        buildLabel(series.ageRating!, hasBackground: true),
+      if (series.year != null)
+        buildLabel(
+          series.year.toString() +
+              (series.hasEnded != null
+                  ? (series.hasEnded!
+                      ? (series.endDate != null
+                          ? (series.endDate!.year == series.year
+                              ? ""
+                              : " - " + series.endDate!.year.toString())
+                          : " - ENDED")
+                      : " - PRESENT")
+                  : ""),
         ),
-      ...buildLabel(
-        series.year.toString() +
-            (series.hasEnded != null
-                ? (series.hasEnded! ? " | ENDED" : " - PRESENT")
-                : ""),
+      FavoriteIcon(
+        mediaType: MediaType.Series,
+        id: widget.searchResult.id,
       )
     ];
 
     return DetailShell(
       title: series.title ?? "Untitled Series",
+      logoUrl: series.imageUris?.logo,
       meta: _buildMeta,
       genres: series.genres,
       synopsis: series.synopsis,
@@ -217,7 +249,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
             child: Align(
               alignment: Alignment.topLeft,
               child: SizedBox(
-                height: 200,
+                height: 210,
                 child: ListView.builder(
                   itemCount: seasons.length,
                   itemBuilder: (context, index) {
@@ -292,6 +324,8 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
               }
             } on UnsupportedError {
               print("It's the web!");
+            } catch (e) {
+              print(e);
             }
           },
         );

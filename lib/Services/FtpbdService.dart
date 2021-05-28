@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:chillyflix/Models/FtpbdModel.dart';
+import 'package:chillyflix/Services/StorageService.dart';
 import 'package:http/http.dart' as http;
 
 class FtpbdService {
@@ -86,9 +87,37 @@ class FtpbdService {
     if (res.statusCode == 200) {
       Map decoded = json.decode(res.body);
       List payload = decoded['payload'];
-      return MediaSource.fromList(payload);
+      return MediaSource.fromJsonList(payload);
     } else {
       throw Exception("Unhandled status when fetching sources");
+    }
+  }
+
+  static Future<SearchResult> mapIdToSearchResult(
+    MediaType mediaType,
+    String id,
+  ) async {
+    switch (mediaType) {
+      case MediaType.Movie:
+        final movie = await FtpbdService().getMovie(id);
+        final item = SearchResult(
+          id: movie.id,
+          name: movie.title ?? "",
+          isMovie: true,
+          imageUris: movie.imageUris,
+          year: movie.year,
+        );
+        return item;
+      case MediaType.Series:
+        final series = await FtpbdService().getSeries(id);
+        final item = SearchResult(
+          id: series.id,
+          name: series.title ?? "",
+          isMovie: false,
+          imageUris: series.imageUris,
+          year: series.year,
+        );
+        return item;
     }
   }
 }
