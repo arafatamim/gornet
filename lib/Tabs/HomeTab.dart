@@ -18,52 +18,58 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
     super.build(context);
     return SingleChildScrollView(
       child: FocusTraversalGroup(
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: <Widget>[
-              const SizedBox(height: 40),
-              Container(
-                margin: const EdgeInsets.only(left: 16),
-                child: Align(
-                  child: Text(
-                    'Recent movies',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline2
-                        ?.apply(color: Theme.of(context).colorScheme.secondary),
-                  ),
-                  alignment: Alignment.topLeft,
+        policy: ReadingOrderTraversalPolicy(),
+        child: Column(
+          children: <Widget>[
+            const SizedBox(height: 40),
+            Container(
+              margin: const EdgeInsets.only(left: 16),
+              child: Align(
+                child: Text(
+                  'Recent movies',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline2
+                      ?.apply(fontSizeFactor: 0.7, color: Colors.grey.shade300),
                 ),
+                alignment: Alignment.topLeft,
               ),
-              CoverListView(
+            ),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 450),
+              child: CoverListViewBuilder(
                 results: Provider.of<FtpbdService>(context).search(
                   "movie",
-                  limit: 6,
+                  limit: 10,
                 ),
+                separator: false,
               ),
-              const SizedBox(height: 40),
-              Container(
-                margin: const EdgeInsets.only(left: 16),
-                child: Align(
-                  child: Text(
-                    'Recent series uploads',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline2
-                        ?.apply(color: Theme.of(context).colorScheme.secondary),
-                  ),
-                  alignment: Alignment.topLeft,
+            ),
+            const SizedBox(height: 40),
+            Container(
+              margin: const EdgeInsets.only(left: 16),
+              child: Align(
+                child: Text(
+                  'Recent series uploads',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline2
+                      ?.apply(fontSizeFactor: 0.7, color: Colors.grey.shade300),
                 ),
+                alignment: Alignment.topLeft,
               ),
-              CoverListView(
+            ),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 450),
+              child: CoverListViewBuilder(
                 results: Provider.of<FtpbdService>(context).search(
                   "series",
-                  limit: 6,
+                  limit: 10,
                 ),
+                separator: false,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

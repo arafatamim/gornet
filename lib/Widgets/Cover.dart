@@ -7,17 +7,19 @@ import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-class CoverListView extends StatefulWidget {
+class CoverListViewBuilder extends StatefulWidget {
   final Future<List<SearchResult>> results;
   final bool showIcon;
+  final bool separator;
 
-  const CoverListView({required this.results, this.showIcon = false});
+  const CoverListViewBuilder(
+      {required this.results, this.showIcon = false, this.separator = true});
 
   @override
-  State<CoverListView> createState() => _CoverListViewState();
+  State<CoverListViewBuilder> createState() => _CoverListViewBuilderState();
 }
 
-class _CoverListViewState extends State<CoverListView> {
+class _CoverListViewBuilderState extends State<CoverListViewBuilder> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<SearchResult>>(
@@ -29,8 +31,13 @@ class _CoverListViewState extends State<CoverListView> {
           case ConnectionState.done:
             if (snapshot.hasData && snapshot.data?.length != 0) {
               final items = snapshot.data!;
+              return CoverListView(
+                items,
+                separator: widget.separator,
+              );
+              /*
               return OrientationBuilder(builder: (context, orientation) {
-                int itemCount = orientation == Orientation.landscape ? 3 : 6;
+                int itemCount = orientation == Orientation.landscape ? 3 : 5;
                 return GridView.builder(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: itemCount,
@@ -41,13 +48,16 @@ class _CoverListViewState extends State<CoverListView> {
                   itemBuilder: (BuildContext context, int index) {
                     SearchResult item = items[index];
                     return Cover(
-                      searchResult: item,
-                      showIcon: widget.showIcon,
+                      title: item.name,
+                      subtitle: (item.year ?? "").toString(),
+                      image: item.imageUris?.primary ??
+                          item.imageUris?.thumb ??
+                          item.imageUris?.backdrop,
                       style: RoundedCardStyle(
                         primaryColor: Colors.transparent,
-                        textColor: Colors.grey.shade400,
+                        textColor: Colors.grey.shade300,
                         focusTextColor: Colors.white,
-                        mutedTextColor: Colors.grey.shade600,
+                        mutedTextColor: Colors.grey.shade400,
                         focusMutedTextColor: Colors.grey.shade300,
                       ),
                       onTap: () {
@@ -60,7 +70,7 @@ class _CoverListViewState extends State<CoverListView> {
                     );
                   },
                 );
-              });
+              });*/
             } else {
               return Center(
                 child: buildError(
@@ -77,17 +87,64 @@ class _CoverListViewState extends State<CoverListView> {
   }
 }
 
-class Cover extends StatefulWidget {
-  final SearchResult searchResult;
+class CoverListView extends StatelessWidget {
+  final List<SearchResult> items;
   final bool showIcon;
+  final bool separator;
+  const CoverListView(this.items,
+      {this.showIcon = false, this.separator = true});
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      physics: NeverScrollableScrollPhysics(),
+      addAutomaticKeepAlives: true,
+      itemCount: items.length,
+      shrinkWrap: true,
+      separatorBuilder: (context, index) => SizedBox(width: separator ? 12 : 0),
+      itemBuilder: (BuildContext context, int index) {
+        SearchResult item = items[index];
+        return AspectRatio(
+          aspectRatio: 0.6,
+          child: Cover(
+            title: item.name,
+            subtitle: (item.year ?? "").toString(),
+            image: item.imageUris?.primary,
+            icon: showIcon
+                ? (item.isMovie ? FeatherIcons.film : FeatherIcons.tv)
+                : null,
+            style: RoundedCardStyle(
+              primaryColor: Colors.transparent,
+              textColor: Colors.grey.shade300,
+              focusTextColor: Colors.white,
+              mutedTextColor: Colors.grey.shade400,
+              focusMutedTextColor: Colors.grey.shade300,
+            ),
+            onTap: () {
+              Navigator.pushNamed(context, "/detail", arguments: item);
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
+class Cover extends StatefulWidget {
+  final String? image;
+  final String title;
+  final String? subtitle;
+  final IconData? icon;
   final RoundedCardStyle style;
   final Function onTap;
   final Function? onFocus;
 
   const Cover({
     Key? key,
-    required this.searchResult,
-    required this.showIcon,
+    this.image,
+    required this.title,
+    required this.subtitle,
+    this.icon,
     required this.onTap,
     this.style = const RoundedCardStyle(),
     this.onFocus,
@@ -110,7 +167,7 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return RawMaterialButton(
       key: ValueKey(
-        widget.searchResult,
+        widget.key,
       ), // Necessary otherwise image doesn't change
       onPressed: _onTap,
       focusNode: _node,
@@ -139,7 +196,7 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
         child: Column(
           children: <Widget>[
             Container(
-              child: buildPosterImage(context, widget.searchResult.imageUris),
+              child: buildPosterImage(),
               decoration: BoxDecoration(
                 border: Border.all(width: 4, color: _primaryColor),
                 borderRadius: BorderRadius.circular(6),
@@ -163,7 +220,7 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.searchResult.name,
+                          widget.title,
                           maxLines: 1,
                           overflow: TextOverflow.fade,
                           softWrap: false,
@@ -172,9 +229,9 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
                             fontSize: 20,
                           ),
                         ),
-                        if (widget.searchResult.year != null)
+                        if (widget.subtitle != null)
                           Text(
-                            widget.searchResult.year!.toString(),
+                            widget.subtitle!.toString(),
                             style: GoogleFonts.sourceSansPro(
                               color: _mutedTextColor,
                               fontSize: 18,
@@ -183,12 +240,10 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
                       ],
                     ),
                   ),
-                  if (widget.showIcon) ...[
+                  if (widget.icon != null) ...[
                     Spacer(),
                     Icon(
-                      widget.searchResult.isMovie
-                          ? FeatherIcons.film
-                          : FeatherIcons.tv,
+                      widget.icon!,
                       color: _mutedTextColor,
                     )
                   ]
@@ -201,27 +256,44 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget buildPosterImage(BuildContext context, ImageUris? imageUris) {
+  Widget buildPosterImage() {
     return Container(
-      child: (imageUris != null && imageUris.primary != null)
+      child: (widget.image != null)
           ? FadeInImage.memoryNetwork(
-              key: Key(imageUris.primary!),
+              key: Key(widget.image!),
               placeholder: kTransparentImage,
-              image: imageUris.primary!,
+              image: widget.image!,
               fit: BoxFit.cover,
             )
           : ConstrainedBox(
               constraints: BoxConstraints.expand(),
               child: Container(
-                decoration: BoxDecoration(color: Colors.blue.shade900),
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    colors: [
+                      Theme.of(context).colorScheme.primary,
+                      Theme.of(context).colorScheme.secondary,
+                    ],
+                    focal: Alignment(0, 0),
+                    focalRadius: 1,
+                    radius: 0.5,
+                    center: Alignment.bottomCenter,
+                  ),
+                ),
                 child: Center(
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      '${widget.searchResult.name} (${widget.searchResult.year})',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.oswald(
-                          fontSize: 24, color: Colors.grey.shade400),
+                    padding: const EdgeInsets.all(12.0),
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: Text(
+                        '${widget.title} (${widget.subtitle})'.toUpperCase(),
+                        textAlign: TextAlign.right,
+                        style: Theme.of(context).textTheme.bodyText1?.apply(
+                              color: Colors.grey.shade400,
+                              fontSizeFactor: 1.3,
+                              heightFactor: 0.7,
+                            ),
+                      ),
                     ),
                   ),
                 ),

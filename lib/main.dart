@@ -18,7 +18,13 @@ import 'package:chillyflix/Services/FtpbdService.dart';
 // }
 
 void main() {
-  return runApp(MyApp());
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    SystemChrome.setEnabledSystemUIOverlays([]);
+  } catch (e) {
+    print(e);
+  }
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

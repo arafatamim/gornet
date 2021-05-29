@@ -48,8 +48,8 @@ class _SearchPageState extends State<SearchPage> {
   void _getItems(String query) async {
     try {
       final futures = [
-        FtpbdService().search("movie", query: query, limit: 4),
-        FtpbdService().search("series", query: query, limit: 4)
+        FtpbdService().search("movie", query: query, limit: 6),
+        FtpbdService().search("series", query: query, limit: 6)
       ];
       final results = await Future.wait(futures).then(
         (event) => event.expand((element) => element).toList(),
@@ -160,7 +160,7 @@ class _SearchPageState extends State<SearchPage> {
       case ConnectionState.active:
       case ConnectionState.done:
         if (snapshot.hasData && snapshot.data!.length > 0) {
-          return _buildResultsList(context, snapshot.data!);
+          return CoverListView(snapshot.data!, showIcon: true);
         } else if (snapshot.hasError) {
           return Center(
             child: buildError(
@@ -175,36 +175,8 @@ class _SearchPageState extends State<SearchPage> {
         }
     }
   }
-
-  Widget _buildResultsList(BuildContext context, List<SearchResult> values) {
-    return ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: values.length,
-      shrinkWrap: true,
-      itemBuilder: (BuildContext context, int index) {
-        SearchResult item = values[index];
-        return AspectRatio(
-          aspectRatio: 0.5,
-          child: Cover(
-            searchResult: item,
-            showIcon: true,
-            style: RoundedCardStyle(
-              primaryColor: Colors.transparent,
-              textColor: Colors.grey.shade400,
-              focusTextColor: Colors.white,
-              mutedTextColor: Colors.grey.shade600,
-              focusMutedTextColor: Colors.grey.shade300,
-            ),
-            onTap: () {
-              Navigator.pushNamed(context, "/detail", arguments: item);
-            },
-          ),
-        );
-      },
-    );
-  }
 }
 
-bool _isUtf16Surrogate(int value) {
-  return value & 0xF800 == 0xD800;
-}
+// bool _isUtf16Surrogate(int value) {
+//   return value & 0xF800 == 0xD800;
+// }

@@ -15,7 +15,7 @@ class ShimmerList extends StatelessWidget {
         child: GridView.builder(
           shrinkWrap: true,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 6,
+            crossAxisCount: 5,
             childAspectRatio: 0.55,
           ),
           itemCount: itemCount,
@@ -56,7 +56,7 @@ class Item extends StatelessWidget {
         children: [
           Container(
             width: 220,
-            height: 350,
+            height: 250,
             color: color,
           ),
           const SizedBox(height: 8),
