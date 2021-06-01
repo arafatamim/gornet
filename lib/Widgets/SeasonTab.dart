@@ -7,16 +7,18 @@ import 'package:transparent_image/transparent_image.dart';
 class SeasonTab extends StatefulWidget {
   final Season season;
   final RoundedCardStyle style;
+  final bool active;
   final Function? onTap;
   final Function? onFocus;
 
-  const SeasonTab(
-      {Key? key,
-      required this.season,
-      this.onTap,
-      this.onFocus,
-      this.style = const RoundedCardStyle()})
-      : super(key: key);
+  const SeasonTab({
+    Key? key,
+    required this.season,
+    this.onTap,
+    this.onFocus,
+    this.style = const RoundedCardStyle(),
+    this.active = false,
+  }) : super(key: key);
 
   @override
   _SeasonTabState createState() => _SeasonTabState();
@@ -27,9 +29,8 @@ class _SeasonTabState extends State<SeasonTab>
   late FocusNode _node;
   late AnimationController _controller;
   late Animation<double> _animation;
-  late Color _primaryColor;
-  late Color _textColor;
-  // late Color _mutedTextColor;
+
+  bool get focused => _node.hasFocus;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +64,9 @@ class _SeasonTabState extends State<SeasonTab>
           padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
-            color: _primaryColor,
+            color: (focused || widget.active)
+                ? widget.style.focusPrimaryColor
+                : widget.style.primaryColor,
           ),
           child: Column(
             children: <Widget>[
@@ -91,7 +94,9 @@ class _SeasonTabState extends State<SeasonTab>
                   overflow: TextOverflow.fade,
                   softWrap: false,
                   style: GoogleFonts.sourceSansPro(
-                    color: _textColor,
+                    color: (focused || widget.active)
+                        ? widget.style.focusTextColor
+                        : widget.style.textColor,
                     fontSize: 20,
                   ),
                 ),
@@ -159,45 +164,34 @@ class _SeasonTabState extends State<SeasonTab>
 
   @override
   void initState() {
-    _primaryColor = widget.style.primaryColor;
-    _textColor = widget.style.textColor;
-    // _mutedTextColor = widget.style.mutedTextColor;
-
     _node = FocusNode();
     _node.addListener(_onFocusChange);
     _controller = AnimationController(
-        duration: const Duration(milliseconds: 100),
-        vsync: this,
-        lowerBound: 0.9,
-        upperBound: 1);
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+      lowerBound: 0.9,
+      upperBound: 1,
+    );
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     super.initState();
   }
 
   void _onFocusChange() {
-    Scrollable.ensureVisible(
-      _node.context!,
-      alignment: 1.0,
-      alignmentPolicy: ScrollPositionAlignmentPolicy.explicit,
-    );
+    // Scrollable.ensureVisible(
+    //   _node.context!,
+    //   alignment: 1.0,
+    //   alignmentPolicy: ScrollPositionAlignmentPolicy.explicit,
+    // );
 
     if (_node.hasFocus) {
       _controller.forward();
-      setState(() {
-        _primaryColor = widget.style.focusPrimaryColor;
-        _textColor = widget.style.focusTextColor;
-        // _mutedTextColor = widget.style.focusMutedTextColor;
-      });
+      setState(() {});
       if (widget.onFocus != null) {
         widget.onFocus!();
       }
     } else {
       _controller.reverse();
-      setState(() {
-        _primaryColor = widget.style.primaryColor;
-        _textColor = widget.style.textColor;
-        // _mutedTextColor = widget.style.mutedTextColor;
-      });
+      setState(() {});
     }
   }
 

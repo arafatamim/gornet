@@ -1,3 +1,4 @@
+import 'package:chillyflix/Widgets/scrolling_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,8 +11,6 @@ class RoundedCardStyle {
   final Color primaryColor;
   final Color focusPrimaryColor;
   final double cardHeight;
-  final int subtitleMaxLines;
-  final bool subtitleSoftWrap;
   const RoundedCardStyle({
     this.textColor = Colors.white,
     this.focusTextColor = Colors.black,
@@ -20,24 +19,24 @@ class RoundedCardStyle {
     this.primaryColor = const Color(0x66000000),
     this.focusPrimaryColor = Colors.white,
     this.cardHeight = 75,
-    this.subtitleMaxLines = 1,
-    this.subtitleSoftWrap = false,
   });
 }
 
 class RoundedCard extends StatefulWidget {
-  const RoundedCard(
-      {Key? key,
-      this.title,
-      this.subtitle,
-      this.leading,
-      this.onTap,
-      this.style = const RoundedCardStyle()})
-      : super(key: key);
+  const RoundedCard({
+    Key? key,
+    this.title,
+    this.subtitle,
+    this.leading,
+    this.scrollAxis = Axis.vertical,
+    this.onTap,
+    this.style = const RoundedCardStyle(),
+  }) : super(key: key);
 
   final String? title;
   final String? subtitle;
   final Widget? leading;
+  final Axis scrollAxis;
   final Function? onTap;
   final RoundedCardStyle style;
 
@@ -47,19 +46,15 @@ class RoundedCard extends StatefulWidget {
 
 class _RoundedCardState extends State<RoundedCard>
     with SingleTickerProviderStateMixin {
-  late FocusNode _node;
-  late AnimationController _controller;
-  late CurvedAnimation _animation;
-  late Color _primaryColor;
-  late Color _textColor;
-  late Color _mutedTextColor;
+  late final FocusNode _node;
+  late final AnimationController _controller;
+  late final AutoScrollController _autoScrollController;
+  late final CurvedAnimation _animation;
+
+  bool get focused => _node.hasFocus;
 
   @override
   void initState() {
-    _primaryColor = widget.style.primaryColor;
-    _textColor = widget.style.textColor;
-    _mutedTextColor = widget.style.mutedTextColor;
-
     _node = FocusNode();
     _node.addListener(_onFocusChange);
 
@@ -71,24 +66,20 @@ class _RoundedCardState extends State<RoundedCard>
     );
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
 
+    _autoScrollController = AutoScrollController();
+
     super.initState();
   }
 
   void _onFocusChange() {
     if (_node.hasFocus) {
       _controller.forward();
-      setState(() {
-        _primaryColor = widget.style.focusPrimaryColor;
-        _textColor = widget.style.focusTextColor;
-        _mutedTextColor = widget.style.focusMutedTextColor;
-      });
+      _autoScrollController.startScroll();
+      setState(() {});
     } else {
       _controller.reverse();
-      setState(() {
-        _primaryColor = widget.style.primaryColor;
-        _textColor = widget.style.textColor;
-        _mutedTextColor = widget.style.mutedTextColor;
-      });
+      _autoScrollController.stopScroll();
+      setState(() {});
     }
   }
 
@@ -101,6 +92,7 @@ class _RoundedCardState extends State<RoundedCard>
   void dispose() {
     _controller.dispose();
     _node.dispose();
+    _autoScrollController.dispose();
     super.dispose();
   }
 
@@ -117,7 +109,9 @@ class _RoundedCardState extends State<RoundedCard>
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
-            color: _primaryColor,
+            color: focused
+                ? widget.style.focusPrimaryColor
+                : widget.style.primaryColor,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withAlpha(150),
@@ -140,14 +134,20 @@ class _RoundedCardState extends State<RoundedCard>
                       ? widget.leading
                       : Icon(
                           FeatherIcons.playCircle,
-                          color: _textColor,
+                          color: focused
+                              ? widget.style.focusTextColor
+                              : widget.style.textColor,
                         ),
                 ),
               ),
               Expanded(
                 flex: 10,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 15),
+                child: Container(
+                  padding: const EdgeInsets.only(
+                    right: 12,
+                    top: 12,
+                    bottom: 12,
+                  ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
@@ -161,21 +161,32 @@ class _RoundedCardState extends State<RoundedCard>
                           overflow: TextOverflow.fade,
                           style: GoogleFonts.sourceSansPro(
                             fontWeight: FontWeight.w400,
-                            color: _textColor,
+                            color: focused
+                                ? widget.style.focusTextColor
+                                : widget.style.textColor,
                             fontSize: 20,
                           ),
                         ),
                       ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          widget.subtitle ?? "",
-                          maxLines: widget.style.subtitleMaxLines,
-                          softWrap: widget.style.subtitleSoftWrap,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.sourceSansPro(
-                            color: _mutedTextColor,
-                            fontSize: 13,
+                      Expanded(
+                        child: ScrollingText(
+                          speed: 12,
+                          scrollDirection: widget.scrollAxis,
+                          controller: _autoScrollController,
+                          startPauseDuration: Duration(seconds: 7),
+                          endPauseDuration: Duration(seconds: 10),
+                          child: Text(
+                            widget.subtitle ?? "",
+                            // maxLines: widget.style.subtitleMaxLines,
+                            softWrap: true,
+                            overflow: TextOverflow.clip,
+                            style:
+                                Theme.of(context).textTheme.bodyText2?.copyWith(
+                                      color: focused
+                                          ? widget.style.focusMutedTextColor
+                                          : widget.style.mutedTextColor,
+                                      fontSize: 16,
+                                    ),
                           ),
                         ),
                       )

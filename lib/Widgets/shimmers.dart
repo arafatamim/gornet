@@ -19,7 +19,9 @@ class ShimmerList extends StatelessWidget {
             childAspectRatio: 0.55,
           ),
           itemCount: itemCount,
-          itemBuilder: (context, index) => ShimmerItem(),
+          itemBuilder: (context, index) => const ShimmerItem(
+            child: CoverShimmer(),
+          ),
         ),
       ),
     );
@@ -27,24 +29,24 @@ class ShimmerList extends StatelessWidget {
 }
 
 class ShimmerItem extends StatelessWidget {
-  const ShimmerItem({Key? key}) : super(key: key);
+  final Widget child;
+  const ShimmerItem({Key? key, required this.child}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      child: Item(color: Colors.blue),
+      child: child,
       baseColor: Colors.grey.shade700,
       highlightColor: Colors.grey.shade600,
     );
   }
 }
 
-class Item extends StatelessWidget {
-  final Color color;
+class CoverShimmer extends StatelessWidget {
+  final Color color = Colors.white;
 
-  const Item({
+  const CoverShimmer({
     Key? key,
-    required this.color,
   }) : super(key: key);
 
   @override
@@ -77,6 +79,46 @@ class Item extends StatelessWidget {
                 ),
               ],
             ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class SpotlightShimmer extends StatelessWidget {
+  final color = Colors.white;
+  const SpotlightShimmer();
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      // width: 500,
+      // height: 500,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 100,
+                width: 300,
+                color: color,
+              ), // logo/title
+              SizedBox(height: 20),
+              Container(
+                width: 400,
+                height: 150,
+                color: color,
+              ), // synopsis
+              SizedBox(height: 20),
+            ],
+          ),
+          Container(
+            height: 400,
+            width: 500,
+            color: color,
           )
         ],
       ),

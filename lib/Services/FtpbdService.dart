@@ -28,7 +28,7 @@ class FtpbdService {
       final results = payload.map((e) => SearchResult.fromJson(e)).toList();
       return results;
     } else {
-      throw Exception("Invalid status code");
+      throw Exception("Invalid status code for query $endpoint, $query");
     }
   }
 
@@ -40,7 +40,7 @@ class FtpbdService {
       Map<String, dynamic> payload = decoded['payload'];
       return Movie.fromJson(payload);
     } else {
-      throw Exception("Unhandled status when fetching single movie");
+      throw Exception("Unhandled status when fetching movie $id");
     }
   }
 
@@ -52,7 +52,7 @@ class FtpbdService {
       Map<String, dynamic> payload = decoded['payload'];
       return Series.fromJson(payload);
     } else {
-      throw Exception("Unhandled status when fetching single series");
+      throw Exception("Unhandled status when fetching series $id");
     }
   }
 
@@ -64,7 +64,7 @@ class FtpbdService {
       List payload = decoded['payload'];
       return payload.map((e) => Season.fromJson(e)).toList();
     } else {
-      throw Exception("Unhandled status when fetching seasons");
+      throw Exception("Unhandled status when fetching seasons for series $id");
     }
   }
 

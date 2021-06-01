@@ -3,6 +3,7 @@ import 'package:chillyflix/Services/FtpbdService.dart';
 import 'package:chillyflix/Services/StorageService.dart';
 import 'package:chillyflix/Tabs/HomeTab.dart';
 import 'package:chillyflix/Tabs/ItemsTab.dart';
+import 'package:chillyflix/Widgets/buttons/animated_icon_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -151,7 +152,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               Theme.of(context).colorScheme.primary,
               Theme.of(context).colorScheme.secondary
             ],
-            stops: [0.5, 1],
+            stops: [0.2, 1],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -164,24 +165,34 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  MaterialButton(
-                    child: Icon(FeatherIcons.search),
+                  AnimatedIconButton(
+                    icon: Icon(FeatherIcons.search),
+                    label: Text(
+                      "Search",
+                      style: Theme.of(context).textTheme.bodyText1,
+                    ),
                     onPressed: () {
                       Navigator.pushNamed(context, "/search");
                     },
-                    focusColor: Colors.white.withAlpha(50),
-                    autofocus: true,
-                    focusElevation: 0,
-                    padding: EdgeInsets.all(28),
-                    minWidth: 0,
-                    // materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    shape: CircleBorder(
-                      side: BorderSide(
-                        width: 1,
-                        color: Colors.white.withAlpha(50),
-                      ),
-                    ),
                   ),
+                  // MaterialButton(
+                  //   child: Icon(FeatherIcons.search),
+                  //   onPressed: () {
+                  //     Navigator.pushNamed(context, "/search");
+                  //   },
+                  //   focusColor: Colors.white.withAlpha(50),
+                  //   autofocus: true,
+                  //   focusElevation: 0,
+                  //   padding: EdgeInsets.all(28),
+                  //   minWidth: 0,
+                  //   // materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  //   shape: CircleBorder(
+                  //     side: BorderSide(
+                  //       width: 1,
+                  //       color: Colors.white.withAlpha(50),
+                  //     ),
+                  //   ),
+                  // ),
                   SizedBox(width: 16),
                   GNav(
                     selectedIndex: _controller.index,
@@ -192,7 +203,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     color: Colors.white.withAlpha(100),
                     activeColor: Colors.grey.shade200,
                     iconSize: 32,
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 16,
+                    ),
                     duration: const Duration(milliseconds: 200),
                     curve: Curves.easeInOutCubic,
                     tabs: [
@@ -227,8 +241,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
             ),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 64),
+              child: Container(
+                clipBehavior: Clip.none,
+                margin: const EdgeInsets.symmetric(horizontal: 64),
                 child: TabBarView(
                   controller: _controller,
                   physics: const NeverScrollableScrollPhysics(),

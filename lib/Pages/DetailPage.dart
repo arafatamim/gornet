@@ -256,7 +256,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
                     return SeasonTab(
                       season: seasons[index],
                       onTap: () {
-                        _tabController.animateTo(index);
+                        _tabController.index = index;
                       },
                     );
                   },

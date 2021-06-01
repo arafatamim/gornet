@@ -86,7 +86,7 @@ class _ItemsTabState extends State<ItemsTab>
       builder: (context, orientation) {
         int itemCount = orientation == Orientation.landscape ? 5 : 3;
         return FocusTraversalGroup(
-          policy: ReadingOrderTraversalPolicy(),
+          policy: WidgetOrderTraversalPolicy(),
           child: GridView.builder(
             // controller: _scrollController,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

@@ -1,5 +1,6 @@
 import 'package:chillyflix/Models/FtpbdModel.dart';
 import 'package:chillyflix/Widgets/RoundedCard.dart';
+import 'package:chillyflix/Widgets/scrolling_text.dart';
 import 'package:chillyflix/Widgets/shimmers.dart';
 import 'package:chillyflix/utils.dart';
 import 'package:flutter/material.dart';
@@ -11,9 +12,14 @@ class CoverListViewBuilder extends StatefulWidget {
   final Future<List<SearchResult>> results;
   final bool showIcon;
   final bool separator;
+  final ScrollController? controller;
 
-  const CoverListViewBuilder(
-      {required this.results, this.showIcon = false, this.separator = true});
+  const CoverListViewBuilder({
+    required this.results,
+    this.showIcon = false,
+    this.separator = true,
+    this.controller,
+  });
 
   @override
   State<CoverListViewBuilder> createState() => _CoverListViewBuilderState();
@@ -33,6 +39,7 @@ class _CoverListViewBuilderState extends State<CoverListViewBuilder> {
               final items = snapshot.data!;
               return CoverListView(
                 items,
+                controller: widget.controller,
                 separator: widget.separator,
               );
               /*
@@ -91,13 +98,19 @@ class CoverListView extends StatelessWidget {
   final List<SearchResult> items;
   final bool showIcon;
   final bool separator;
-  const CoverListView(this.items,
-      {this.showIcon = false, this.separator = true});
+  final ScrollController? controller;
+
+  const CoverListView(
+    this.items, {
+    this.showIcon = false,
+    this.separator = true,
+    this.controller,
+  });
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
+      controller: controller,
       scrollDirection: Axis.horizontal,
-      physics: NeverScrollableScrollPhysics(),
       addAutomaticKeepAlives: true,
       itemCount: items.length,
       shrinkWrap: true,
@@ -156,9 +169,9 @@ class Cover extends StatefulWidget {
 
 class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
   late FocusNode _node;
-  late AnimationController _controller;
+  late AnimationController _animationController;
+  late AutoScrollController _autoScrollController;
   late Animation<double> _animation;
-  int _focusAlpha = 60;
   late Color _primaryColor;
   late Color _textColor;
   late Color _mutedTextColor;
@@ -199,12 +212,12 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
               child: buildPosterImage(),
               decoration: BoxDecoration(
                 border: Border.all(width: 4, color: _primaryColor),
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(5),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withAlpha(_focusAlpha),
+                    color: Colors.black.withAlpha(60),
                     blurRadius: 15,
-                    offset: Offset(2, 10),
+                    offset: const Offset(2, 10),
                   )
                 ],
               ),
@@ -219,14 +232,21 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          widget.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.fade,
-                          softWrap: false,
-                          style: GoogleFonts.sourceSansPro(
-                            color: _textColor,
-                            fontSize: 20,
+                        ScrollingText(
+                          scrollDirection: Axis.horizontal,
+                          speed: 20,
+                          startPauseDuration: Duration(milliseconds: 500),
+                          endPauseDuration: Duration(seconds: 2),
+                          controller: _autoScrollController,
+                          child: Text(
+                            widget.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.fade,
+                            softWrap: false,
+                            style: GoogleFonts.sourceSansPro(
+                              color: _textColor,
+                              fontSize: 20,
+                            ),
                           ),
                         ),
                         if (widget.subtitle != null)
@@ -257,7 +277,8 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
   }
 
   Widget buildPosterImage() {
-    return Container(
+    return ConstrainedBox(
+      constraints: BoxConstraints.tightFor(height: 350),
       child: (widget.image != null)
           ? FadeInImage.memoryNetwork(
               key: Key(widget.image!),
@@ -265,48 +286,45 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
               image: widget.image!,
               fit: BoxFit.cover,
             )
-          : ConstrainedBox(
-              constraints: BoxConstraints.expand(),
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    colors: [
-                      Theme.of(context).colorScheme.primary,
-                      Theme.of(context).colorScheme.secondary,
-                    ],
-                    focal: Alignment(0, 0),
-                    focalRadius: 1,
-                    radius: 0.5,
-                    center: Alignment.bottomCenter,
-                  ),
+          : Container(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  colors: [
+                    Theme.of(context).colorScheme.primary,
+                    Theme.of(context).colorScheme.secondary,
+                  ],
+                  focal: Alignment(0, 0),
+                  focalRadius: 1,
+                  radius: 0.5,
+                  center: Alignment.bottomCenter,
                 ),
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: Text(
-                        '${widget.title} (${widget.subtitle})'.toUpperCase(),
-                        textAlign: TextAlign.right,
-                        style: Theme.of(context).textTheme.bodyText1?.apply(
-                              color: Colors.grey.shade400,
-                              fontSizeFactor: 1.3,
-                              heightFactor: 0.7,
-                            ),
-                      ),
+              ),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: Text(
+                      '${widget.title} (${widget.subtitle})'.toUpperCase(),
+                      textAlign: TextAlign.right,
+                      style: Theme.of(context).textTheme.bodyText1?.apply(
+                            color: Colors.grey.shade400,
+                            fontSizeFactor: 1.3,
+                            heightFactor: 0.7,
+                          ),
                     ),
                   ),
                 ),
               ),
             ),
-      height: 350.0,
     );
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _animationController.dispose();
     _node.dispose();
+    _autoScrollController.dispose();
     super.dispose();
   }
 
@@ -333,27 +351,32 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
     _mutedTextColor = widget.style.mutedTextColor;
     _node = FocusNode();
     _node.addListener(_onFocusChange);
-    _controller = AnimationController(
+    _animationController = AnimationController(
       duration: const Duration(milliseconds: 100),
       vsync: this,
       lowerBound: 0.98,
       upperBound: 1,
     );
-    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    _animation =
+        CurvedAnimation(parent: _animationController, curve: Curves.easeIn);
+
+    _autoScrollController = AutoScrollController();
 
     super.initState();
   }
 
   void _onFocusChange() {
-    if (_node.context != null)
-      Scrollable.ensureVisible(
-        _node.context!,
-        alignment: 1.0,
-        alignmentPolicy: ScrollPositionAlignmentPolicy.explicit,
-      );
+    // if (_node.context != null)
+    //   Scrollable.ensureVisible(
+    //     _node.context!,
+    //     alignment: 1.0,
+    //     duration: Duration(milliseconds: 300),
+    //     alignmentPolicy: ScrollPositionAlignmentPolicy.explicit,
+    //   );
 
     if (_node.hasFocus) {
-      _controller.forward();
+      _animationController.forward();
+      _autoScrollController.startScroll();
       setState(() {
         _primaryColor = widget.style.focusPrimaryColor;
         _textColor = widget.style.focusTextColor;
@@ -363,7 +386,8 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
         widget.onFocus!();
       }
     } else {
-      _controller.reverse();
+      _animationController.reverse();
+      _autoScrollController.stopScroll();
       setState(() {
         _primaryColor = widget.style.primaryColor;
         _textColor = widget.style.textColor;

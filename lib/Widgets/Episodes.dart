@@ -48,41 +48,43 @@ class _EpisodesState extends State<Episodes>
     );
   }
 
-  ListView _buildEpisodesList(List<Episode> episodes) {
-    return ListView.builder(
-      addAutomaticKeepAlives: true,
-      itemCount: episodes.length,
-      itemBuilder: (context, index) {
-        return RoundedCard(
-          leading: Text(
-            episodes[index].index?.toString() ?? "?",
-            style: GoogleFonts.sourceSansPro(
-              fontSize: 25,
-              color: Theme.of(context).colorScheme.secondary,
-              fontWeight: FontWeight.bold,
+  Widget _buildEpisodesList(List<Episode> episodes) {
+    return FocusTraversalGroup(
+      policy: WidgetOrderTraversalPolicy(),
+      child: ListView.builder(
+        addAutomaticKeepAlives: true,
+        itemCount: episodes.length,
+        itemBuilder: (context, index) {
+          return RoundedCard(
+            leading: Text(
+              episodes[index].index?.toString() ?? "?",
+              style: GoogleFonts.sourceSansPro(
+                fontSize: 25,
+                color: Theme.of(context).colorScheme.secondary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          title: episodes[index].name,
-          subtitle: episodes[index].synopsis,
-          style: const RoundedCardStyle(
-            cardHeight: 125,
-            subtitleMaxLines: 4,
-            subtitleSoftWrap: true,
-          ),
-          onTap: () {
-            showModalBottomSheet(
-              useRootNavigator: true,
-              isDismissible: false,
-              routeSettings: const RouteSettings(name: "episode"),
-              backgroundColor: Colors.transparent,
-              context: context,
-              builder: (context) {
-                return _buildSheet(episodes[index]);
-              },
-            );
-          },
-        );
-      },
+            title: episodes[index].name,
+            subtitle: episodes[index].synopsis,
+            scrollAxis: Axis.vertical,
+            style: const RoundedCardStyle(
+              cardHeight: 125,
+            ),
+            onTap: () {
+              showModalBottomSheet(
+                useRootNavigator: true,
+                isDismissible: false,
+                routeSettings: const RouteSettings(name: "episode"),
+                backgroundColor: Colors.transparent,
+                context: context,
+                builder: (context) {
+                  return _buildSheet(episodes[index]);
+                },
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -222,6 +224,7 @@ class EpisodeSources extends StatelessWidget {
                           formatBytes(source.fileSize),
                       subtitle: source.fileName,
                       style: const RoundedCardStyle(),
+                      scrollAxis: Axis.horizontal,
                       onTap: () {
                         try {
                           if (Platform.isAndroid) {

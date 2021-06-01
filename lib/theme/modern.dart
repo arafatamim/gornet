@@ -31,6 +31,11 @@ class ModernTheme {
           height: 1.1,
           color: Colors.white,
         ),
+        headline3: GoogleFonts.poppins(
+          fontSize: 32,
+          height: 1.0,
+          color: Colors.grey.shade300,
+        ),
         bodyText1: GoogleFonts.sourceSansPro(
           color: Color(0xFFEEEEEE),
           height: 1.5,
