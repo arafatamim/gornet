@@ -11,7 +11,8 @@ class FavoritesService {
   FavoritesService([key = "default"]) : storage = LocalStorage(key);
 
   Future<void> _initStorage() async {
-    if (storage.getItem("fav_movies") == null) {
+    if (storage.getItem("fav_series") == null &&
+        storage.getItem("fav_movies") == null) {
       await storage.setItem("fav_movies", []);
       await storage.setItem("fav_series", []);
     }
@@ -96,7 +97,7 @@ class FavoritesService {
   }
 
   /// Returns a boolean indicating if item was in list
-  Future<bool?> removeFavorite(MediaType mediaType, String id) async {
+  Future<void> removeFavorite(MediaType mediaType, String id) async {
     try {
       if (await storage.ready) {
         await _initStorage();
@@ -104,11 +105,14 @@ class FavoritesService {
           case MediaType.Movie:
             final List<String> data =
                 storage.getItem("fav_movies").cast<String>();
-            return data.remove(id);
+            data.remove(id);
+            return storage.setItem("fav_movies", data);
           case MediaType.Series:
             final List<String> data =
                 storage.getItem("fav_series").cast<String>();
-            return data.remove(id);
+
+            data.remove(id);
+            return storage.setItem("fav_series", data);
         }
       }
     } catch (e) {

@@ -5,6 +5,7 @@ import 'package:android_intent/android_intent.dart';
 import 'package:chillyflix/Models/FtpbdModel.dart';
 import 'package:chillyflix/Services/FtpbdService.dart';
 import 'package:chillyflix/Widgets/RoundedCard.dart';
+import 'package:chillyflix/Widgets/scrolling_text.dart';
 import 'package:chillyflix/utils.dart';
 import 'package:duration/duration.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +51,7 @@ class _EpisodesState extends State<Episodes>
 
   Widget _buildEpisodesList(List<Episode> episodes) {
     return FocusTraversalGroup(
-      policy: WidgetOrderTraversalPolicy(),
+      policy: OrderedTraversalPolicy(),
       child: ListView.builder(
         addAutomaticKeepAlives: true,
         itemCount: episodes.length,
@@ -162,7 +163,7 @@ class EpisodeDetails extends StatelessWidget {
                   children: [
                     if (episode.runtime != null)
                       buildLabel(
-                        printDuration(
+                        prettyDuration(
                           episode.runtime!,
                           tersity: DurationTersity.minute,
                           abbreviated: true,
@@ -172,17 +173,23 @@ class EpisodeDetails extends StatelessWidget {
                       ),
                     if (episode.airDate != null)
                       buildLabel(
-                        "Aired on ${episode.airDate!.year}-${episode.airDate!.month}-${episode.airDate!.day}",
+                        "Aired on ${episode.airDate!.longMonth.capitalizeFirst} ${episode.airDate!.day}, ${episode.airDate!.year}",
                       ),
                   ],
                 ),
                 const SizedBox(height: 15),
                 Expanded(
-                  child: Text(
-                    episode.synopsis ?? "",
-                    style: GoogleFonts.sourceSansPro(
-                      color: Colors.grey.shade300,
-                      fontSize: 16,
+                  child: ScrollingText(
+                    startPauseDuration: Duration(seconds: 10),
+                    endPauseDuration: Duration(seconds: 10),
+                    scrollDirection: Axis.vertical,
+                    speed: 12,
+                    child: Text(
+                      episode.synopsis ?? "",
+                      style: GoogleFonts.sourceSansPro(
+                        color: Colors.grey.shade300,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 )
@@ -223,7 +230,7 @@ class EpisodeSources extends StatelessWidget {
                           ", " +
                           formatBytes(source.fileSize),
                       subtitle: source.fileName,
-                      style: const RoundedCardStyle(),
+                      style: const RoundedCardStyle(cardHeight: null),
                       scrollAxis: Axis.horizontal,
                       onTap: () {
                         try {

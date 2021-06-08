@@ -1,6 +1,5 @@
 import 'package:chillyflix/Widgets/RoundedCard.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class TextKey extends StatefulWidget {
   const TextKey({
@@ -10,7 +9,11 @@ class TextKey extends StatefulWidget {
     this.onTap,
     this.flex = 1,
     this.style = const RoundedCardStyle(textColor: Color(0xFFD6D6D6)),
-  }) : super(key: key);
+  })  : assert(
+          icon != null || text != null,
+          "Either icon or text must be specified",
+        ),
+        super(key: key);
 
   final String? text;
   final IconData? icon;
@@ -87,10 +90,10 @@ class _TextKeyState extends State<TextKey> with TickerProviderStateMixin {
               child: widget.text != null
                   ? Text(
                       widget.text!,
-                      style: GoogleFonts.sourceSansPro(
-                        color: _textColor,
-                        fontSize: 20.0,
-                      ),
+                      style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                            color: _textColor,
+                            fontSize: 20.0,
+                          ),
                     )
                   : Icon(
                       widget.icon,

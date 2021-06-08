@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:chillyflix/Models/FtpbdModel.dart';
+import 'package:chillyflix/Pages/HomePage.dart';
 import 'package:chillyflix/Services/FtpbdService.dart';
 import 'package:chillyflix/Widgets/shimmers.dart';
 import 'package:chillyflix/Widgets/spotlight.dart';
@@ -15,19 +18,19 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
-  bool get wantKeepAlive => true;
+  late final ScrollController _controller;
 
-  late final ScrollController controller;
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
-    controller = ScrollController();
+    _controller = ScrollController();
     super.initState();
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -37,90 +40,102 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
 
     return SingleChildScrollView(
       clipBehavior: Clip.none,
-      child: FocusTraversalGroup(
-        policy: ReadingOrderTraversalPolicy(),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            const SizedBox(height: 40),
-            _buildSectionTitle("From Your List"),
-            const SizedBox(height: 20),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 350),
-              child: Consumer<FtpbdService>(builder: (context, value, _) {
-                final r =
-                    value.getSeries("361912"); // 361912 // 361871 // 450691
-                return FutureBuilder<Series>(
-                  future: r,
-                  builder: (context, snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.waiting:
-                        return ShimmerItem(
-                          child: SpotlightShimmer(),
-                        );
-                      case ConnectionState.done:
-                        if (snapshot.hasData) {
-                          final item = snapshot.data!;
-                          return Spotlight(
-                              title: item.title ?? "Unknown Title",
-                              backdrop: item.imageUris?.thumb ??
-                                  item.imageUris?.backdrop,
-                              logo: item.imageUris?.logo,
-                              genres: item.genres,
-                              synopsis: item.synopsis,
-                              id: item.id,
-                              year: item.year,
-                              onTapDetails: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  "/detail",
-                                  arguments: SearchResult(
-                                    id: item.id,
-                                    name: item.title ?? "",
-                                    isMovie: false,
-                                    imageUris: item.imageUris,
-                                    year: item.year,
-                                  ),
-                                );
-                              });
-                        } else {
-                          return buildError(snapshot.error.toString());
-                        }
-                      default:
-                        return Container();
-                    }
-                  },
-                );
-              }),
-            ),
-            const SizedBox(height: 40),
-            _buildSectionTitle("New Arrivals"),
-            LimitedBox(
-              maxHeight: 450,
-              child: CoverListViewBuilder(
-                results: Provider.of<FtpbdService>(context).search(
-                  "movie",
-                  limit: 10,
-                ),
-                separator: false,
-                controller: controller,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          const SizedBox(height: 40),
+          _buildSectionTitle("Top Picks"),
+          const SizedBox(height: 20),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 350),
+            child: Consumer<FtpbdService>(
+                child: ShimmerItem(child: SpotlightShimmer()),
+                builder: (context, service, shimmer) {
+                  final seriesList = [
+                    /* Expanse */ "361912",
+                    /* B99 */ "362461",
+                    /* Angie Tribeca */ "361693",
+                    /* Good Place */ "361264",
+                    /* Ted Lasso */ "362077",
+                    /* Space Force */ "361049",
+                  ];
+                  final random = new Random();
+                  // final series = value.getSeries("361693");
+                  final series = service
+                      .getSeries(seriesList[random.nextInt(seriesList.length)]);
+                  return FutureBuilder<Series>(
+                    future: series,
+                    builder: (context, snapshot) {
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.waiting:
+                          return shimmer!;
+                        case ConnectionState.done:
+                          if (snapshot.hasData) {
+                            final item = snapshot.data!;
+                            return Spotlight(
+                                title: item.title ?? "Unknown Title",
+                                backdrop: item.imageUris?.thumb ??
+                                    item.imageUris?.backdrop,
+                                logo: item.imageUris?.logo,
+                                genres: item.genres,
+                                synopsis: item.synopsis,
+                                id: item.id,
+                                year: item.year,
+                                ageRating: item.ageRating,
+                                endDate: item.endDate,
+                                hasEnded: item.hasEnded,
+                                rating: item.criticRatings?.community,
+                                runtime: item.averageRuntime,
+                                onTapDetails: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    "/detail",
+                                    arguments: SearchResult(
+                                      id: item.id,
+                                      name: item.title ?? "",
+                                      isMovie: false,
+                                      imageUris: item.imageUris,
+                                      year: item.year,
+                                    ),
+                                  );
+                                });
+                          } else {
+                            return buildError(snapshot.error.toString());
+                          }
+                        default:
+                          return Container();
+                      }
+                    },
+                  );
+                }),
+          ),
+          const SizedBox(height: 40),
+          _buildSectionTitle("New Arrivals"),
+          LimitedBox(
+            maxHeight: 450,
+            child: CoverListViewBuilder(
+              results: Provider.of<FtpbdService>(context).search(
+                "movie",
+                limit: 10,
               ),
+              separator: false,
+              controller: _controller,
             ),
-            const SizedBox(height: 40),
-            _buildSectionTitle("New Shows"),
-            LimitedBox(
-              maxHeight: 450,
-              child: CoverListViewBuilder(
-                results: Provider.of<FtpbdService>(context).search(
-                  "series",
-                  limit: 10,
-                ),
-                separator: false,
+          ),
+          const SizedBox(height: 40),
+          _buildSectionTitle("New Shows"),
+          LimitedBox(
+            maxHeight: 450,
+            child: CoverListViewBuilder(
+              results: Provider.of<FtpbdService>(context).search(
+                "series",
+                limit: 10,
               ),
+              separator: false,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

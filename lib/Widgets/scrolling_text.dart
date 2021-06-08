@@ -3,7 +3,6 @@ import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 
 class AutoScrollController extends ChangeNotifier {
   bool _started;
-  bool _animationRunning = false;
   final bool autoStart;
 
   bool get started => _started;
@@ -12,13 +11,11 @@ class AutoScrollController extends ChangeNotifier {
 
   void startScroll() {
     _started = true;
-    _animationRunning = true;
     notifyListeners();
   }
 
   void stopScroll() {
     _started = false;
-    _animationRunning = false;
     notifyListeners();
   }
 }
@@ -30,9 +27,24 @@ class ScrollingText extends StatefulWidget {
   /// Speed at which the text scrolls in pixels per second.
   /// Has to be greater than zero.
   final int speed;
-  final Duration backDuration, startPauseDuration;
+
+  /// How long it takes for text to scroll back up from the end.
+  final Duration backDuration;
+
+  /// How long it takes for text to begin scrolling.
+  final Duration startPauseDuration;
+
+  /// How long the scrolling pauses at the end before scrolling back up.
+  /// If null, it is the same as `startPauseDuration`.
   final Duration? endPauseDuration;
+
+  /// Controls the state of scrolling. If not provided, uses its default internal controller
+  /// with `autoStart` enabled.
   final AutoScrollController? controller;
+
+  final Curve primaryCurve;
+
+  final Curve returnCurve;
 
   const ScrollingText({
     required this.child,
@@ -42,6 +54,8 @@ class ScrollingText extends StatefulWidget {
     this.speed = 20,
     this.endPauseDuration,
     this.controller,
+    this.primaryCurve = Curves.linear,
+    this.returnCurve = Curves.easeOut,
   }) : assert(speed > 0, "Speed has to be greater than zero");
 
   @override
@@ -49,17 +63,17 @@ class ScrollingText extends StatefulWidget {
 }
 
 class _ScrollingTextState extends State<ScrollingText> {
-  late final ScrollController scrollController;
+  late final ScrollController _scrollController;
   late final AutoScrollController _autoScrollController;
 
-  double get _scrollDistance => scrollController.position.maxScrollExtent;
+  double get maxScrollDistance => _scrollController.position.maxScrollExtent;
   Duration get scrollDuration => Duration(
-        milliseconds: ((_scrollDistance / widget.speed) * 1000).toInt(),
+        milliseconds: ((maxScrollDistance / widget.speed) * 1000).toInt(),
       );
 
   @override
   void initState() {
-    scrollController = ScrollController(initialScrollOffset: 0.0);
+    _scrollController = ScrollController(initialScrollOffset: 0.0);
     _autoScrollController =
         widget.controller ?? AutoScrollController(autoStart: true);
 
@@ -73,7 +87,7 @@ class _ScrollingTextState extends State<ScrollingText> {
 
   @override
   void dispose() {
-    scrollController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -84,32 +98,47 @@ class _ScrollingTextState extends State<ScrollingText> {
         physics: NeverScrollableScrollPhysics(),
         child: widget.child,
         scrollDirection: widget.scrollDirection,
-        controller: scrollController,
+        controller: _scrollController,
       ),
     );
   }
 
   void _scroll() async {
-    while (scrollController.hasClients && _autoScrollController.started) {
-      await Future.delayed(widget.startPauseDuration);
-      if (scrollController.hasClients && _autoScrollController.started) {
-        await scrollController.animateTo(
-          _scrollDistance,
-          duration: scrollDuration,
-          curve: Curves.linear,
-        );
-      }
-      await Future.delayed(
-        widget.endPauseDuration ?? widget.startPauseDuration,
-      );
-
-      if (scrollController.hasClients) {
-        await scrollController.animateTo(
-          0.0,
-          duration: widget.backDuration,
-          curve: Curves.easeOut,
-        );
-      }
+    if (_scrollController.hasClients &&
+        _scrollController.offset > 0 &&
+        !_autoScrollController.started) {
+      _scrollController.jumpTo(0);
+      return;
+    }
+    while (_scrollController.hasClients && _autoScrollController.started) {
+      // Run futures in succession
+      await Future.delayed(widget.startPauseDuration).then((_) {
+        if (_scrollController.hasClients &&
+            _autoScrollController.started &&
+            _scrollController.offset == 0) {
+          return _scrollController.animateTo(
+            maxScrollDistance,
+            duration: scrollDuration,
+            curve: widget.primaryCurve,
+          );
+        }
+      }).then((_) {
+        if (_scrollController.hasClients &&
+            _autoScrollController.started &&
+            _scrollController.offset == maxScrollDistance)
+          return Future.delayed(
+            widget.endPauseDuration ?? widget.startPauseDuration,
+          );
+      }).then((_) {
+        if (_scrollController.hasClients &&
+            _scrollController.offset == maxScrollDistance) {
+          return _scrollController.animateTo(
+            0.0,
+            duration: widget.backDuration,
+            curve: widget.returnCurve,
+          );
+        }
+      });
     }
   }
 }

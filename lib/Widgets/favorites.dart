@@ -57,7 +57,7 @@ class _FavoriteIconState extends State<FavoriteIcon> {
         .saveFavorite(widget.mediaType, widget.id);
   }
 
-  Future<bool?> _removeFavorite() async {
+  Future<void> _removeFavorite() async {
     return Provider.of<FavoritesService>(context, listen: false)
         .removeFavorite(widget.mediaType, widget.id);
   }

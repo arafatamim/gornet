@@ -82,7 +82,6 @@ class _CoverListViewBuilderState extends State<CoverListViewBuilder> {
               return Center(
                 child: buildError(
                   snapshot.error?.toString() ?? "Error fetching data",
-                  onRefresh: () => setState(() {}),
                 ),
               );
             }

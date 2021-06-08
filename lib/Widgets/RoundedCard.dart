@@ -10,7 +10,7 @@ class RoundedCardStyle {
   final Color focusMutedTextColor;
   final Color primaryColor;
   final Color focusPrimaryColor;
-  final double cardHeight;
+  final double? cardHeight;
   const RoundedCardStyle({
     this.textColor = Colors.white,
     this.focusTextColor = Colors.black,
@@ -98,6 +98,42 @@ class _RoundedCardState extends State<RoundedCard>
 
   @override
   Widget build(BuildContext context) {
+    final buildTitle = Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        widget.title ?? "",
+        maxLines: 1,
+        softWrap: false,
+        overflow: TextOverflow.fade,
+        style: GoogleFonts.sourceSansPro(
+          fontWeight: FontWeight.w400,
+          color: focused ? widget.style.focusTextColor : widget.style.textColor,
+          fontSize: 20,
+        ),
+      ),
+    );
+    final buildSubtitle = Align(
+      alignment: Alignment.topLeft,
+      child: ScrollingText(
+        speed: 12,
+        scrollDirection: widget.scrollAxis,
+        controller: _autoScrollController,
+        startPauseDuration: Duration(seconds: 7),
+        endPauseDuration: Duration(seconds: 10),
+        child: Text(
+          widget.subtitle ?? "",
+          // maxLines: widget.style.subtitleMaxLines,
+          softWrap: true,
+          overflow: TextOverflow.clip,
+          style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                color: focused
+                    ? widget.style.focusMutedTextColor
+                    : widget.style.mutedTextColor,
+                fontSize: 16,
+              ),
+        ),
+      ),
+    );
     return RawMaterialButton(
       focusNode: _node,
       onPressed: _onTap,
@@ -124,14 +160,14 @@ class _RoundedCardState extends State<RoundedCard>
           margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
+            // crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
               // Horizontal items
               Expanded(
                 flex: 2,
                 child: Center(
                   child: widget.leading != null
-                      ? widget.leading
+                      ? widget.leading!
                       : Icon(
                           FeatherIcons.playCircle,
                           color: focused
@@ -149,47 +185,15 @@ class _RoundedCardState extends State<RoundedCard>
                     bottom: 12,
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       // Vertical items
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          widget.title ?? "",
-                          maxLines: 1,
-                          softWrap: false,
-                          overflow: TextOverflow.fade,
-                          style: GoogleFonts.sourceSansPro(
-                            fontWeight: FontWeight.w400,
-                            color: focused
-                                ? widget.style.focusTextColor
-                                : widget.style.textColor,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: ScrollingText(
-                          speed: 12,
-                          scrollDirection: widget.scrollAxis,
-                          controller: _autoScrollController,
-                          startPauseDuration: Duration(seconds: 7),
-                          endPauseDuration: Duration(seconds: 10),
-                          child: Text(
-                            widget.subtitle ?? "",
-                            // maxLines: widget.style.subtitleMaxLines,
-                            softWrap: true,
-                            overflow: TextOverflow.clip,
-                            style:
-                                Theme.of(context).textTheme.bodyText2?.copyWith(
-                                      color: focused
-                                          ? widget.style.focusMutedTextColor
-                                          : widget.style.mutedTextColor,
-                                      fontSize: 16,
-                                    ),
-                          ),
-                        ),
-                      )
+                      buildTitle,
+                      widget.scrollAxis == Axis.horizontal
+                          ? buildSubtitle
+                          : Expanded(child: buildSubtitle)
                     ],
                   ),
                 ),

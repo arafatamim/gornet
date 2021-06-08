@@ -26,19 +26,17 @@ dependencies:
   flutter_cache_manager: ^3.0.1
   android_intent: ^2.0.0
   duration: ^3.0.6
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.3
   web_socket_channel: ^2.1.0
   remote_state: ^2.0.0
   shimmer: ^2.0.0
-  localstorage: ^4.0.0+1
   google_nav_bar: ^5.0.5
   flutter_feather_icons: ^2.0.0+1
   marquee: ^2.1.0
   fading_edge_scrollview: ^2.0.0
   async: ^2.6.1
+  hive: ^2.0.4
+  hive_flutter: ^1.0.0
+  localstorage: ^4.0.0+1
 
 dev_dependencies:
   flutter_test:

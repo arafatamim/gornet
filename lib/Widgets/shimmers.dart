@@ -97,6 +97,11 @@ class SpotlightShimmer extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          Container(
+            height: 400,
+            width: 500,
+            color: color,
+          ),
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,17 +113,12 @@ class SpotlightShimmer extends StatelessWidget {
               ), // logo/title
               SizedBox(height: 20),
               Container(
-                width: 400,
-                height: 150,
+                width: 550,
+                height: 200,
                 color: color,
               ), // synopsis
               SizedBox(height: 20),
             ],
-          ),
-          Container(
-            height: 400,
-            width: 500,
-            color: color,
           )
         ],
       ),

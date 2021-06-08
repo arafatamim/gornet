@@ -8,12 +8,14 @@ class AnimatedIconButton extends StatefulWidget {
   final Widget icon;
   final Widget label;
   final Duration duration;
+  final bool autofocus;
   const AnimatedIconButton({
     this.onPressed,
     this.style = const RoundedCardStyle(),
     required this.icon,
     required this.label,
     this.duration = const Duration(milliseconds: 150),
+    this.autofocus = false,
   });
   @override
   _AnimatedIconButtonState createState() => _AnimatedIconButtonState();
@@ -82,6 +84,7 @@ class _AnimatedIconButtonState extends State<AnimatedIconButton>
     return Material(
       type: MaterialType.transparency,
       child: InkWell(
+        autofocus: widget.autofocus,
         focusNode: _node,
         borderRadius: _borderRadius,
         onTap: widget.onPressed,

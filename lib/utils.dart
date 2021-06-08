@@ -26,7 +26,7 @@ Widget buildLabel(
         if (icon != null) ...[
           Icon(
             icon,
-            color: Colors.white,
+            color: Colors.grey.shade300,
             size: 25,
           ),
           SizedBox(width: 10),
@@ -94,4 +94,30 @@ T coalesceException<T>(T Function() func, T defaultValue) {
     print(e);
     return defaultValue;
   }
+}
+
+extension Converters on DateTime {
+  String get longMonth {
+    const Map<int, String> monthsInYear = {
+      1: "january",
+      2: "february",
+      3: "march",
+      4: "april",
+      5: "may",
+      6: "june",
+      7: "july",
+      8: "august",
+      9: "september",
+      10: "october",
+      11: "november",
+      12: "december"
+    };
+    return monthsInYear[this.month]!;
+  }
+}
+
+extension CapExtension on String {
+  String get capitalizeFirst => '${this[0].toUpperCase()}${this.substring(1)}';
+  String get capitalizeFirstOfEachWord =>
+      this.split(" ").map((str) => str.capitalizeFirst).join(" ");
 }

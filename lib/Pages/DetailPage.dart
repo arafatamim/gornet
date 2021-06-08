@@ -14,7 +14,6 @@ import 'package:duration/duration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:transparent_image/transparent_image.dart';
 
@@ -141,7 +140,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
               : "assets/rotten.png",
         ),
       buildLabel(
-        printDuration(
+        prettyDuration(
           movie.runtime,
           tersity: DurationTersity.minute,
           abbreviated: true,
@@ -178,7 +177,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
         ),
       if (series.averageRuntime != null)
         buildLabel(
-          printDuration(
+          prettyDuration(
             series.averageRuntime!,
             tersity: DurationTersity.minute,
             abbreviated: true,
@@ -287,11 +286,11 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
         child: Column(
           children: [
             Text(
-              "Available sources",
-              style: GoogleFonts.oswald(
-                color: Colors.white,
-                fontSize: 24.0,
-              ),
+              "Available sources".toUpperCase(),
+              style: Theme.of(context).textTheme.headline3?.copyWith(
+                    // color: Colors.white,
+                    fontSize: 20.0,
+                  ),
             ),
             SizedBox(height: 6),
             Expanded(

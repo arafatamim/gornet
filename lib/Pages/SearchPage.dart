@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:chillyflix/Models/FtpbdModel.dart';
 import 'package:chillyflix/Services/FtpbdService.dart';
 import 'package:chillyflix/Widgets/Cover.dart';
-import 'package:chillyflix/Widgets/RoundedCard.dart';
+import 'package:chillyflix/Widgets/virtual_keyboard/text_key.dart';
 import 'package:chillyflix/Widgets/virtual_keyboard/virtual_keyboard.dart';
 import 'package:chillyflix/utils.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +19,8 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   final _textController = TextEditingController();
   late FocusNode _focusNode;
-  StreamController<List<SearchResult>> _resultsStream =
-      StreamController<List<SearchResult>>();
+  StreamController<List<SearchResult>?> _resultsStream =
+      StreamController<List<SearchResult>?>();
   Timer? _debounce;
 
   @override
@@ -28,9 +28,9 @@ class _SearchPageState extends State<SearchPage> {
     _focusNode = FocusNode();
 
     _focusNode.onKey = (node, keyEvent) {
-      if (keyEvent.logicalKey == LogicalKeyboardKey.arrowDown) {
+      if (keyEvent.logicalKey == LogicalKeyboardKey.arrowDown)
         node.previousFocus();
-      } else if (keyEvent.logicalKey == LogicalKeyboardKey.arrowUp)
+      else if (keyEvent.logicalKey == LogicalKeyboardKey.arrowUp)
         node.nextFocus();
       return KeyEventResult.ignored;
     };
@@ -47,6 +47,7 @@ class _SearchPageState extends State<SearchPage> {
 
   void _getItems(String query) async {
     try {
+      _resultsStream.add(null);
       final futures = [
         FtpbdService().search("movie", query: query, limit: 6),
         FtpbdService().search("series", query: query, limit: 6)
@@ -86,30 +87,27 @@ class _SearchPageState extends State<SearchPage> {
                     children: [
                       Expanded(
                         flex: 2,
-                        child: FocusScope(
-                          canRequestFocus: false,
-                          child: TextField(
-                            controller: _textController,
-                            // focusNode: _focusNode,
-                            readOnly: true,
-                            textInputAction: TextInputAction.go,
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.sourceSansPro(
-                              color: Colors.white,
-                              fontSize: 30.0,
+                        child: TextField(
+                          controller: _textController,
+                          // focusNode: _focusNode,
+                          readOnly: true,
+                          textInputAction: TextInputAction.go,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.sourceSansPro(
+                            color: Colors.white,
+                            fontSize: 30.0,
+                          ),
+                          decoration: InputDecoration(
+                            fillColor: Colors.transparent,
+                            filled: true,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
                             ),
-                            decoration: InputDecoration(
-                              fillColor: Colors.transparent,
-                              filled: true,
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
-                              border: InputBorder.none,
-                              hintText: "Search...",
-                              hintStyle: GoogleFonts.sourceSansPro(
-                                color: Colors.grey,
-                              ),
+                            border: InputBorder.none,
+                            hintText: "Search...",
+                            hintStyle: GoogleFonts.sourceSansPro(
+                              color: Colors.grey,
                             ),
                           ),
                         ),
@@ -118,6 +116,7 @@ class _SearchPageState extends State<SearchPage> {
                       Expanded(
                         child: VirtualKeyboard(
                           controller: _textController,
+                          keyboardHeight: 185,
                           onChanged: (value) {
                             if (_debounce?.isActive ?? false)
                               _debounce?.cancel();
@@ -136,7 +135,7 @@ class _SearchPageState extends State<SearchPage> {
                 ),
                 Expanded(
                   flex: 2,
-                  child: StreamBuilder<List<SearchResult>>(
+                  child: StreamBuilder<List<SearchResult>?>(
                     stream: _resultsStream.stream,
                     builder: _buildSearchResults,
                   ),
@@ -151,7 +150,7 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget _buildSearchResults(
     BuildContext context,
-    AsyncSnapshot<List<SearchResult>> snapshot,
+    AsyncSnapshot<List<SearchResult>?> snapshot,
   ) {
     switch (snapshot.connectionState) {
       case ConnectionState.waiting:
@@ -159,13 +158,14 @@ class _SearchPageState extends State<SearchPage> {
       case ConnectionState.none:
       case ConnectionState.active:
       case ConnectionState.done:
-        if (snapshot.hasData && snapshot.data!.length > 0) {
+        if (snapshot.data == null) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasData && snapshot.data!.length > 0) {
           return CoverListView(snapshot.data!, showIcon: true);
         } else if (snapshot.hasError) {
           return Center(
             child: buildError(
               snapshot.error?.toString() ?? "Error searching",
-              onRefresh: () => setState(() {}),
             ),
           );
         } else {
