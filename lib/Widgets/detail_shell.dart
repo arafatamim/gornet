@@ -9,12 +9,14 @@ class DetailShell extends StatefulWidget {
   final String? synopsis;
   final List<Widget> meta;
   final Widget child;
+  final Widget? continueWidget;
 
   DetailShell({
     required this.title,
     this.logoUrl,
     this.genres,
     this.synopsis,
+    this.continueWidget,
     required this.meta,
     required this.child,
   });
@@ -65,7 +67,7 @@ class _DetailShellState extends State<DetailShell>
                   )
                 ],
                 if (widget.synopsis != null) ...[
-                  SizedBox(height: 40),
+                  SizedBox(height: 20),
                   Expanded(
                     child: Text(
                       widget.synopsis.toString(),
@@ -75,7 +77,8 @@ class _DetailShellState extends State<DetailShell>
                     ),
                   ),
                 ],
-                SizedBox(height: 50),
+                SizedBox(height: 20),
+                if (widget.continueWidget != null) widget.continueWidget!,
               ],
             ),
           ),

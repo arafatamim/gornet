@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:android_intent/android_intent.dart';
 import 'package:chillyflix/Models/FtpbdModel.dart';
 import 'package:chillyflix/Services/FtpbdService.dart';
-import 'package:chillyflix/Services/StorageService.dart';
+import 'package:chillyflix/Services/favorites.dart';
+import 'package:chillyflix/Services/next_up.dart';
 import 'package:chillyflix/Widgets/Episodes.dart';
 import 'package:chillyflix/Widgets/RoundedCard.dart';
 import 'package:chillyflix/Widgets/SeasonTab.dart';
@@ -26,7 +27,7 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
-  Future<Media>? media;
+  late final Future<Media>? media;
 
   @override
   void initState() {
@@ -54,7 +55,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
           () => Platform.isLinux
               ? FloatingActionButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Icon(Icons.arrow_back),
+                  child: const Icon(Icons.arrow_back),
                 )
               : null,
           null,
@@ -97,7 +98,9 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
                         ),
                       );
                     } else {
-                      return Center(child: CircularProgressIndicator());
+                      return const Center(
+                        child: const CircularProgressIndicator(),
+                      );
                     }
                   },
                 ),
@@ -132,6 +135,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
 
   DetailShell _buildMovieDetails(Movie movie) {
     final _buildMeta = <Widget>[
+      buildLabel(movie.year.toString()),
       if (movie.criticRatings?.rottenTomatoes != null)
         buildLabel(
           "${movie.criticRatings?.rottenTomatoes.toString()}%",
@@ -150,7 +154,6 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
       ),
       if (movie.ageRating != null)
         buildLabel(movie.ageRating!, hasBackground: true),
-      buildLabel(movie.year.toString())
       /*
       FavoriteIcon(
         id: widget.searchResult.id,
@@ -170,6 +173,19 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
 
   DetailShell _buildSeriesDetails(Series series) {
     final _buildMeta = <Widget>[
+      if (series.year != null)
+        buildLabel(
+          series.year.toString() +
+              (series.hasEnded != null
+                  ? (series.hasEnded!
+                      ? (series.endDate != null
+                          ? (series.endDate!.year == series.year
+                              ? ""
+                              : " - " + series.endDate!.year.toString())
+                          : " - ENDED")
+                      : " - PRESENT")
+                  : ""),
+        ),
       if (series.criticRatings?.community != null)
         buildLabel(
           series.criticRatings!.community!.toStringAsFixed(2),
@@ -187,19 +203,6 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
         ),
       if (series.ageRating != null)
         buildLabel(series.ageRating!, hasBackground: true),
-      if (series.year != null)
-        buildLabel(
-          series.year.toString() +
-              (series.hasEnded != null
-                  ? (series.hasEnded!
-                      ? (series.endDate != null
-                          ? (series.endDate!.year == series.year
-                              ? ""
-                              : " - " + series.endDate!.year.toString())
-                          : " - ENDED")
-                      : " - PRESENT")
-                  : ""),
-        ),
       FavoriteIcon(
         mediaType: MediaType.Series,
         id: widget.searchResult.id,
@@ -212,6 +215,73 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
       meta: _buildMeta,
       genres: series.genres,
       synopsis: series.synopsis,
+      continueWidget: FutureBuilder<StorageFormat?>(
+        // Check if there is next up data
+        future: Provider.of<NextUpService>(context).getNextUp(series.id),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return const SizedBox.shrink();
+            case ConnectionState.done:
+              if (snapshot.data != null) {
+                final item = snapshot.data!;
+                return FutureBuilder<List>(
+                  future: Future.wait([
+                    Provider.of<FtpbdService>(context)
+                        .getSeason(item.seriesId, item.seasonId),
+                    Provider.of<FtpbdService>(context).getEpisode(
+                        item.seriesId, item.seasonId, item.episodeId),
+                  ]),
+                  builder: (context, snapshot) {
+                    switch (snapshot.connectionState) {
+                      case ConnectionState.waiting:
+                        return const Center(
+                          child: const CircularProgressIndicator(),
+                        );
+                      case ConnectionState.done:
+                        if (snapshot.data != null) {
+                          final Season season = snapshot.data![0];
+                          final Episode episode = snapshot.data![1];
+                          return RoundedCard(
+                            title: "Continue watching",
+                            subtitle: (season.index != null
+                                    ? "S${season.index.toString().padLeft(2, "0")}"
+                                    : season.name) +
+                                (episode.index != null
+                                    ? "E${episode.index.toString().padLeft(2, "0")}"
+                                    : episode.name) +
+                                (" - " + episode.name),
+                            onTap: () {
+                              showModalBottomSheet(
+                                useRootNavigator: true,
+                                isDismissible: false,
+                                routeSettings:
+                                    const RouteSettings(name: "episode"),
+                                backgroundColor: Colors.transparent,
+                                context: context,
+                                builder: (context) {
+                                  return EpisodeSheet(
+                                    season: season,
+                                    episode: episode,
+                                  );
+                                },
+                              );
+                            },
+                          );
+                        } else
+                          return const SizedBox.shrink();
+                      default:
+                        return const SizedBox.shrink();
+                    }
+                  },
+                );
+              } else
+                return const SizedBox.shrink();
+            default:
+              return const SizedBox.shrink();
+          }
+        },
+      ),
       child: FutureBuilder<List<Season>>(
         future: Provider.of<FtpbdService>(context).getSeasons(series.id),
         builder: (context, snapshot) {

@@ -1,6 +1,6 @@
 import 'package:chillyflix/Models/FtpbdModel.dart';
 import 'package:chillyflix/Services/FtpbdService.dart';
-import 'package:chillyflix/Services/StorageService.dart';
+import 'package:chillyflix/Services/favorites.dart';
 import 'package:chillyflix/Tabs/HomeTab.dart';
 import 'package:chillyflix/Tabs/ItemsTab.dart';
 import 'package:chillyflix/Widgets/buttons/animated_icon_button.dart';
@@ -51,14 +51,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         policy: OrderedTraversalPolicy(),
         child: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: RadialGradient(
               colors: [
+                Theme.of(context).colorScheme.secondary,
                 Theme.of(context).colorScheme.primary,
-                Theme.of(context).colorScheme.secondary
               ],
-              stops: [0.2, 1],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+              stops: [0, 1],
+              center: Alignment.bottomCenter,
+              radius: 1.4,
+              focal: Alignment(0, 2.5),
             ),
           ),
           child: Column(
@@ -107,7 +108,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         GButton(
                           textStyle: Theme.of(context).textTheme.bodyText1,
                           icon: FeatherIcons.heart,
-                          text: "Favorites",
+                          text: "My list",
                         ),
                         GButton(
                           textStyle: Theme.of(context).textTheme.bodyText1,

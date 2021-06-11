@@ -118,7 +118,7 @@ class _RoundedCardState extends State<RoundedCard>
         speed: 12,
         scrollDirection: widget.scrollAxis,
         controller: _autoScrollController,
-        startPauseDuration: Duration(seconds: 7),
+        startPauseDuration: Duration(seconds: 5),
         endPauseDuration: Duration(seconds: 10),
         child: Text(
           widget.subtitle ?? "",

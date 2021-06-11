@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:chillyflix/Models/FtpbdModel.dart';
 import 'package:chillyflix/Services/FtpbdService.dart';
 import 'package:chillyflix/Widgets/Cover.dart';
-import 'package:chillyflix/Widgets/virtual_keyboard/text_key.dart';
 import 'package:chillyflix/Widgets/virtual_keyboard/virtual_keyboard.dart';
 import 'package:chillyflix/utils.dart';
 import 'package:flutter/material.dart';
@@ -87,27 +86,29 @@ class _SearchPageState extends State<SearchPage> {
                     children: [
                       Expanded(
                         flex: 2,
-                        child: TextField(
-                          controller: _textController,
-                          // focusNode: _focusNode,
-                          readOnly: true,
-                          textInputAction: TextInputAction.go,
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.sourceSansPro(
-                            color: Colors.white,
-                            fontSize: 30.0,
-                          ),
-                          decoration: InputDecoration(
-                            fillColor: Colors.transparent,
-                            filled: true,
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
+                        child: FocusScope(
+                          canRequestFocus: false,
+                          child: TextField(
+                            controller: _textController,
+                            readOnly: true,
+                            textInputAction: TextInputAction.go,
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.sourceSansPro(
+                              color: Colors.white,
+                              fontSize: 30.0,
                             ),
-                            border: InputBorder.none,
-                            hintText: "Search...",
-                            hintStyle: GoogleFonts.sourceSansPro(
-                              color: Colors.grey,
+                            decoration: InputDecoration(
+                              fillColor: Colors.transparent,
+                              filled: true,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              border: InputBorder.none,
+                              hintText: "Search...",
+                              hintStyle: GoogleFonts.sourceSansPro(
+                                color: Colors.grey,
+                              ),
                             ),
                           ),
                         ),
@@ -117,6 +118,8 @@ class _SearchPageState extends State<SearchPage> {
                         child: VirtualKeyboard(
                           controller: _textController,
                           keyboardHeight: 185,
+                          textTransformer: (incomingValue) =>
+                              incomingValue?.toLowerCase(),
                           onChanged: (value) {
                             if (_debounce?.isActive ?? false)
                               _debounce?.cancel();

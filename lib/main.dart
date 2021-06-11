@@ -1,7 +1,8 @@
 import 'package:chillyflix/Models/FtpbdModel.dart';
 import 'package:chillyflix/Pages/DetailPage.dart';
 import 'package:chillyflix/Pages/SearchPage.dart';
-import 'package:chillyflix/Services/StorageService.dart';
+import 'package:chillyflix/Services/favorites.dart';
+import 'package:chillyflix/Services/next_up.dart';
 import 'package:chillyflix/theme/modern.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
       providers: [
         Provider<FtpbdService>(create: (_) => FtpbdService()),
         Provider<FavoritesService>(create: (_) => FavoritesService("default")),
+        Provider<NextUpService>(create: (_) => NextUpService("next_up")),
       ],
       child: Shortcuts(
         // needed for AndroidTV to be able to select

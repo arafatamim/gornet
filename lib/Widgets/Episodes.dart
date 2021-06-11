@@ -4,10 +4,12 @@ import 'dart:ui';
 import 'package:android_intent/android_intent.dart';
 import 'package:chillyflix/Models/FtpbdModel.dart';
 import 'package:chillyflix/Services/FtpbdService.dart';
+import 'package:chillyflix/Services/next_up.dart';
 import 'package:chillyflix/Widgets/RoundedCard.dart';
 import 'package:chillyflix/Widgets/scrolling_text.dart';
 import 'package:chillyflix/utils.dart';
 import 'package:duration/duration.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -79,7 +81,10 @@ class _EpisodesState extends State<Episodes>
                 backgroundColor: Colors.transparent,
                 context: context,
                 builder: (context) {
-                  return _buildSheet(episodes[index]);
+                  return EpisodeSheet(
+                    season: widget.season,
+                    episode: episodes[index],
+                  );
                 },
               );
             },
@@ -88,12 +93,24 @@ class _EpisodesState extends State<Episodes>
       ),
     );
   }
+}
 
-  Widget _buildSheet(Episode episode) {
+class EpisodeSheet extends StatelessWidget {
+  const EpisodeSheet({
+    Key? key,
+    required this.season,
+    required this.episode,
+  }) : super(key: key);
+
+  final Season season;
+  final Episode episode;
+
+  @override
+  Widget build(BuildContext context) {
     return Stack(
       children: [
         // REMOVED DUE TO SLOW PERFORMANCE
-        /* 
+        /*
         if (episode.imageUris.primary != null)
           Positioned.fill(
             child: ImageFiltered(
@@ -106,7 +123,7 @@ class _EpisodesState extends State<Episodes>
                 alignment: Alignment(0.0, 0.05),
               ),
             ),
-          ), 
+          ),
         */
         Container(
           decoration: BoxDecoration(
@@ -122,7 +139,7 @@ class _EpisodesState extends State<Episodes>
             ),
           ),
         ),
-        EpisodeDetails(episode, widget.season),
+        EpisodeDetails(episode, season),
       ],
     );
   }
@@ -198,7 +215,17 @@ class EpisodeDetails extends StatelessWidget {
           ),
           const Spacer(),
           Expanded(
-            child: EpisodeSources(episode.id),
+            child: EpisodeSources(
+              episode.id,
+              onPlay: () => Provider.of<NextUpService>(
+                context,
+                listen: false,
+              ).updateNextUp(
+                seriesId: episode.seriesId,
+                seasonId: episode.seasonId,
+                episodeId: episode.id,
+              ),
+            ),
           ),
         ],
       ),
@@ -207,13 +234,14 @@ class EpisodeDetails extends StatelessWidget {
 }
 
 class EpisodeSources extends StatelessWidget {
-  final String id;
+  final String episodeId;
+  final VoidCallback? onPlay;
 
-  const EpisodeSources(this.id);
+  const EpisodeSources(this.episodeId, {this.onPlay});
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<MediaSource>>(
-      future: Provider.of<FtpbdService>(context).getSources(id),
+      future: Provider.of<FtpbdService>(context).getSources(episodeId),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
@@ -241,6 +269,9 @@ class EpisodeSources extends StatelessWidget {
                               type: "video/*",
                             );
                             intent.launch();
+                            onPlay?.call();
+                          } else {
+                            print("DING DING DING");
                           }
                         } on UnsupportedError {
                           print("It's the web!");

@@ -1,4 +1,4 @@
-import 'package:chillyflix/Services/StorageService.dart';
+import 'package:chillyflix/Services/favorites.dart';
 import 'package:chillyflix/Widgets/RoundedCard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';

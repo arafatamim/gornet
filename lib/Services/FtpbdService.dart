@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 import 'package:chillyflix/Models/FtpbdModel.dart';
-import 'package:chillyflix/Services/StorageService.dart';
+import 'package:chillyflix/Services/favorites.dart';
 import 'package:http/http.dart' as http;
 
 class FtpbdService {
-  String baseUrl = "192.168.0.100:6565";
+  final String baseUrl = "192.168.0.100:6565";
 
   /// [endpoint] must be `movie` or `series`
   Future<List<SearchResult>> search(String endpoint,
@@ -66,6 +66,23 @@ class FtpbdService {
     } else {
       throw Exception("Unhandled status when fetching seasons for series $id");
     }
+  }
+
+  Future<Season?> getSeason(String seriesId, String seasonId) async {
+    final seasons = await getSeasons(seriesId);
+    return seasons.firstWhere(
+      (element) => element.id == seasonId,
+      orElse: null,
+    );
+  }
+
+  Future<Episode?> getEpisode(
+      String seriesId, String seasonId, String episodeId) async {
+    final episodes = await getEpisodes(seriesId, seasonId);
+    return episodes.firstWhere(
+      (element) => element.id == episodeId,
+      orElse: null,
+    );
   }
 
   Future<List<Episode>> getEpisodes(String seriesId, String seasonId) async {

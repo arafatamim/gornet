@@ -61,7 +61,7 @@ class _TextKeyState extends State<TextKey> with TickerProviderStateMixin {
 
   void _onTap() {
     _node.requestFocus();
-    if (widget.onTap != null) widget.onTap!.call(widget.text);
+    if (widget.onTap != null) widget.onTap!(widget.text);
   }
 
   @override

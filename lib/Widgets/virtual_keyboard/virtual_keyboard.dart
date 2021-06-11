@@ -1,26 +1,30 @@
 import 'package:chillyflix/Widgets/virtual_keyboard/text_key.dart';
 import 'package:flutter/material.dart';
 
-typedef CustomKey = TextKey Function(void Function() handler);
+typedef CustomKey = TextKey Function(void Function() defaultHandler);
 
 class VirtualKeyboard extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final TextEditingController? controller;
   final List<List<String>>? customLayout;
+  final List<List<TextKey>>? customBottomRows;
   final CustomKey? backspaceKey;
   final CustomKey? spaceKey;
   final CustomKey? clearKey;
   final double? keyboardHeight;
+  final String? Function(String? incomingValue)? textTransformer;
 
   const VirtualKeyboard({
     Key? key,
     this.onChanged,
     this.controller,
     this.customLayout,
+    this.customBottomRows,
     this.backspaceKey,
     this.spaceKey,
     this.clearKey,
     this.keyboardHeight,
+    this.textTransformer,
   }) : super(key: key);
 
   @override
@@ -30,8 +34,11 @@ class VirtualKeyboard extends StatefulWidget {
 class _VirtualKeyboardState extends State<VirtualKeyboard> {
   TextEditingController? _controller;
   late final List<List<String>> _keyLayout;
-  TextEditingController get _effectiveController =>
+
+  TextEditingController get effectiveController =>
       widget.controller ?? _controller!;
+
+  void onChangedCallback() => widget.onChanged?.call(effectiveController.text);
 
   @override
   Widget build(BuildContext context) {
@@ -40,8 +47,11 @@ class _VirtualKeyboardState extends State<VirtualKeyboard> {
       color: Colors.transparent,
       child: Column(
         children: [
-          for (final row in _keyLayout) _buildRow(row),
-          _buildBottomRow(),
+          for (final row in _keyLayout) _buildRowOfStrings(row),
+          if (widget.customBottomRows != null)
+            for (final row in widget.customBottomRows!) _buildRowOfWidgets(row)
+          else
+            _buildDefaultBottomRow(),
         ],
       ),
     );
@@ -56,9 +66,8 @@ class _VirtualKeyboardState extends State<VirtualKeyboard> {
   @override
   void initState() {
     super.initState();
-    if (widget.controller == null) {
-      _createLocalController();
-    }
+    if (widget.controller == null) _createLocalController();
+
     _keyLayout = widget.customLayout ??
         const [
           ["A", "B", "C", "D", "E", "F", "G", "1", "2", "3"],
@@ -68,21 +77,35 @@ class _VirtualKeyboardState extends State<VirtualKeyboard> {
         ];
   }
 
-  Widget _buildRow(List<String> keys) {
-    return Expanded(
-      child: Row(
-        children: [
-          for (final key in keys)
-            TextKey(
+  Widget _buildRowOfStrings(List<String> keys) {
+    return _buildRowOfWidgets(keys
+        .map((key) => TextKey(
               text: key,
               onTap: _textInputHandler,
-            )
-        ],
+            ))
+        .toList());
+    // return Expanded(
+    //   child: Row(
+    //     children: [
+    //       for (final key in keys)
+    //         TextKey(
+    //           text: key,
+    //           onTap: _textInputHandler,
+    //         )
+    //     ],
+    //   ),
+    // );
+  }
+
+  Widget _buildRowOfWidgets(List<TextKey> keys) {
+    return Expanded(
+      child: Row(
+        children: [for (final key in keys) key],
       ),
     );
   }
 
-  Expanded _buildBottomRow() {
+  Expanded _buildDefaultBottomRow() {
     return Expanded(
       child: Row(
         children: [
@@ -111,31 +134,34 @@ class _VirtualKeyboardState extends State<VirtualKeyboard> {
   }
 
   void _clearHandler() {
-    _effectiveController.text = "";
-    widget.onChanged?.call(_effectiveController.text);
+    effectiveController.text = "";
+    onChangedCallback();
   }
 
   void _backspaceHandler() {
-    if (_effectiveController.text.length > 0) {
-      _effectiveController.text = _effectiveController.text
-          .substring(0, _effectiveController.text.length - 1);
+    if (effectiveController.text.length > 0) {
+      effectiveController.text = effectiveController.text
+          .substring(0, effectiveController.text.length - 1);
     }
-    widget.onChanged?.call(_effectiveController.text);
+    onChangedCallback();
   }
 
   void _spaceHandler() {
-    if (_effectiveController.text != "") {
-      _effectiveController.text = _effectiveController.text.trim() + " ";
+    if (effectiveController.text != "") {
+      effectiveController.text = effectiveController.text.trim() + " ";
     }
-    widget.onChanged?.call(_effectiveController.text);
+    onChangedCallback();
   }
 
   void _textInputHandler(String? text) {
     if (text != null) {
-      _effectiveController.text =
-          _effectiveController.text + text.toLowerCase();
+      if (widget.textTransformer != null)
+        effectiveController.text =
+            effectiveController.text + widget.textTransformer!(text)!;
+      else
+        effectiveController.text = effectiveController.text + text;
     }
-    widget.onChanged?.call(_effectiveController.text);
+    onChangedCallback();
   }
 
   void _createLocalController([TextEditingValue? value]) {
