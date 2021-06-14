@@ -2,8 +2,8 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:android_intent/android_intent.dart';
-import 'package:chillyflix/Models/FtpbdModel.dart';
-import 'package:chillyflix/Services/FtpbdService.dart';
+import 'package:chillyflix/Models/models.dart';
+import 'package:chillyflix/Services/api.dart';
 import 'package:chillyflix/Services/next_up.dart';
 import 'package:chillyflix/Widgets/RoundedCard.dart';
 import 'package:chillyflix/Widgets/scrolling_text.dart';

@@ -1,20 +1,32 @@
 import 'package:meta/meta.dart';
 
+class ServerError {
+  final String message;
+  final int status;
+  ServerError(this.status, this.message);
+  ServerError.fromJson(Map<String, dynamic> json)
+      : message = json["error"],
+        status = json["status"];
+}
+
 class ImageUris {
   final String? primary;
   final String? backdrop;
   final String? thumb;
   final String? logo;
-  const ImageUris({this.primary, this.backdrop, this.thumb, this.logo});
+  final String? banner;
+  const ImageUris(
+      {this.primary, this.backdrop, this.thumb, this.logo, this.banner});
   ImageUris.fromJson(Map<String, dynamic> json)
       : primary = json["primary"],
         backdrop = json["backdrop"],
         thumb = json["thumb"],
-        logo = json["logo"];
+        logo = json["logo"],
+        banner = json["banner"];
 
   @override
   String toString() {
-    return "ImageUris { primary: $primary, backdrop: $backdrop, thumb: $thumb, logo: $logo }";
+    return "ImageUris { primary: $primary, backdrop: $backdrop, thumb: $thumb, logo: $logo, banner: $logo }";
   }
 }
 
@@ -33,12 +45,13 @@ class MediaSource {
   final int fileSize;
   final String fileName;
   final String displayName;
-  const MediaSource(
-      {required this.bitrate,
-      required this.displayName,
-      required this.fileName,
-      required this.fileSize,
-      required this.streamUri});
+  const MediaSource({
+    required this.bitrate,
+    required this.displayName,
+    required this.fileName,
+    required this.fileSize,
+    required this.streamUri,
+  });
   MediaSource.fromJson(Map<String, dynamic> json)
       : bitrate = json["bitrate"],
         displayName = json["displayName"],
@@ -52,6 +65,27 @@ class MediaSource {
           .toList();
 }
 
+class Cast {
+  final String name;
+  final String? role;
+  final ImageUris? imageUris;
+  const Cast({
+    required this.name,
+    this.role,
+    this.imageUris,
+  });
+
+  Cast.fromJson(Map<String, dynamic> json)
+      : name = json["name"],
+        role = json["role"],
+        imageUris = ImageUris.fromJson(json["imageUris"]);
+
+  static List<Cast> fromJsonArray(List<dynamic> payload) =>
+      List<Map<String, dynamic>>.from(payload)
+          .map((item) => Cast.fromJson(item))
+          .toList();
+}
+
 class Media {
   final String id;
   final String? title;
@@ -60,6 +94,8 @@ class Media {
   final String? ageRating;
   final String? synopsis;
   final ImageUris? imageUris;
+  final List<String>? studios;
+  final List<Cast>? cast;
   const Media({
     required this.id,
     this.title,
@@ -68,6 +104,8 @@ class Media {
     this.ageRating,
     this.synopsis,
     this.imageUris,
+    this.studios,
+    this.cast,
   });
 
   @override
@@ -78,8 +116,8 @@ class Media {
 
 @immutable
 class Movie extends Media {
+  final List<String>? directors;
   final Duration runtime;
-  final List<MediaSource> mediaSources;
   final CriticRatings? criticRatings;
 
   // static List<MediaSource> getSources(List<dynamic> data) {
@@ -91,18 +129,23 @@ class Movie extends Media {
 
   Movie.fromJson(Map<String, dynamic> payload)
       : runtime = Duration(milliseconds: payload["runtime"].toInt()),
-        mediaSources = List<Map<String, dynamic>>.from(payload["mediaSources"])
-            .map((e) => MediaSource.fromJson(e))
-            .toList(),
+        directors = payload["directors"] != null
+            ? ((payload["directors"]) as List<dynamic>).cast<String>()
+            : null,
         criticRatings = CriticRatings.fromJson(payload["criticRatings"]),
         super(
-            id: payload["id"],
-            title: payload["title"],
-            year: payload["year"],
-            genres: List<String>.from(payload["genres"]),
-            ageRating: payload["ageRating"],
-            synopsis: payload["synopsis"],
-            imageUris: ImageUris.fromJson(payload["imageUris"]));
+          id: payload["id"],
+          title: payload["title"],
+          year: payload["year"],
+          genres: List<String>.from(payload["genres"]),
+          ageRating: payload["ageRating"],
+          synopsis: payload["synopsis"],
+          imageUris: ImageUris.fromJson(payload["imageUris"]),
+          cast: Cast.fromJsonArray(payload["cast"]),
+          studios: payload["studios"] != null
+              ? ((payload["studios"]) as List<dynamic>).cast<String>()
+              : null,
+        );
 }
 
 @immutable
@@ -122,13 +165,18 @@ class Series extends Media {
             : null,
         criticRatings = CriticRatings.fromJson(payload["criticRatings"]),
         super(
-            id: payload["id"],
-            ageRating: payload["ageRating"],
-            title: payload["title"],
-            year: payload["year"],
-            genres: List.from(payload["genres"]),
-            imageUris: ImageUris.fromJson(payload["imageUris"]),
-            synopsis: payload["synopsis"]);
+          id: payload["id"],
+          ageRating: payload["ageRating"],
+          title: payload["title"],
+          year: payload["year"],
+          genres: List.from(payload["genres"]),
+          imageUris: ImageUris.fromJson(payload["imageUris"]),
+          synopsis: payload["synopsis"],
+          cast: Cast.fromJsonArray(payload["cast"]),
+          studios: payload["studios"] != null
+              ? (payload["studios"] as List<dynamic>).cast<String>()
+              : null,
+        );
 
   @override
   String toString() {
@@ -166,6 +214,7 @@ class Season {
   final String seriesId;
   final int? index;
   final String name;
+  final int childCount;
   final ImageUris? imageUris;
 
   Season.fromJson(Map<String, dynamic> json)
@@ -173,6 +222,7 @@ class Season {
         seriesId = json["seriesId"],
         index = json["index"],
         name = json["name"],
+        childCount = json["childCount"],
         imageUris = ImageUris.fromJson(json["imageUris"]);
 
   @override
@@ -189,9 +239,10 @@ class Episode {
   final int? index;
   final String name;
   final String? synopsis;
+  final List<String>? directors;
   final Duration? runtime;
   final DateTime? airDate;
-  final ImageUris imageUris;
+  final ImageUris? imageUris;
 
   Episode.fromJson(Map<String, dynamic> json)
       : id = json["id"],
@@ -202,6 +253,9 @@ class Episode {
         synopsis = json["synopsis"],
         runtime = json["runtime"] != null
             ? Duration(milliseconds: json['runtime'].toInt())
+            : null,
+        directors = json["directors"] != null
+            ? ((json["directors"]) as List<dynamic>).cast<String>()
             : null,
         airDate =
             json["airDate"] != null ? DateTime.parse(json["airDate"]) : null,

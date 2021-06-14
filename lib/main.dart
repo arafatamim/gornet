@@ -1,4 +1,4 @@
-import 'package:chillyflix/Models/FtpbdModel.dart';
+import 'package:chillyflix/Models/models.dart';
 import 'package:chillyflix/Pages/DetailPage.dart';
 import 'package:chillyflix/Pages/SearchPage.dart';
 import 'package:chillyflix/Services/favorites.dart';
@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:chillyflix/Pages/HomePage.dart';
-import 'package:chillyflix/Services/FtpbdService.dart';
+import 'package:chillyflix/Services/api.dart';
 
 // extension Precision on double {
 //   double toPrecision(int fractionDigits) {

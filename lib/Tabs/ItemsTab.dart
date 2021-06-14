@@ -1,4 +1,4 @@
-import 'package:chillyflix/Models/FtpbdModel.dart';
+import 'package:chillyflix/Models/models.dart';
 import 'package:chillyflix/Widgets/RoundedCard.dart';
 import 'package:chillyflix/Widgets/shimmers.dart';
 import 'package:chillyflix/utils.dart';

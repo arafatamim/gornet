@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:chillyflix/Models/FtpbdModel.dart';
-import 'package:chillyflix/Services/FtpbdService.dart';
+import 'package:chillyflix/Models/models.dart';
+import 'package:chillyflix/Services/api.dart';
 import 'package:chillyflix/Widgets/Cover.dart';
 import 'package:chillyflix/Widgets/virtual_keyboard/virtual_keyboard.dart';
 import 'package:chillyflix/utils.dart';
@@ -48,8 +48,8 @@ class _SearchPageState extends State<SearchPage> {
     try {
       _resultsStream.add(null);
       final futures = [
-        FtpbdService().search("movie", query: query, limit: 6),
-        FtpbdService().search("series", query: query, limit: 6)
+        FtpbdService().search("movie", "search", query: query, limit: 6),
+        FtpbdService().search("series", "search", query: query, limit: 6)
       ];
       final results = await Future.wait(futures).then(
         (event) => event.expand((element) => element).toList(),

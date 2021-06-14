@@ -1,5 +1,5 @@
-import 'package:chillyflix/Models/FtpbdModel.dart';
-import 'package:chillyflix/Services/FtpbdService.dart';
+import 'package:chillyflix/Models/models.dart';
+import 'package:chillyflix/Services/api.dart';
 import 'package:chillyflix/Services/favorites.dart';
 import 'package:chillyflix/Tabs/HomeTab.dart';
 import 'package:chillyflix/Tabs/ItemsTab.dart';
@@ -158,12 +158,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ItemsTab(
                         future: Provider.of<FtpbdService>(context).search(
                           "movie",
+                          "latest",
                           limit: 24,
                         ),
                       ),
                       ItemsTab(
                         future: Provider.of<FtpbdService>(context).search(
                           "series",
+                          "latest",
                           limit: 24,
                         ),
                       ),

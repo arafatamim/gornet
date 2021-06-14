@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:chillyflix/Models/FtpbdModel.dart';
+import 'package:chillyflix/Models/models.dart';
 import 'package:chillyflix/Pages/HomePage.dart';
-import 'package:chillyflix/Services/FtpbdService.dart';
+import 'package:chillyflix/Services/api.dart';
 import 'package:chillyflix/Widgets/shimmers.dart';
 import 'package:chillyflix/Widgets/spotlight.dart';
 import 'package:chillyflix/utils.dart';
@@ -117,6 +117,7 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
             child: CoverListViewBuilder(
               results: Provider.of<FtpbdService>(context).search(
                 "movie",
+                "latest",
                 limit: 10,
               ),
               separator: false,
@@ -130,6 +131,7 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
             child: CoverListViewBuilder(
               results: Provider.of<FtpbdService>(context).search(
                 "series",
+                "latest",
                 limit: 10,
               ),
               separator: false,

@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:android_intent/android_intent.dart';
-import 'package:chillyflix/Models/FtpbdModel.dart';
-import 'package:chillyflix/Services/FtpbdService.dart';
+import 'package:chillyflix/Models/models.dart';
+import 'package:chillyflix/Services/api.dart';
 import 'package:chillyflix/Services/favorites.dart';
 import 'package:chillyflix/Services/next_up.dart';
 import 'package:chillyflix/Widgets/Episodes.dart';
@@ -10,6 +10,7 @@ import 'package:chillyflix/Widgets/RoundedCard.dart';
 import 'package:chillyflix/Widgets/SeasonTab.dart';
 import 'package:chillyflix/Widgets/detail_shell.dart';
 import 'package:chillyflix/Widgets/favorites.dart';
+import 'package:chillyflix/Widgets/scrolling_text.dart';
 import 'package:chillyflix/utils.dart';
 import 'package:duration/duration.dart';
 import 'package:flutter/material.dart';
@@ -134,26 +135,42 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
   }
 
   DetailShell _buildMovieDetails(Movie movie) {
-    final _buildMeta = <Widget>[
-      buildLabel(movie.year.toString()),
-      if (movie.criticRatings?.rottenTomatoes != null)
+    final _buildMeta = [
+      <Widget>[
+        buildLabel(movie.year.toString()),
+        if (movie.criticRatings?.rottenTomatoes != null)
+          buildLabel(
+            "${movie.criticRatings?.rottenTomatoes.toString()}%",
+            imageAsset: (movie.criticRatings?.rottenTomatoes! ?? -1) > 60
+                ? "assets/fresh.png"
+                : "assets/rotten.png",
+          ),
         buildLabel(
-          "${movie.criticRatings?.rottenTomatoes.toString()}%",
-          imageAsset: (movie.criticRatings?.rottenTomatoes! ?? -1) > 60
-              ? "assets/fresh.png"
-              : "assets/rotten.png",
+          prettyDuration(
+            movie.runtime,
+            tersity: DurationTersity.minute,
+            abbreviated: true,
+            delimiter: " ",
+          ),
+          icon: FeatherIcons.clock,
         ),
-      buildLabel(
-        prettyDuration(
-          movie.runtime,
-          tersity: DurationTersity.minute,
-          abbreviated: true,
-          delimiter: " ",
-        ),
-        icon: FeatherIcons.clock,
-      ),
-      if (movie.ageRating != null)
-        buildLabel(movie.ageRating!, hasBackground: true),
+        if (movie.ageRating != null)
+          buildLabel(movie.ageRating!, hasBackground: true),
+      ],
+      <Widget>[
+        if (movie.directors != null)
+          buildLabel("Directed by " + movie.directors!.join(",")),
+      ],
+      [
+        if (movie.cast != null)
+          Expanded(
+            child: ScrollingText(
+              scrollDirection: Axis.horizontal,
+              child: buildLabel("Cast: " +
+                  movie.cast!.take(10).map((i) => i.name).join(", ")),
+            ),
+          ),
+      ]
       /*
       FavoriteIcon(
         id: widget.searchResult.id,
@@ -167,46 +184,76 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
       meta: _buildMeta,
       genres: movie.genres,
       synopsis: movie.synopsis,
-      child: _buildSources(movie.mediaSources),
+      child: FutureBuilder<List<MediaSource>>(
+        future: Provider.of<FtpbdService>(context).getSources(movie.id),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            case ConnectionState.done:
+              if (snapshot.hasData) {
+                return _buildSources(snapshot.data!);
+              } else {
+                return buildError(snapshot.error.toString());
+              }
+            default:
+              return Container();
+          }
+        },
+      ),
     );
   }
 
   DetailShell _buildSeriesDetails(Series series) {
-    final _buildMeta = <Widget>[
-      if (series.year != null)
-        buildLabel(
-          series.year.toString() +
-              (series.hasEnded != null
-                  ? (series.hasEnded!
-                      ? (series.endDate != null
-                          ? (series.endDate!.year == series.year
-                              ? ""
-                              : " - " + series.endDate!.year.toString())
-                          : " - ENDED")
-                      : " - PRESENT")
-                  : ""),
-        ),
-      if (series.criticRatings?.community != null)
-        buildLabel(
-          series.criticRatings!.community!.toStringAsFixed(2),
-          icon: FeatherIcons.star,
-        ),
-      if (series.averageRuntime != null)
-        buildLabel(
-          prettyDuration(
-            series.averageRuntime!,
-            tersity: DurationTersity.minute,
-            abbreviated: true,
-            delimiter: " ",
+    final _buildMeta = [
+      <Widget>[
+        if (series.year != null)
+          buildLabel(
+            series.year.toString() +
+                (series.hasEnded != null
+                    ? (series.hasEnded!
+                        ? (series.endDate != null
+                            ? (series.endDate!.year == series.year
+                                ? ""
+                                : " - " + series.endDate!.year.toString())
+                            : " - ENDED")
+                        : " - PRESENT")
+                    : ""),
           ),
-          icon: FeatherIcons.clock,
-        ),
-      if (series.ageRating != null)
-        buildLabel(series.ageRating!, hasBackground: true),
-      FavoriteIcon(
-        mediaType: MediaType.Series,
-        id: widget.searchResult.id,
-      )
+        if (series.criticRatings?.community != null)
+          buildLabel(
+            series.criticRatings!.community!.toStringAsFixed(2),
+            icon: FeatherIcons.star,
+          ),
+        if (series.averageRuntime != null)
+          buildLabel(
+            prettyDuration(
+              series.averageRuntime!,
+              tersity: DurationTersity.minute,
+              abbreviated: true,
+              delimiter: " ",
+            ),
+            icon: FeatherIcons.clock,
+          ),
+        if (series.ageRating != null)
+          buildLabel(series.ageRating!, hasBackground: true),
+        FavoriteIcon(
+          mediaType: MediaType.Series,
+          id: widget.searchResult.id,
+        )
+      ],
+      [
+        if (series.cast != null)
+          Expanded(
+            child: ScrollingText(
+              scrollDirection: Axis.horizontal,
+              child: buildLabel("Cast: " +
+                  series.cast!.take(10).map((i) => i.name).join(", ")),
+            ),
+          ),
+      ]
     ];
 
     return DetailShell(
@@ -227,10 +274,9 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
                 final item = snapshot.data!;
                 return FutureBuilder<List>(
                   future: Future.wait([
+                    Provider.of<FtpbdService>(context).getSeason(item.seasonId),
                     Provider.of<FtpbdService>(context)
-                        .getSeason(item.seriesId, item.seasonId),
-                    Provider.of<FtpbdService>(context).getEpisode(
-                        item.seriesId, item.seasonId, item.episodeId),
+                        .getEpisode(item.episodeId),
                   ]),
                   builder: (context, snapshot) {
                     switch (snapshot.connectionState) {

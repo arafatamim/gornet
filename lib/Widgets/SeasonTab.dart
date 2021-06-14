@@ -1,4 +1,4 @@
-import 'package:chillyflix/Models/FtpbdModel.dart';
+import 'package:chillyflix/Models/models.dart';
 import 'package:chillyflix/Widgets/RoundedCard.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
