@@ -126,7 +126,7 @@ class _SeasonTabState extends State<SeasonTab>
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      widget.season.index?.toString() ?? "?",
+                      widget.season.index.toString(),
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headline1?.apply(
                             color: Colors.grey.shade400,

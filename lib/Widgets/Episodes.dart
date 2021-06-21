@@ -33,7 +33,7 @@ class _EpisodesState extends State<Episodes>
     super.build(context);
     return FutureBuilder<List<Episode>>(
       future: Provider.of<FtpbdService>(context)
-          .getEpisodes(widget.season.seriesId, widget.season.id),
+          .getEpisodes(widget.season.seriesId, widget.season.index),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
@@ -60,7 +60,7 @@ class _EpisodesState extends State<Episodes>
         itemBuilder: (context, index) {
           return RoundedCard(
             leading: Text(
-              episodes[index].index?.toString() ?? "?",
+              episodes[index].index.toString(),
               style: GoogleFonts.sourceSansPro(
                 fontSize: 25,
                 color: Theme.of(context).colorScheme.secondary,
@@ -167,14 +167,13 @@ class EpisodeDetails extends StatelessWidget {
                   style: Theme.of(context).textTheme.headline2,
                 ),
                 const SizedBox(height: 6),
-                if (season.index != null && episode.index != null)
-                  Text(
-                    "S${season.index.toString().padLeft(2, "0")}E${episode.index.toString().padLeft(2, '0')}",
-                    style: GoogleFonts.sourceSansPro(
-                      color: Colors.grey.shade300,
-                      fontSize: 25,
-                    ),
+                Text(
+                  "S${season.index.toString().padLeft(2, "0")}E${episode.index.toString().padLeft(2, '0')}",
+                  style: GoogleFonts.sourceSansPro(
+                    color: Colors.grey.shade300,
+                    fontSize: 25,
                   ),
+                ),
                 const SizedBox(height: 15),
                 Row(
                   children: [
@@ -216,13 +215,15 @@ class EpisodeDetails extends StatelessWidget {
           const Spacer(),
           Expanded(
             child: EpisodeSources(
-              episode.id,
+              episode.seriesId,
+              episode.seasonIndex,
+              episode.index,
               onPlay: () => Provider.of<NextUpService>(
                 context,
                 listen: false,
               ).updateNextUp(
                 seriesId: episode.seriesId,
-                seasonId: episode.seasonId,
+                seasonId: episode.seasonIndex,
                 episodeId: episode.id,
               ),
             ),
@@ -234,14 +235,18 @@ class EpisodeDetails extends StatelessWidget {
 }
 
 class EpisodeSources extends StatelessWidget {
-  final String episodeId;
+  final String seriesId;
+  final int seasonIndex;
+  final int episodeIndex;
   final VoidCallback? onPlay;
 
-  const EpisodeSources(this.episodeId, {this.onPlay});
+  const EpisodeSources(this.seriesId, this.seasonIndex, this.episodeIndex,
+      {this.onPlay});
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<MediaSource>>(
-      future: Provider.of<FtpbdService>(context).getSources(episodeId),
+      future: Provider.of<FtpbdService>(context)
+          .getEpisodeSources(seriesId, seasonIndex, episodeIndex),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
@@ -281,9 +286,16 @@ class EpisodeSources extends StatelessWidget {
                 ],
               );
             } else {
-              return buildError(
-                snapshot.error?.toString() ?? "No sources available",
-              );
+              final error = snapshot.error;
+              if (error != null && error is ServerError) {
+                return buildErrorBox(
+                    context, (snapshot.error as ServerError).message);
+              } else {
+                return buildErrorBox(
+                  context,
+                  snapshot.error?.toString() ?? "No sources available",
+                );
+              }
             }
           default:
             return Container();

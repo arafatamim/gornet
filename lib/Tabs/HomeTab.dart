@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:chillyflix/Models/models.dart';
-import 'package:chillyflix/Pages/HomePage.dart';
 import 'package:chillyflix/Services/api.dart';
 import 'package:chillyflix/Widgets/shimmers.dart';
 import 'package:chillyflix/Widgets/spotlight.dart';
@@ -45,7 +44,7 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           const SizedBox(height: 40),
-          _buildSectionTitle("Top Picks"),
+          _buildSectionTitle("Spotlight"),
           const SizedBox(height: 20),
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 350),
@@ -53,13 +52,21 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
                 child: ShimmerItem(child: SpotlightShimmer()),
                 builder: (context, service, shimmer) {
                   final seriesList = [
-                    /* Expanse */ "361912",
-                    /* B99 */ "362461",
-                    /* Angie Tribeca */ "361693",
-                    /* Good Place */ "361264",
-                    /* Ted Lasso */ "362077",
-                    /* Space Force */ "361049",
+                    /* Expanse */ "63639",
+                    /* B99 */ "48891",
+                    /* Angie Tribeca */ "61969",
+                    /* Good Place */ "66573",
+                    /* Ted Lasso */ "97546",
+                    /* Space Force */ "85922",
                   ];
+                  // final seriesList = [
+                  //   /* Expanse */ "361912",
+                  //   /* B99 */ "362461",
+                  //   /* Angie Tribeca */ "361693",
+                  //   /* Good Place */ "361264",
+                  //   /* Ted Lasso */ "362077",
+                  //   /* Space Force */ "361049",
+                  // ];
                   final random = new Random();
                   // final series = value.getSeries("361693");
                   final series = service
@@ -83,7 +90,7 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
                                 id: item.id,
                                 year: item.year,
                                 ageRating: item.ageRating,
-                                endDate: item.endDate,
+                                endDate: item.lastAired,
                                 hasEnded: item.hasEnded,
                                 rating: item.criticRatings?.community,
                                 runtime: item.averageRuntime,
@@ -96,7 +103,6 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
                                       name: item.title ?? "",
                                       isMovie: false,
                                       imageUris: item.imageUris,
-                                      year: item.year,
                                     ),
                                   );
                                 });
@@ -111,7 +117,7 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
                 }),
           ),
           const SizedBox(height: 40),
-          _buildSectionTitle("New Arrivals"),
+          _buildSectionTitle("Trending today"),
           LimitedBox(
             maxHeight: 450,
             child: CoverListViewBuilder(
@@ -125,7 +131,7 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
             ),
           ),
           const SizedBox(height: 40),
-          _buildSectionTitle("New Shows"),
+          _buildSectionTitle("Popular on TV"),
           LimitedBox(
             maxHeight: 450,
             child: CoverListViewBuilder(

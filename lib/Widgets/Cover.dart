@@ -117,10 +117,11 @@ class CoverListView extends StatelessWidget {
       itemBuilder: (BuildContext context, int index) {
         SearchResult item = items[index];
         return AspectRatio(
-          aspectRatio: 0.6,
+          aspectRatio: 0.5,
           child: Cover(
             title: item.name,
-            subtitle: (item.year ?? "").toString(),
+            subtitle: "",
+            // subtitle: (item.year ?? "").toString(),
             image: item.imageUris?.primary,
             icon: showIcon
                 ? (item.isMovie ? FeatherIcons.film : FeatherIcons.tv)

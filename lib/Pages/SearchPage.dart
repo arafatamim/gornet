@@ -9,6 +9,7 @@ import 'package:chillyflix/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -47,13 +48,8 @@ class _SearchPageState extends State<SearchPage> {
   void _getItems(String query) async {
     try {
       _resultsStream.add(null);
-      final futures = [
-        FtpbdService().search("movie", "search", query: query, limit: 6),
-        FtpbdService().search("series", "search", query: query, limit: 6)
-      ];
-      final results = await Future.wait(futures).then(
-        (event) => event.expand((element) => element).toList(),
-      );
+      final results = await Provider.of<FtpbdService>(context, listen: false)
+          .multiSearch(query: query);
       _resultsStream.add(results);
     } catch (e) {
       _resultsStream.addError(e);

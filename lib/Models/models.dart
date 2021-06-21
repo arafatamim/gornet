@@ -1,12 +1,17 @@
 import 'package:meta/meta.dart';
 
-class ServerError {
+class ServerError implements Exception {
   final String message;
   final int status;
   ServerError(this.status, this.message);
   ServerError.fromJson(Map<String, dynamic> json)
       : message = json["error"],
         status = json["status"];
+
+  @override
+  String toString() {
+    return "$message";
+  }
 }
 
 class ImageUris {
@@ -33,10 +38,12 @@ class ImageUris {
 class CriticRatings {
   final int? rottenTomatoes;
   final num? community;
-  const CriticRatings({this.community, this.rottenTomatoes});
+  final num? tmdb;
+  const CriticRatings({this.community, this.rottenTomatoes, this.tmdb});
   CriticRatings.fromJson(Map<String, dynamic> json)
       : rottenTomatoes = json["rottenTomatoes"],
-        community = json["community"];
+        community = json["community"],
+        tmdb = json["tmdb"];
 }
 
 class MediaSource {
@@ -92,6 +99,7 @@ class Media {
   final int? year;
   final List<String>? genres;
   final String? ageRating;
+  final String? tagline;
   final String? synopsis;
   final ImageUris? imageUris;
   final List<String>? studios;
@@ -102,6 +110,7 @@ class Media {
     this.year,
     this.genres,
     this.ageRating,
+    this.tagline,
     this.synopsis,
     this.imageUris,
     this.studios,
@@ -128,7 +137,7 @@ class Movie extends Media {
   // }
 
   Movie.fromJson(Map<String, dynamic> payload)
-      : runtime = Duration(milliseconds: payload["runtime"].toInt()),
+      : runtime = Duration(minutes: payload["runtime"].toInt()),
         directors = payload["directors"] != null
             ? ((payload["directors"]) as List<dynamic>).cast<String>()
             : null,
@@ -152,16 +161,16 @@ class Movie extends Media {
 class Series extends Media {
   final Duration? averageRuntime;
   final bool? hasEnded;
-  final DateTime? endDate;
+  final DateTime? lastAired;
   final CriticRatings? criticRatings;
 
   Series.fromJson(Map<String, dynamic> payload)
       : averageRuntime = payload["averageRuntime"] != null
-            ? Duration(milliseconds: payload["averageRuntime"].toInt())
+            ? Duration(minutes: payload["averageRuntime"].toInt())
             : null,
         hasEnded = payload["hasEnded"],
-        endDate = payload["endDate"] != null
-            ? DateTime.parse(payload["endDate"])
+        lastAired = payload["lastAired"] != null
+            ? DateTime.parse(payload["lastAired"])
             : null,
         criticRatings = CriticRatings.fromJson(payload["criticRatings"]),
         super(
@@ -180,7 +189,7 @@ class Series extends Media {
 
   @override
   String toString() {
-    return "Series { ${super.toString()} averageRuntime: $averageRuntime, hasEnded: $hasEnded, endDate: $endDate }";
+    return "Series { ${super.toString()} averageRuntime: $averageRuntime, hasEnded: $hasEnded, endDate: $lastAired }";
   }
 }
 
@@ -188,22 +197,19 @@ class Series extends Media {
 class SearchResult {
   final String id;
   final String name;
-  final int? year;
   final ImageUris? imageUris;
   final bool isMovie;
 
   const SearchResult({
     required this.id,
     required this.name,
-    this.year,
-    this.imageUris,
     required this.isMovie,
+    this.imageUris,
   });
 
   SearchResult.fromJson(Map<String, dynamic> json)
       : id = json["id"],
         name = json["name"],
-        year = json["year"],
         imageUris = ImageUris.fromJson(json["imageUris"]),
         isMovie = json["isMovie"];
 }
@@ -212,7 +218,7 @@ class SearchResult {
 class Season {
   final String id;
   final String seriesId;
-  final int? index;
+  final int index;
   final String name;
   final int childCount;
   final ImageUris? imageUris;
@@ -235,8 +241,8 @@ class Season {
 class Episode {
   final String id;
   final String seriesId;
-  final String seasonId;
-  final int? index;
+  final int seasonIndex;
+  final int index;
   final String name;
   final String? synopsis;
   final List<String>? directors;
@@ -247,7 +253,7 @@ class Episode {
   Episode.fromJson(Map<String, dynamic> json)
       : id = json["id"],
         seriesId = json["seriesId"],
-        seasonId = json["seasonId"],
+        seasonIndex = json["seasonIndex"],
         index = json["index"],
         name = json["name"],
         synopsis = json["synopsis"],

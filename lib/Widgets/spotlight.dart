@@ -130,6 +130,11 @@ class _SpotlightState extends State<Spotlight> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text(
+                widget.title,
+                style: Theme.of(context).textTheme.headline3,
+              ),
+              SizedBox(height: 20),
               Row(
                 children: _buildMeta(
                   ageRating: widget.ageRating,

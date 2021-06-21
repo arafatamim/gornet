@@ -138,13 +138,8 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
     final _buildMeta = [
       <Widget>[
         buildLabel(movie.year.toString()),
-        if (movie.criticRatings?.rottenTomatoes != null)
-          buildLabel(
-            "${movie.criticRatings?.rottenTomatoes.toString()}%",
-            imageAsset: (movie.criticRatings?.rottenTomatoes! ?? -1) > 60
-                ? "assets/fresh.png"
-                : "assets/rotten.png",
-          ),
+        if (movie.criticRatings?.tmdb != null)
+          buildLabel(movie.criticRatings!.tmdb!.toString(), icon: Icons.star),
         buildLabel(
           prettyDuration(
             movie.runtime,
@@ -185,7 +180,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
       genres: movie.genres,
       synopsis: movie.synopsis,
       child: FutureBuilder<List<MediaSource>>(
-        future: Provider.of<FtpbdService>(context).getSources(movie.id),
+        future: Provider.of<FtpbdService>(context).getMovieSources(movie.id),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
@@ -196,7 +191,9 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
               if (snapshot.hasData) {
                 return _buildSources(snapshot.data!);
               } else {
-                return buildError(snapshot.error.toString());
+                return Center(
+                  child: buildErrorBox(context, snapshot.error.toString()),
+                );
               }
             default:
               return Container();
@@ -214,10 +211,10 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
             series.year.toString() +
                 (series.hasEnded != null
                     ? (series.hasEnded!
-                        ? (series.endDate != null
-                            ? (series.endDate!.year == series.year
+                        ? (series.lastAired != null
+                            ? (series.lastAired!.year == series.year
                                 ? ""
-                                : " - " + series.endDate!.year.toString())
+                                : " - " + series.lastAired!.year.toString())
                             : " - ENDED")
                         : " - PRESENT")
                     : ""),
@@ -274,9 +271,13 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
                 final item = snapshot.data!;
                 return FutureBuilder<List>(
                   future: Future.wait([
-                    Provider.of<FtpbdService>(context).getSeason(item.seasonId),
                     Provider.of<FtpbdService>(context)
-                        .getEpisode(item.episodeId),
+                        .getSeason(item.seriesId, item.seasonIndex),
+                    Provider.of<FtpbdService>(context).getEpisode(
+                      item.seriesId,
+                      item.seasonIndex,
+                      item.episodeIndex,
+                    ),
                   ]),
                   builder: (context, snapshot) {
                     switch (snapshot.connectionState) {
@@ -290,13 +291,10 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
                           final Episode episode = snapshot.data![1];
                           return RoundedCard(
                             title: "Continue watching",
-                            subtitle: (season.index != null
-                                    ? "S${season.index.toString().padLeft(2, "0")}"
-                                    : season.name) +
-                                (episode.index != null
-                                    ? "E${episode.index.toString().padLeft(2, "0")}"
-                                    : episode.name) +
-                                (" - " + episode.name),
+                            subtitle:
+                                "S${season.index.toString().padLeft(2, "0")}" +
+                                    "E${episode.index.toString().padLeft(2, "0")}" +
+                                    (" - " + episode.name),
                             onTap: () {
                               showModalBottomSheet(
                                 useRootNavigator: true,

@@ -96,7 +96,8 @@ class _ItemsTabState extends State<ItemsTab>
             SearchResult item = values[index];
             return Cover(
               title: item.name,
-              subtitle: (item.year ?? "").toString(),
+              subtitle: "",
+              // subtitle: (item.year ?? "").toString(),
               image: item.imageUris?.primary,
               // showIcon: widget.showIcon,
               style: RoundedCardStyle(

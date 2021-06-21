@@ -2,24 +2,24 @@ import 'package:localstorage/localstorage.dart';
 
 class StorageFormat {
   final String seriesId;
-  final String seasonId;
-  final String episodeId;
+  final int seasonIndex;
+  final int episodeIndex;
 
   StorageFormat({
     required final this.seriesId,
-    required final this.seasonId,
-    required final this.episodeId,
+    required final this.seasonIndex,
+    required final this.episodeIndex,
   });
 
   StorageFormat.fromJson(Map<String, dynamic> json)
       : seriesId = json["seriesId"],
-        seasonId = json["seasonId"],
-        episodeId = json["episodeId"];
+        seasonIndex = json["seasonIndex"],
+        episodeIndex = json["episodeIndex"];
 
   Map<String, dynamic> toJson() => {
         "seriesId": seriesId,
-        "seasonId": seasonId,
-        "episodeId": episodeId,
+        "seasonIndex": seasonIndex,
+        "episodeIndex": episodeIndex,
       };
 
   static List<StorageFormat> fromJsonArray(List<dynamic> json) =>
@@ -94,8 +94,8 @@ class NextUpService {
         final newData = _updateOrAdd(
           StorageFormat(
             seriesId: seriesId,
-            seasonId: seasonId,
-            episodeId: episodeId,
+            seasonIndex: seasonId,
+            episodeIndex: episodeId,
           ),
           data,
         );

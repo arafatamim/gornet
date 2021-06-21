@@ -37,6 +37,23 @@ class FtpbdService {
     }
   }
 
+  /// [mediaType] must be `movie` or `series`
+  Future<List<SearchResult>> multiSearch({required String query}) async {
+    String pathname = "/api/search/multi";
+
+    final res = await http.get(Uri.http(baseUrl, pathname, {'query': query}));
+
+    if (res.statusCode == 200) {
+      Map<String, dynamic> decodedJson = json.decode(res.body);
+      List payload = decodedJson['payload'];
+      final results = payload.map((e) => SearchResult.fromJson(e)).toList();
+      return results;
+    } else {
+      Map<String, dynamic> decodedJson = json.decode(res.body);
+      throw ServerError.fromJson(decodedJson);
+    }
+  }
+
   Future<Movie> getMovie(String id) async {
     final res = await http.get(Uri.http(baseUrl, "/api/movie/$id"));
 
@@ -76,9 +93,9 @@ class FtpbdService {
     }
   }
 
-  Future<Season> getSeason(String seasonId) async {
-    final res =
-        await http.get(Uri.http(baseUrl, "/api/series/ID/seasons/$seasonId"));
+  Future<Season> getSeason(String seriesId, int seasonIndex) async {
+    final res = await http
+        .get(Uri.http(baseUrl, "/api/series/$seriesId/seasons/$seasonIndex"));
 
     if (res.statusCode == 200) {
       Map<String, dynamic> decoded =
@@ -90,9 +107,10 @@ class FtpbdService {
     }
   }
 
-  Future<Episode> getEpisode(String episodeId) async {
-    final res = await http.get(
-        Uri.http(baseUrl, "/api/series/ID/seasons/ID/episodes/$episodeId"));
+  Future<Episode> getEpisode(
+      String seriesId, int seasonIndex, int episodeIndex) async {
+    final res = await http.get(Uri.http(baseUrl,
+        "/api/series/$seriesId/seasons/$seasonIndex/episodes/$episodeIndex"));
 
     if (res.statusCode == 200) {
       Map<String, dynamic> decoded =
@@ -104,9 +122,9 @@ class FtpbdService {
     }
   }
 
-  Future<List<Episode>> getEpisodes(String seriesId, String seasonId) async {
-    final res = await http.get(
-        Uri.http(baseUrl, "/api/series/$seriesId/seasons/$seasonId/episodes"));
+  Future<List<Episode>> getEpisodes(String seriesId, int seasonIndex) async {
+    final res = await http.get(Uri.http(
+        baseUrl, "/api/series/$seriesId/seasons/$seasonIndex/episodes"));
 
     if (res.statusCode == 200) {
       Map decoded = json.decode(res.body);
@@ -118,7 +136,7 @@ class FtpbdService {
     }
   }
 
-  Future<List<MediaSource>> getSources(String id) async {
+  Future<List<MediaSource>> getMovieSources(String id) async {
     final res = await http.get(Uri.http(baseUrl, "/api/movie/$id/sources"));
 
     if (res.statusCode == 200) {
@@ -131,20 +149,37 @@ class FtpbdService {
     }
   }
 
-  Future<List<Cast>> getCast(String id, String mediaType) async {
-    assert(mediaType == "movie" || mediaType == "series");
-
-    final res = await http.get(Uri.http(baseUrl, "/api/$mediaType/$id/cast"));
+  Future<List<MediaSource>> getEpisodeSources(
+      String seriesId, int seasonIndex, int episodeIndex) async {
+    final res = await http.get(
+      Uri.http(baseUrl,
+          "/api/series/$seriesId/seasons/$seasonIndex/episodes/$episodeIndex/sources"),
+    );
 
     if (res.statusCode == 200) {
       Map decoded = json.decode(res.body);
       List payload = decoded['payload'];
-      return Cast.fromJsonArray(payload);
+      return MediaSource.fromJsonList(payload);
     } else {
       Map<String, dynamic> decodedJson = json.decode(res.body);
       throw ServerError.fromJson(decodedJson);
     }
   }
+
+  // Future<List<Cast>> getCast(String id, String mediaType) async {
+  //   assert(mediaType == "movie" || mediaType == "series");
+
+  //   final res = await http.get(Uri.http(baseUrl, "/api/$mediaType/$id/cast"));
+
+  //   if (res.statusCode == 200) {
+  //     Map decoded = json.decode(res.body);
+  //     List payload = decoded['payload'];
+  //     return Cast.fromJsonArray(payload);
+  //   } else {
+  //     Map<String, dynamic> decodedJson = json.decode(res.body);
+  //     throw ServerError.fromJson(decodedJson);
+  //   }
+  // }
 
   Future<List<SearchResult>> getSimilar(String id, String mediaType) async {
     assert(mediaType == "movie" || mediaType == "series");
@@ -175,7 +210,6 @@ class FtpbdService {
           name: movie.title ?? "",
           isMovie: true,
           imageUris: movie.imageUris,
-          year: movie.year,
         );
         return item;
       case MediaType.Series:
@@ -185,7 +219,6 @@ class FtpbdService {
           name: series.title ?? "",
           isMovie: false,
           imageUris: series.imageUris,
-          year: series.year,
         );
         return item;
     }
