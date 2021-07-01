@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:android_intent/android_intent.dart';
+import 'package:android_intent_plus/android_intent.dart';
+import 'package:android_intent_plus/flag.dart';
 import 'package:chillyflix/Models/models.dart';
 import 'package:chillyflix/Services/api.dart';
 import 'package:chillyflix/Services/next_up.dart';
@@ -111,13 +112,13 @@ class EpisodeSheet extends StatelessWidget {
       children: [
         // REMOVED DUE TO SLOW PERFORMANCE
         /*
-        if (episode.imageUris.primary != null)
+        if (episode.imageUris?.backdrop != null)
           Positioned.fill(
             child: ImageFiltered(
               imageFilter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
               child: FadeInImage.memoryNetwork(
                 placeholder: kTransparentImage,
-                image: episode.imageUris.primary!,
+                image: episode.imageUris!.backdrop!,
                 fit: BoxFit.fitWidth,
                 imageErrorBuilder: (context, error, stackTrace) => Container(),
                 alignment: Alignment(0.0, 0.05),
@@ -271,7 +272,13 @@ class EpisodeSources extends StatelessWidget {
                             final AndroidIntent intent = AndroidIntent(
                               action: 'action_view',
                               data: source.streamUri,
-                              type: "video/*",
+                              type: source.mimeType ?? "video/*",
+                              flags: [
+                                Flag.FLAG_GRANT_PERSISTABLE_URI_PERMISSION,
+                                Flag.FLAG_GRANT_PREFIX_URI_PERMISSION,
+                                Flag.FLAG_GRANT_WRITE_URI_PERMISSION,
+                                Flag.FLAG_GRANT_READ_URI_PERMISSION
+                              ],
                             );
                             intent.launch();
                             onPlay?.call();

@@ -117,7 +117,7 @@ class CoverListView extends StatelessWidget {
       itemBuilder: (BuildContext context, int index) {
         SearchResult item = items[index];
         return AspectRatio(
-          aspectRatio: 0.5,
+          aspectRatio: 0.55,
           child: Cover(
             title: item.name,
             subtitle: "",

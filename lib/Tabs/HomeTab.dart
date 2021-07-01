@@ -58,6 +58,8 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
                     /* Good Place */ "66573",
                     /* Ted Lasso */ "97546",
                     /* Space Force */ "85922",
+                    /* PnR */ "8592",
+                    /* Snowpiercer */ "79680"
                   ];
                   // final seriesList = [
                   //   /* Expanse */ "361912",

@@ -115,11 +115,11 @@ class _RoundedCardState extends State<RoundedCard>
     final buildSubtitle = Align(
       alignment: Alignment.topLeft,
       child: ScrollingText(
-        speed: 12,
+        speed: 16,
         scrollDirection: widget.scrollAxis,
         controller: _autoScrollController,
-        startPauseDuration: Duration(seconds: 5),
-        endPauseDuration: Duration(seconds: 10),
+        startPauseDuration: Duration(seconds: 2),
+        endPauseDuration: Duration(seconds: 4),
         child: Text(
           widget.subtitle ?? "",
           // maxLines: widget.style.subtitleMaxLines,

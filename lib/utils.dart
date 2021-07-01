@@ -88,27 +88,32 @@ Widget buildError(String message, {VoidCallback? onRefresh}) {
 }
 
 Widget buildErrorBox(BuildContext context, String message) {
-  return Container(
-    width: 200,
-    height: 120,
-    padding: EdgeInsets.all(8),
-    decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.primary,
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          FeatherIcons.frown,
-          size: 28,
+  return ConstrainedBox(
+    constraints: BoxConstraints.tightFor(height: 110),
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              FeatherIcons.frown,
+              size: 28,
+            ),
+            SizedBox(height: 10),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style:
+                  Theme.of(context).textTheme.bodyText1?.copyWith(height: 1.1),
+            )
+          ],
         ),
-        SizedBox(height: 10),
-        Text(
-          message,
-          style: Theme.of(context).textTheme.bodyText1,
-        )
-      ],
+      ),
     ),
   );
 }

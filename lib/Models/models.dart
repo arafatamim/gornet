@@ -48,12 +48,14 @@ class CriticRatings {
 
 class MediaSource {
   final String streamUri;
-  final int bitrate;
+  final int? bitrate;
   final int fileSize;
   final String fileName;
   final String displayName;
+  final String? mimeType;
   const MediaSource({
-    required this.bitrate,
+    this.bitrate,
+    this.mimeType,
     required this.displayName,
     required this.fileName,
     required this.fileSize,
@@ -64,6 +66,7 @@ class MediaSource {
         displayName = json["displayName"],
         fileName = json["fileName"],
         fileSize = json["fileSize"],
+        mimeType = json["mimeType"],
         streamUri = json["streamUri"];
 
   static List<MediaSource> fromJsonList(List<dynamic> payload) =>

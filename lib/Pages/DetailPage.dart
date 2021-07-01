@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:android_intent/android_intent.dart';
+import 'package:android_intent_plus/android_intent.dart';
+import 'package:android_intent_plus/flag.dart';
 import 'package:chillyflix/Models/models.dart';
 import 'package:chillyflix/Services/api.dart';
 import 'package:chillyflix/Services/favorites.dart';
@@ -153,10 +154,12 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
           buildLabel(movie.ageRating!, hasBackground: true),
       ],
       <Widget>[
-        if (movie.directors != null)
+        if (movie.directors != null && movie.directors!.length > 0)
           buildLabel("Directed by " + movie.directors!.join(",")),
       ],
       [
+        if (movie.studios != null && movie.studios!.length > 0)
+          buildLabel("Production: " + movie.studios![0]),
         if (movie.cast != null)
           Expanded(
             child: ScrollingText(
@@ -188,11 +191,15 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
                 child: CircularProgressIndicator(),
               );
             case ConnectionState.done:
-              if (snapshot.hasData) {
+              if (snapshot.hasData && snapshot.data!.length > 0) {
                 return _buildSources(snapshot.data!);
               } else {
                 return Center(
-                  child: buildErrorBox(context, snapshot.error.toString()),
+                  child: buildErrorBox(
+                      context,
+                      snapshot.error != null
+                          ? snapshot.error.toString()
+                          : "Error while fetching sources. Contact your system administrator."),
                 );
               }
             default:
@@ -242,7 +249,9 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
         )
       ],
       [
-        if (series.cast != null)
+        if (series.studios != null && series.studios!.length > 0)
+          buildLabel("Production: " + series.studios![0]),
+        if (series.cast != null && series.cast!.length > 0)
           Expanded(
             child: ScrollingText(
               scrollDirection: Axis.horizontal,
@@ -420,18 +429,24 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
   Widget sourceList(List<MediaSource> sources) {
     return ListView.builder(
       itemCount: sources.length,
-      itemBuilder: (context, index) {
+      itemBuilder: (context, i) {
         return RoundedCard(
-          title: sources[index].displayName +
-              ", ${formatBytes(sources[index].fileSize)}",
-          subtitle: sources[index].fileName,
+          title:
+              sources[i].displayName + ", ${formatBytes(sources[i].fileSize)}",
+          subtitle: sources[i].fileName,
           onTap: () {
             try {
               if (Platform.isAndroid) {
                 final AndroidIntent intent = AndroidIntent(
                   action: 'action_view',
-                  data: sources[index].streamUri,
-                  type: "video/*",
+                  data: sources[i].streamUri,
+                  type: sources[i].mimeType ?? "video/*",
+                  flags: [
+                    Flag.FLAG_GRANT_PERSISTABLE_URI_PERMISSION,
+                    Flag.FLAG_GRANT_PREFIX_URI_PERMISSION,
+                    Flag.FLAG_GRANT_WRITE_URI_PERMISSION,
+                    Flag.FLAG_GRANT_READ_URI_PERMISSION
+                  ],
                 );
                 intent.launch();
               }
