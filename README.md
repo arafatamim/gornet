@@ -1,3 +1,3 @@
-# chillyflix
-
-A nice Android TV app built with Flutter.
+Goriber Netflix 10-foot
+---
+App designed for the big screen.
