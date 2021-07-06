@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
       providers: [
         Provider<FtpbdService>(create: (_) => FtpbdService()),
         Provider<FavoritesService>(create: (_) => FavoritesService("default")),
-        Provider<NextUpService>(create: (_) => NextUpService("next_up")),
+        Provider<NextUpService>(create: (_) => NextUpService()),
       ],
       child: Shortcuts(
         // needed for AndroidTV to be able to select

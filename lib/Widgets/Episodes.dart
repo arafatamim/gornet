@@ -222,10 +222,10 @@ class EpisodeDetails extends StatelessWidget {
               onPlay: () => Provider.of<NextUpService>(
                 context,
                 listen: false,
-              ).updateNextUp(
+              ).createNextUp(
                 seriesId: episode.seriesId,
-                seasonId: episode.seasonIndex,
-                episodeId: episode.id,
+                seasonIndex: episode.seasonIndex,
+                episodeIndex: episode.index,
               ),
             ),
           ),

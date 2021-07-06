@@ -27,15 +27,11 @@ dependencies:
   android_intent_plus: ^1.0.2
   duration: ^3.0.6
   web_socket_channel: ^2.1.0
-  remote_state: ^2.0.0
   shimmer: ^2.0.0
   google_nav_bar: ^5.0.5
   flutter_feather_icons: ^2.0.0+1
-  marquee: ^2.1.0
   fading_edge_scrollview: ^2.0.0
   async: ^2.6.1
-  hive: ^2.0.4
-  hive_flutter: ^1.0.0
   localstorage: ^4.0.0+1
 
 dev_dependencies:

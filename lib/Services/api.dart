@@ -100,7 +100,7 @@ class FtpbdService {
     if (res.statusCode == 200) {
       Map<String, dynamic> decoded =
           json.decode(res.body) as Map<String, dynamic>;
-      return Season.fromJson(decoded);
+      return Season.fromJson(decoded["payload"]);
     } else {
       Map<String, dynamic> decodedJson = json.decode(res.body);
       throw ServerError.fromJson(decodedJson);
@@ -115,7 +115,7 @@ class FtpbdService {
     if (res.statusCode == 200) {
       Map<String, dynamic> decoded =
           json.decode(res.body) as Map<String, dynamic>;
-      return Episode.fromJson(decoded);
+      return Episode.fromJson(decoded["payload"]);
     } else {
       Map<String, dynamic> decodedJson = json.decode(res.body);
       throw ServerError.fromJson(decodedJson);

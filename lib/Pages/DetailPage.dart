@@ -434,6 +434,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
           title:
               sources[i].displayName + ", ${formatBytes(sources[i].fileSize)}",
           subtitle: sources[i].fileName,
+          scrollAxis: Axis.horizontal,
           onTap: () {
             try {
               if (Platform.isAndroid) {
