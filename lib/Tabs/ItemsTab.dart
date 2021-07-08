@@ -66,13 +66,11 @@ class _ItemsTabState extends State<ItemsTab>
             return _buildGridView(context, snapshot.data!);
           } else if (snapshot.hasError)
             return Center(
-              child: buildError(
-                snapshot.error?.toString() ?? "Error occurred",
-              ),
+              child: buildErrorBox(context, snapshot.error),
             );
           else
             return Center(
-              child: buildError("No favorites found"),
+              child: buildErrorBox(context, "No favorites found"),
             );
         } else
           return ShimmerList(itemCount: 12);

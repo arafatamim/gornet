@@ -163,13 +163,11 @@ class _SearchPageState extends State<SearchPage> {
           return CoverListView(snapshot.data!, showIcon: true);
         } else if (snapshot.hasError) {
           return Center(
-            child: buildError(
-              snapshot.error?.toString() ?? "Error searching",
-            ),
+            child: buildErrorBox(context, snapshot.error),
           );
         } else {
           return Center(
-            child: buildError("No results found"),
+            child: buildErrorBox(context, "No results found"),
           );
         }
     }

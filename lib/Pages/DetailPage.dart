@@ -4,7 +4,6 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:chillyflix/Models/models.dart';
 import 'package:chillyflix/Services/api.dart';
-import 'package:chillyflix/Services/favorites.dart';
 import 'package:chillyflix/Services/next_up.dart';
 import 'package:chillyflix/Widgets/Episodes.dart';
 import 'package:chillyflix/Widgets/RoundedCard.dart';
@@ -18,7 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:provider/provider.dart';
-import 'package:transparent_image/transparent_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class DetailPage extends StatefulWidget {
   final SearchResult searchResult;
@@ -35,9 +34,11 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     if (widget.searchResult.isMovie) {
-      media = FtpbdService().getMovie(widget.searchResult.id);
+      media = Provider.of<FtpbdService>(context, listen: false)
+          .getMovie(widget.searchResult.id);
     } else {
-      media = FtpbdService().getSeries(widget.searchResult.id);
+      media = Provider.of<FtpbdService>(context, listen: false)
+          .getSeries(widget.searchResult.id);
     }
   }
 
@@ -94,10 +95,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
                     } else if (mediaSnapshot.hasError) {
                       print(mediaSnapshot.error);
                       return Center(
-                        child: buildError(
-                          mediaSnapshot.error.toString(),
-                          onRefresh: () => setState(() {}),
-                        ),
+                        child: buildErrorBox(context, mediaSnapshot.error),
                       );
                     } else {
                       return const Center(
@@ -118,9 +116,9 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
     return Stack(
       children: <Widget>[
         widget.searchResult.imageUris?.backdrop != null
-            ? FadeInImage.memoryNetwork(
-                placeholder: kTransparentImage,
-                image: widget.searchResult.imageUris!.backdrop!,
+            ? CachedNetworkImage(
+                fadeInDuration: Duration(milliseconds: 300),
+                imageUrl: widget.searchResult.imageUris!.backdrop!,
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: double.infinity,
@@ -183,7 +181,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
       genres: movie.genres,
       synopsis: movie.synopsis,
       child: FutureBuilder<List<MediaSource>>(
-        future: Provider.of<FtpbdService>(context).getMovieSources(movie.id),
+        future: Provider.of<FtpbdService>(context).getSources(id: movie.id),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
@@ -244,7 +242,6 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
         if (series.ageRating != null)
           buildLabel(series.ageRating!, hasBackground: true),
         FavoriteIcon(
-          mediaType: MediaType.Series,
           id: widget.searchResult.id,
         )
       ],

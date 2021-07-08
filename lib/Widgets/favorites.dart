@@ -1,18 +1,15 @@
 import 'package:chillyflix/Services/favorites.dart';
 import 'package:chillyflix/Widgets/RoundedCard.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:provider/provider.dart';
 
 class FavoriteIcon extends StatefulWidget {
   final RoundedCardStyle style;
-  final MediaType mediaType;
   final String id;
 
   const FavoriteIcon({
     this.style = const RoundedCardStyle(),
     required this.id,
-    required this.mediaType,
   });
 
   @override
@@ -54,19 +51,18 @@ class _FavoriteIconState extends State<FavoriteIcon> {
 
   Future<void> _setFavorite() async {
     return Provider.of<FavoritesService>(context, listen: false)
-        .saveFavorite(widget.mediaType, widget.id);
+        .saveFavorite(widget.id);
   }
 
   Future<void> _removeFavorite() async {
     return Provider.of<FavoritesService>(context, listen: false)
-        .removeFavorite(widget.mediaType, widget.id);
+        .removeFavorite(widget.id);
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool?>(
       future: Provider.of<FavoritesService>(context).checkFavorite(
-        widget.mediaType,
         widget.id,
       ),
       builder: (context, snapshot) {

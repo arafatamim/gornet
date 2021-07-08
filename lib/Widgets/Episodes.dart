@@ -9,6 +9,7 @@ import 'package:chillyflix/Services/next_up.dart';
 import 'package:chillyflix/Widgets/RoundedCard.dart';
 import 'package:chillyflix/Widgets/scrolling_text.dart';
 import 'package:chillyflix/utils.dart';
+import 'package:dio/dio.dart';
 import 'package:duration/duration.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -246,8 +247,11 @@ class EpisodeSources extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<MediaSource>>(
-      future: Provider.of<FtpbdService>(context)
-          .getEpisodeSources(seriesId, seasonIndex, episodeIndex),
+      future: Provider.of<FtpbdService>(context).getSources(
+        id: seriesId,
+        seasonIndex: seasonIndex,
+        episodeIndex: episodeIndex,
+      ),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
@@ -293,16 +297,10 @@ class EpisodeSources extends StatelessWidget {
                 ],
               );
             } else {
-              final error = snapshot.error;
-              if (error != null && error is ServerError) {
-                return buildErrorBox(
-                    context, (snapshot.error as ServerError).message);
-              } else {
-                return buildErrorBox(
-                  context,
-                  snapshot.error?.toString() ?? "No sources available",
-                );
-              }
+              return buildErrorBox(
+                context,
+                snapshot.error,
+              );
             }
           default:
             return Container();

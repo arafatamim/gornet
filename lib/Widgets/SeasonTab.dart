@@ -1,8 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chillyflix/Models/models.dart';
 import 'package:chillyflix/Widgets/RoundedCard.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class SeasonTab extends StatefulWidget {
   final Season season;
@@ -111,10 +111,12 @@ class _SeasonTabState extends State<SeasonTab>
   Widget buildPosterImage(BuildContext context, ImageUris? imageUris) {
     return Container(
       child: (imageUris?.primary != null)
-          ? FadeInImage.memoryNetwork(
+          ? CachedNetworkImage(
               key: Key(imageUris!.primary!),
-              placeholder: kTransparentImage,
-              image: imageUris.primary!,
+              fadeInDuration: Duration(milliseconds: 150),
+              placeholder: (_context, _url) =>
+                  Center(child: CircularProgressIndicator()),
+              imageUrl: imageUris.primary!,
               fit: BoxFit.cover,
             )
           : ConstrainedBox(

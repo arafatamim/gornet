@@ -47,7 +47,7 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
           _buildSectionTitle("Spotlight"),
           const SizedBox(height: 20),
           ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 350),
+            constraints: const BoxConstraints(maxHeight: 400),
             child: Consumer<FtpbdService>(
                 child: ShimmerItem(child: SpotlightShimmer()),
                 builder: (context, service, shimmer) {
@@ -109,7 +109,7 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
                                   );
                                 });
                           } else {
-                            return buildError(snapshot.error.toString());
+                            return buildErrorBox(context, snapshot.error);
                           }
                         default:
                           return Container();

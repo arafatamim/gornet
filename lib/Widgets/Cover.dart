@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chillyflix/Models/models.dart';
 import 'package:chillyflix/Widgets/RoundedCard.dart';
 import 'package:chillyflix/Widgets/scrolling_text.dart';
@@ -6,7 +7,6 @@ import 'package:chillyflix/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class CoverListViewBuilder extends StatefulWidget {
   final Future<List<SearchResult>> results;
@@ -80,9 +80,7 @@ class _CoverListViewBuilderState extends State<CoverListViewBuilder> {
               });*/
             } else {
               return Center(
-                child: buildError(
-                  snapshot.error?.toString() ?? "Error fetching data",
-                ),
+                child: buildErrorBox(context, snapshot.error),
               );
             }
           default:
@@ -280,10 +278,12 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
     return ConstrainedBox(
       constraints: BoxConstraints.tightFor(height: 350),
       child: (widget.image != null)
-          ? FadeInImage.memoryNetwork(
+          ? CachedNetworkImage(
               key: Key(widget.image!),
-              placeholder: kTransparentImage,
-              image: widget.image!,
+              fadeInDuration: Duration(milliseconds: 300),
+              placeholder: (_context, _uri) =>
+                  Center(child: CircularProgressIndicator()),
+              imageUrl: widget.image!,
               fit: BoxFit.cover,
             )
           : Container(

@@ -1,10 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chillyflix/Widgets/buttons/animated_icon_button.dart';
 import 'package:chillyflix/Widgets/scrolling_text.dart';
 import 'package:chillyflix/utils.dart';
 import 'package:duration/duration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class Spotlight extends StatefulWidget {
   final String? id;
@@ -44,26 +44,13 @@ class Spotlight extends StatefulWidget {
 class _SpotlightState extends State<Spotlight> {
   late final FocusNode _node;
   late final FocusNode _imageNode;
-  Color _borderColor = Colors.transparent;
 
   @override
   void initState() {
     _node = FocusNode();
-    _imageNode = FocusNode();
-
     _node.addListener(_nodeListener);
-    _imageNode.addListener(_imageNodeListener);
 
     super.initState();
-  }
-
-  void _imageNodeListener() {
-    setState(() {
-      if (_imageNode.hasFocus)
-        _borderColor = Colors.white;
-      else
-        _borderColor = Colors.transparent;
-    });
   }
 
   void _nodeListener() {
@@ -87,114 +74,84 @@ class _SpotlightState extends State<Spotlight> {
     return Focus(
       focusNode: _node,
       canRequestFocus: false,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Stack(
+        fit: StackFit.expand,
         children: [
-          if (widget.backdrop != null)
-            Expanded(
-              child: InkWell(
-                focusNode: _imageNode,
-                focusColor: Colors.transparent,
-                onTap: widget.onTapDetails,
-                child: AnimatedContainer(
-                  duration: Duration(milliseconds: 200),
-                  curve: Curves.fastLinearToSlowEaseIn,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(19),
-                    border: Border.all(
-                      width: 4.0,
-                      color: _borderColor,
-                      style: BorderStyle.solid,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        offset: const Offset(0, 8),
-                        blurRadius: 12,
-                        color: Colors.black.withAlpha(70),
-                      )
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: FadeInImage.memoryNetwork(
-                      placeholder: kTransparentImage,
-                      image: widget.backdrop!,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+          ShaderMask(
+            shaderCallback: (rect) {
+              return LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.black, Colors.transparent],
+              ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
+            },
+            blendMode: BlendMode.dstIn,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: ColorFiltered(
+                colorFilter: ColorFilter.mode(
+                    Colors.black.withAlpha(70), BlendMode.darken),
+                child: CachedNetworkImage(
+                  imageUrl: widget.backdrop!,
+                  fit: BoxFit.fitWidth,
+                  alignment: const Alignment(0.0, -0.5),
                 ),
               ),
             ),
-          SizedBox(width: 50),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.title,
-                style: Theme.of(context).textTheme.headline3,
-              ),
-              SizedBox(height: 20),
-              Row(
-                children: _buildMeta(
-                  ageRating: widget.ageRating,
-                  endDate: widget.endDate,
-                  hasEnded: widget.hasEnded,
-                  rating: widget.rating,
-                  runtime: widget.runtime,
-                  year: widget.year,
-                ),
-              ),
-              if (widget.genres != null) ...[
-                SizedBox(height: 20),
-                Text(
-                  widget.genres!.join(", "),
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyText1
-                      ?.copyWith(fontSize: 22.0, color: Colors.grey.shade300),
-                )
-              ],
-              // widget.logo != null
-              //     ? ConstrainedBox(
-              //         constraints: BoxConstraints(maxHeight: 100),
-              //         child: FadeInImage.memoryNetwork(
-              //           placeholder: kTransparentImage,
-              //           image: widget.logo!,
-              //           fit: BoxFit.cover,
-              //         ),
-              //       )
-              //     : Text(
-              //         widget.title,
-              //         style: Theme.of(context).textTheme.headline3,
-              //       ),
-              SizedBox(height: 20),
-              if (widget.synopsis != null)
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxHeight: 250, maxWidth: 550),
-                  child: ScrollingText(
-                    speed: 12,
-                    child: Text(
-                      widget.synopsis!,
-                      style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                            color: Colors.grey.shade300,
-                            height: 1.1,
-                          ),
-                    ),
-                    scrollDirection: Axis.vertical,
-                  ),
-                ),
-              // SizedBox(height: 20),
-              // AnimatedIconButton(
-              //   icon: Icon(FeatherIcons.arrowRight),
-              //   label: Text(
-              //     "Details",
-              //     style: Theme.of(context).textTheme.bodyText1,
-              //   ),
-              //   onPressed: widget.onTapDetails,
-              // )
-            ],
           ),
+          Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.title,
+                      style: Theme.of(context).textTheme.headline1,
+                    ),
+                    const SizedBox(height: 5),
+                    Row(
+                      children: _buildMeta(
+                        ageRating: widget.ageRating,
+                        endDate: widget.endDate,
+                        hasEnded: widget.hasEnded,
+                        rating: widget.rating,
+                        year: widget.year,
+                        genres: widget.genres,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    if (widget.synopsis != null)
+                      ConstrainedBox(
+                        constraints:
+                            BoxConstraints(maxHeight: 250, maxWidth: 550),
+                        child: ScrollingText(
+                          speed: 12,
+                          child: Text(
+                            widget.synopsis!,
+                            style:
+                                Theme.of(context).textTheme.bodyText1?.copyWith(
+                                      color: Colors.grey.shade300,
+                                      height: 1.1,
+                                    ),
+                          ),
+                          scrollDirection: Axis.vertical,
+                        ),
+                      ),
+                    const SizedBox(height: 15),
+                    AnimatedIconButton(
+                      icon: Icon(FeatherIcons.play),
+                      label: Text(
+                        "Watch",
+                        style: Theme.of(context).textTheme.bodyText1,
+                      ),
+                      onPressed: widget.onTapDetails,
+                    )
+                  ],
+                ),
+              ))
         ],
       ),
     );
@@ -207,8 +164,10 @@ class _SpotlightState extends State<Spotlight> {
     int? year,
     bool? hasEnded,
     DateTime? endDate,
+    List<String>? genres,
   }) =>
       <Widget>[
+        if (genres != null) buildLabel(genres.join(", ")),
         if (rating != null)
           buildLabel(
             rating.toStringAsFixed(2),
