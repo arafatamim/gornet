@@ -1,7 +1,11 @@
 import 'dart:math' as Math;
+import 'package:chillyflix/Models/models.dart';
+import 'package:chillyflix/Services/api.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 
 String formatBytes(int bytes, {int decimals = 1}) {
   if (bytes == 0) return "0 Bytes";
@@ -64,30 +68,30 @@ Widget buildLabel(
   );
 }
 
-Widget buildError(String message, {VoidCallback? onRefresh}) {
-  return Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Text(
-        message,
-        style: GoogleFonts.sourceSansPro(fontSize: 16),
-      ),
-      if (onRefresh != null)
-        TextButton.icon(
-          onPressed: onRefresh,
-          icon: Icon(FeatherIcons.refreshCcw),
-          label: Text("Refresh"),
-          style: ButtonStyle(
-            textStyle: MaterialStateProperty.all(
-              GoogleFonts.sourceSansPro(fontSize: 20),
-            ),
-          ),
-        )
-    ],
-  );
-}
+// Widget buildError(String message, {VoidCallback? onRefresh}) {
+//   return Column(
+//     mainAxisAlignment: MainAxisAlignment.center,
+//     children: [
+//       Text(
+//         message,
+//         style: GoogleFonts.sourceSansPro(fontSize: 16),
+//       ),
+//       if (onRefresh != null)
+//         TextButton.icon(
+//           onPressed: onRefresh,
+//           icon: Icon(FeatherIcons.refreshCcw),
+//           label: Text("Refresh"),
+//           style: ButtonStyle(
+//             textStyle: MaterialStateProperty.all(
+//               GoogleFonts.sourceSansPro(fontSize: 20),
+//             ),
+//           ),
+//         )
+//     ],
+//   );
+// }
 
-Widget buildErrorBox(BuildContext context, String message) {
+Widget buildErrorBox(BuildContext context, Object? error) {
   return ConstrainedBox(
     constraints: BoxConstraints.tightFor(height: 110),
     child: DecoratedBox(
@@ -106,7 +110,13 @@ Widget buildErrorBox(BuildContext context, String message) {
             ),
             SizedBox(height: 10),
             Text(
-              message,
+              error is DioError
+                  ? error.message
+                  : error is ServerError
+                      ? error.message
+                      : error is String
+                          ? error
+                          : "Unhandled error. Contact system administrator.",
               textAlign: TextAlign.center,
               style:
                   Theme.of(context).textTheme.bodyText1?.copyWith(height: 1.1),
@@ -151,4 +161,49 @@ extension CapExtension on String {
   String get capitalizeFirst => '${this[0].toUpperCase()}${this.substring(1)}';
   String get capitalizeFirstOfEachWord =>
       this.split(" ").map((str) => str.capitalizeFirst).join(" ");
+}
+
+final cacheOptions = CacheOptions(
+  store: MemCacheStore(), // TODO replace it
+  policy: CachePolicy.request,
+  // Optional. Returns a cached response on error but for statuses 401 & 403.
+  hitCacheOnErrorExcept: [401, 403],
+  // Optional. Overrides any HTTP directive to delete entry past this duration.
+  maxStale: const Duration(days: 7),
+  // Default. Allows 3 cache sets and ease cleanup.
+  priority: CachePriority.normal,
+  // Default. Body and headers encryption with your own algorithm.
+  cipher: null,
+  // Default. Key builder to retrieve requests.
+  keyBuilder: CacheOptions.defaultCacheKeyBuilder,
+  // Default. Allows to cache POST requests.
+  // Overriding [keyBuilder] is strongly recommended.
+  allowPostMethod: false,
+);
+
+Future<SearchResult> mapIdToSearchResult(
+  MediaType mediaType,
+  String id, {
+  required FtpbdService service,
+}) async {
+  switch (mediaType) {
+    case MediaType.Movie:
+      final movie = await service.getMovie(id);
+      final item = SearchResult(
+        id: movie.id,
+        name: movie.title ?? "",
+        isMovie: true,
+        imageUris: movie.imageUris,
+      );
+      return item;
+    case MediaType.Series:
+      final series = await service.getSeries(id);
+      final item = SearchResult(
+        id: series.id,
+        name: series.title ?? "",
+        isMovie: false,
+        imageUris: series.imageUris,
+      );
+      return item;
+  }
 }

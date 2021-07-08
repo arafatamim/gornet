@@ -19,11 +19,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^0.13.3
+  dio: ^4.0.0
+  dio_cache_interceptor: ^3.0.1
+  cached_network_image: ^3.0.0
   transparent_image: ^2.0.0
   provider: ^5.0.0
   google_fonts: ^2.0.0
-  flutter_cache_manager: ^3.0.1
   android_intent_plus: ^1.0.2
   duration: ^3.0.6
   web_socket_channel: ^2.1.0
@@ -32,7 +33,6 @@ dependencies:
   flutter_feather_icons: ^2.0.0+1
   fading_edge_scrollview: ^2.0.0
   async: ^2.6.1
-  localstorage: ^4.0.0+1
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+enum MediaType { Movie, Series }
+
 class ServerError implements Exception {
   final String message;
   final int status;

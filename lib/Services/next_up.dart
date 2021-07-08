@@ -1,11 +1,5 @@
-import 'dart:convert';
-
 import 'package:chillyflix/Models/models.dart';
-import "package:http/http.dart" as http;
-
-extension ResponseOk on http.Response {
-  bool get ok => this.statusCode >= 200 && this.statusCode < 300;
-}
+import "package:dio/dio.dart";
 
 class StorageFormat {
   final String seriesId;
@@ -42,42 +36,20 @@ class StorageFormat {
 }
 
 class NextUpService {
-  final String uri = "http://192.168.0.100:6767/api/user/nextup";
+  final Dio dio;
 
-  // int? _getItemIndex(String seriesId, List<StorageFormat> items) {
-  //   try {
-  //     final index = items.indexWhere((element) => element.seriesId == seriesId);
-  //     if (index < 0) {
-  //       return null;
-  //     } else
-  //       return index;
-  //   } on StateError {
-  //     return null;
-  //   }
-  // }
-
-  // List<StorageFormat> _updateOrAdd(
-  //     StorageFormat item, List<StorageFormat> items) {
-  //   final existingIndex = _getItemIndex(item.seriesId, items);
-  //   if (existingIndex == null) {
-  //     items.add(item);
-  //     return items;
-  //   } else {
-  //     items[existingIndex] = item;
-  //     return items;
-  //   }
-  // }
+  NextUpService({required Dio dioClient}) : dio = dioClient;
 
   Future<StorageFormat?> getNextUp(String seriesId) async {
-    final res = await http.get(Uri.parse('$uri/$seriesId'));
-    if (res.ok) {
-      final Map<String, dynamic> decoded = jsonDecode(res.body);
-      return StorageFormat.fromJson(decoded["payload"]);
-    } else if (res.statusCode == 404) {
-      return null;
-    } else {
-      Map<String, dynamic> decodedJson = json.decode(res.body);
-      throw ServerError.fromJson(decodedJson);
+    try {
+      final res = await dio.get<Map<String, dynamic>>('/user/nextup/$seriesId');
+      return StorageFormat.fromJson(res.data?["payload"]);
+    } on DioError catch (e) {
+      if (e.response?.statusCode == 404) {
+        return null;
+      } else {
+        rethrow;
+      }
     }
   }
 
@@ -86,17 +58,17 @@ class NextUpService {
     required final int seasonIndex,
     required final int episodeIndex,
   }) async {
-    final res = await http.post(
-      Uri.parse('$uri/create'),
-      body: jsonEncode({
-        "id": seriesId,
-        "seasonIndex": seasonIndex.toString(),
-        "episodeIndex": episodeIndex.toString(),
-      }),
-    );
-    if (!res.ok) {
-      Map<String, dynamic> decodedJson = json.decode(res.body);
-      throw ServerError.fromJson(decodedJson);
+    try {
+      await dio.post(
+        '/user/nextup/create',
+        data: {
+          "id": seriesId,
+          "seasonIndex": seasonIndex.toString(),
+          "episodeIndex": episodeIndex.toString(),
+        },
+      );
+    } on DioError catch (e) {
+      throw ServerError.fromJson(e.response?.data!);
     }
   }
 
@@ -105,16 +77,16 @@ class NextUpService {
     required final int seasonIndex,
     required final int episodeIndex,
   }) async {
-    final res = await http.put(
-      Uri.parse('$uri/$seriesId'),
-      body: {
-        "seasonIndex": seasonIndex.toString(),
-        "episodeIndex": episodeIndex.toString()
-      },
-    );
-    if (!res.ok) {
-      Map<String, dynamic> decodedJson = json.decode(res.body);
-      throw ServerError.fromJson(decodedJson);
+    try {
+      await dio.put(
+        '/user/nextup/$seriesId',
+        data: {
+          "seasonIndex": seasonIndex.toString(),
+          "episodeIndex": episodeIndex.toString()
+        },
+      );
+    } on DioError catch (e) {
+      throw ServerError.fromJson(e.response?.data!);
     }
   }
 
@@ -143,13 +115,13 @@ class NextUpService {
   //   }
   // }
 
-  Future<void> removeNextUp(String seriesId) async {
-    final res = await http.delete(
-      Uri.parse('$uri/$seriesId'),
-    );
-    if (!res.ok) {
-      Map<String, dynamic> decodedJson = json.decode(res.body);
-      throw ServerError.fromJson(decodedJson);
-    }
-  }
+  // Future<void> removeNextUp(String seriesId) async {
+  //   final res = await http.delete(
+  //     Uri.parse('$uri/$seriesId'),
+  //   );
+  //   if (!res.ok) {
+  //     Map<String, dynamic> decodedJson = json.decode(res.body);
+  //     throw ServerError.fromJson(decodedJson);
+  //   }
+  // }
 }

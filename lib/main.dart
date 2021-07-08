@@ -4,6 +4,9 @@ import 'package:chillyflix/Pages/SearchPage.dart';
 import 'package:chillyflix/Services/favorites.dart';
 import 'package:chillyflix/Services/next_up.dart';
 import 'package:chillyflix/theme/modern.dart';
+import 'package:chillyflix/utils.dart';
+import 'package:dio/dio.dart';
+import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -29,14 +32,36 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  final Dio dio = Dio(
+    BaseOptions(
+      baseUrl: "http://192.168.0.100:6767/api",
+      responseType: ResponseType.json,
+      receiveDataWhenStatusError: true,
+    ),
+  )..interceptors.addAll([
+      // InterceptorsWrapper(
+      //   onError: (DioError e, _handler) {
+      //     throw ServerError.fromJson(e.response?.data ?? "Woooooaahh");
+      //     // print(e.message);
+      //     // return _handler.next(e);
+      //   },
+      // ),
+      DioCacheInterceptor(options: cacheOptions)
+    ]);
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<FtpbdService>(create: (_) => FtpbdService()),
-        Provider<FavoritesService>(create: (_) => FavoritesService("default")),
-        Provider<NextUpService>(create: (_) => NextUpService()),
+        Provider<FtpbdService>(
+          create: (_) => FtpbdService(dioClient: dio),
+        ),
+        Provider<FavoritesService>(
+          create: (_) => FavoritesService(dioClient: dio),
+        ),
+        Provider<NextUpService>(
+          create: (_) => NextUpService(dioClient: dio),
+        ),
       ],
       child: Shortcuts(
         // needed for AndroidTV to be able to select

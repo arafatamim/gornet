@@ -4,6 +4,7 @@ import 'package:chillyflix/Services/favorites.dart';
 import 'package:chillyflix/Tabs/HomeTab.dart';
 import 'package:chillyflix/Tabs/ItemsTab.dart';
 import 'package:chillyflix/Widgets/buttons/animated_icon_button.dart';
+import 'package:chillyflix/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -37,11 +38,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Future<List<SearchResult>> _getFavs() async {
     final strings = await Provider.of<FavoritesService>(context, listen: false)
-        .getFavorites(MediaType.Series)
+        .getFavorites()
         .then((value) => value
-            ?.map((e) => FtpbdService.mapIdToSearchResult(MediaType.Series, e))
+            .map(
+              (e) => mapIdToSearchResult(
+                MediaType.Series,
+                e,
+                service: Provider.of<FtpbdService>(context, listen: false),
+              ),
+            )
             .toList());
-    return Future.wait(strings ?? []);
+    return Future.wait(strings);
   }
 
   @override

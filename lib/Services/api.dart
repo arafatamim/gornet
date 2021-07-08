@@ -1,227 +1,120 @@
-import 'dart:convert';
-
 import 'package:chillyflix/Models/models.dart';
-import 'package:chillyflix/Services/favorites.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
 class FtpbdService {
-  final String baseUrl = "192.168.0.100:6767";
+  final Dio dio;
+
+  FtpbdService({required Dio dioClient}) : dio = dioClient;
 
   /// [mediaType] must be `movie` or `series`
-  Future<List<SearchResult>> search(String mediaType, String endpoint,
-      {int limit = 6, String? query}) async {
+  Future<List<SearchResult>> search(
+    String mediaType,
+    String endpoint, {
+    int limit = 6,
+    String? query,
+  }) async {
     assert(mediaType == "movie" || mediaType == "series");
-    assert(
-      endpoint == "search" || endpoint == "latest",
-    );
+    assert(endpoint == "search" || endpoint == "latest");
     assert(endpoint == "search" ? query != null : true);
 
     String pathname;
     if (query != null) {
-      pathname = "/api/$mediaType/$endpoint";
+      pathname = "/$mediaType/$endpoint";
     } else {
-      pathname = "/api/$mediaType/$endpoint";
+      pathname = "/$mediaType/$endpoint";
     }
 
-    final res = await http.get(Uri.http(
-        baseUrl, pathname, {'limit': limit.toString(), 'query': query}));
+    final res = await dio.get<Map<String, dynamic>>(pathname, queryParameters: {
+      'limit': limit.toString(),
+      'query': query,
+    });
 
-    if (res.statusCode == 200) {
-      Map<String, dynamic> decodedJson = json.decode(res.body);
-      List payload = decodedJson['payload'];
-      final results = payload.map((e) => SearchResult.fromJson(e)).toList();
-      return results;
-    } else {
-      Map<String, dynamic> decodedJson = json.decode(res.body);
-      throw ServerError.fromJson(decodedJson);
-    }
+    List payload = res.data?['payload'];
+    final results = payload.map((e) => SearchResult.fromJson(e)).toList();
+    return results;
   }
 
   /// [mediaType] must be `movie` or `series`
   Future<List<SearchResult>> multiSearch({required String query}) async {
-    String pathname = "/api/search/multi";
+    final res =
+        await dio.get<Map<String, dynamic>>("/search/multi", queryParameters: {
+      'query': query,
+    });
 
-    final res = await http.get(Uri.http(baseUrl, pathname, {'query': query}));
-
-    if (res.statusCode == 200) {
-      Map<String, dynamic> decodedJson = json.decode(res.body);
-      List payload = decodedJson['payload'];
-      final results = payload.map((e) => SearchResult.fromJson(e)).toList();
-      return results;
-    } else {
-      Map<String, dynamic> decodedJson = json.decode(res.body);
-      throw ServerError.fromJson(decodedJson);
-    }
+    List payload = res.data?['payload'];
+    final results = payload.map((e) => SearchResult.fromJson(e)).toList();
+    return results;
   }
 
   Future<Movie> getMovie(String id) async {
-    final res = await http.get(Uri.http(baseUrl, "/api/movie/$id"));
+    final res = await dio.get<Map<String, dynamic>>("/movie/$id");
 
-    if (res.statusCode == 200) {
-      Map decoded = json.decode(res.body);
-      Map<String, dynamic> payload = decoded['payload'];
-      return Movie.fromJson(payload);
-    } else {
-      Map<String, dynamic> decodedJson = json.decode(res.body);
-      throw ServerError.fromJson(decodedJson);
-    }
+    Map<String, dynamic> payload = res.data?['payload'];
+    return Movie.fromJson(payload);
   }
 
   Future<Series> getSeries(String id) async {
-    final res = await http.get(Uri.http(baseUrl, "/api/series/$id"));
+    final res = await dio.get<Map<String, dynamic>>("/series/$id");
 
-    if (res.statusCode == 200) {
-      Map decoded = json.decode(res.body);
-      Map<String, dynamic> payload = decoded['payload'];
-      return Series.fromJson(payload);
-    } else {
-      Map<String, dynamic> decodedJson = json.decode(res.body);
-      throw ServerError.fromJson(decodedJson);
-    }
+    Map<String, dynamic> payload = res.data?['payload'];
+    return Series.fromJson(payload);
   }
 
   Future<List<Season>> getSeasons(String id) async {
-    final res = await http.get(Uri.http(baseUrl, "/api/series/$id/seasons"));
+    final res = await dio.get<Map<String, dynamic>>("/series/$id/seasons");
 
-    if (res.statusCode == 200) {
-      Map decoded = json.decode(res.body);
-      List payload = decoded['payload'];
-      return payload.map((e) => Season.fromJson(e)).toList();
-    } else {
-      Map<String, dynamic> decodedJson = json.decode(res.body);
-      throw ServerError.fromJson(decodedJson);
-    }
+    List payload = res.data?['payload'];
+    return payload.map((e) => Season.fromJson(e)).toList();
   }
 
   Future<Season> getSeason(String seriesId, int seasonIndex) async {
-    final res = await http
-        .get(Uri.http(baseUrl, "/api/series/$seriesId/seasons/$seasonIndex"));
+    final res = await dio
+        .get<Map<String, dynamic>>("/series/$seriesId/seasons/$seasonIndex");
 
-    if (res.statusCode == 200) {
-      Map<String, dynamic> decoded =
-          json.decode(res.body) as Map<String, dynamic>;
-      return Season.fromJson(decoded["payload"]);
-    } else {
-      Map<String, dynamic> decodedJson = json.decode(res.body);
-      throw ServerError.fromJson(decodedJson);
-    }
+    return Season.fromJson(res.data?["payload"]);
   }
 
   Future<Episode> getEpisode(
-      String seriesId, int seasonIndex, int episodeIndex) async {
-    final res = await http.get(Uri.http(baseUrl,
-        "/api/series/$seriesId/seasons/$seasonIndex/episodes/$episodeIndex"));
+    String seriesId,
+    int seasonIndex,
+    int episodeIndex,
+  ) async {
+    final res = await dio.get<Map<String, dynamic>>(
+        "/series/$seriesId/seasons/$seasonIndex/episodes/$episodeIndex");
 
-    if (res.statusCode == 200) {
-      Map<String, dynamic> decoded =
-          json.decode(res.body) as Map<String, dynamic>;
-      return Episode.fromJson(decoded["payload"]);
-    } else {
-      Map<String, dynamic> decodedJson = json.decode(res.body);
-      throw ServerError.fromJson(decodedJson);
-    }
+    return Episode.fromJson(res.data?["payload"]);
   }
 
   Future<List<Episode>> getEpisodes(String seriesId, int seasonIndex) async {
-    final res = await http.get(Uri.http(
-        baseUrl, "/api/series/$seriesId/seasons/$seasonIndex/episodes"));
+    final res = await dio.get<Map<String, dynamic>>(
+        "/series/$seriesId/seasons/$seasonIndex/episodes");
 
-    if (res.statusCode == 200) {
-      Map decoded = json.decode(res.body);
-      List payload = decoded['payload'];
-      return payload.map((e) => Episode.fromJson(e)).toList();
-    } else {
-      Map<String, dynamic> decodedJson = json.decode(res.body);
-      throw ServerError.fromJson(decodedJson);
-    }
+    List payload = res.data?['payload'];
+    return payload.map((e) => Episode.fromJson(e)).toList();
   }
 
-  Future<List<MediaSource>> getMovieSources(String id) async {
-    final res = await http.get(Uri.http(baseUrl, "/api/movie/$id/sources"));
+  Future<List<MediaSource>> getSources({
+    required String id,
+    int? seasonIndex,
+    int? episodeIndex,
+  }) async {
+    final pathname = (seasonIndex != null && episodeIndex != null)
+        ? "/series/$id/seasons/$seasonIndex/episodes/$episodeIndex/sources"
+        : "/movie/$id/sources";
+    final res = await dio.get<Map<String, dynamic>>(pathname);
 
-    if (res.statusCode == 200) {
-      Map decoded = json.decode(res.body);
-      List payload = decoded['payload'];
-      return MediaSource.fromJsonList(payload);
-    } else {
-      Map<String, dynamic> decodedJson = json.decode(res.body);
-      throw ServerError.fromJson(decodedJson);
-    }
+    List payload = res.data?['payload'];
+    return MediaSource.fromJsonList(payload);
   }
-
-  Future<List<MediaSource>> getEpisodeSources(
-      String seriesId, int seasonIndex, int episodeIndex) async {
-    final res = await http.get(
-      Uri.http(baseUrl,
-          "/api/series/$seriesId/seasons/$seasonIndex/episodes/$episodeIndex/sources"),
-    );
-
-    if (res.statusCode == 200) {
-      Map decoded = json.decode(res.body);
-      List payload = decoded['payload'];
-      return MediaSource.fromJsonList(payload);
-    } else {
-      Map<String, dynamic> decodedJson = json.decode(res.body);
-      throw ServerError.fromJson(decodedJson);
-    }
-  }
-
-  // Future<List<Cast>> getCast(String id, String mediaType) async {
-  //   assert(mediaType == "movie" || mediaType == "series");
-
-  //   final res = await http.get(Uri.http(baseUrl, "/api/$mediaType/$id/cast"));
-
-  //   if (res.statusCode == 200) {
-  //     Map decoded = json.decode(res.body);
-  //     List payload = decoded['payload'];
-  //     return Cast.fromJsonArray(payload);
-  //   } else {
-  //     Map<String, dynamic> decodedJson = json.decode(res.body);
-  //     throw ServerError.fromJson(decodedJson);
-  //   }
-  // }
 
   Future<List<SearchResult>> getSimilar(String id, String mediaType) async {
     assert(mediaType == "movie" || mediaType == "series");
 
-    final res =
-        await http.get(Uri.http(baseUrl, "/api/$mediaType/$id/similar"));
+    final res = await dio.get<Map<String, dynamic>>("/$mediaType/$id/similar");
 
-    if (res.statusCode == 200) {
-      Map decoded = json.decode(res.body);
-      List payload = decoded['payload'];
-      final results = payload.map((e) => SearchResult.fromJson(e)).toList();
-      return results;
-    } else {
-      Map<String, dynamic> decodedJson = json.decode(res.body);
-      throw ServerError.fromJson(decodedJson);
-    }
-  }
-
-  static Future<SearchResult> mapIdToSearchResult(
-    MediaType mediaType,
-    String id,
-  ) async {
-    switch (mediaType) {
-      case MediaType.Movie:
-        final movie = await FtpbdService().getMovie(id);
-        final item = SearchResult(
-          id: movie.id,
-          name: movie.title ?? "",
-          isMovie: true,
-          imageUris: movie.imageUris,
-        );
-        return item;
-      case MediaType.Series:
-        final series = await FtpbdService().getSeries(id);
-        final item = SearchResult(
-          id: series.id,
-          name: series.title ?? "",
-          isMovie: false,
-          imageUris: series.imageUris,
-        );
-        return item;
-    }
+    List payload = res.data?['payload'];
+    final results = payload.map((e) => SearchResult.fromJson(e)).toList();
+    return results;
   }
 }
 
