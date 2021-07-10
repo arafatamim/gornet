@@ -44,8 +44,8 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           const SizedBox(height: 40),
-          _buildSectionTitle("Spotlight"),
-          const SizedBox(height: 20),
+          // _buildSectionTitle("Spotlight"),
+          // const SizedBox(height: 20),
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 400),
             child: Consumer<FtpbdService>(
@@ -119,7 +119,7 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
                 }),
           ),
           const SizedBox(height: 40),
-          _buildSectionTitle("Trending today"),
+          _buildSectionTitle("Trending this week"),
           LimitedBox(
             maxHeight: 450,
             child: CoverListViewBuilder(
