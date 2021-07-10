@@ -118,7 +118,7 @@ class _FavoriteIconState extends State<FavoriteIcon> {
             ),
             const SizedBox(width: 6),
             Text(
-              "Favorite",
+              "Add to list",
               style: Theme.of(context)
                   .textTheme
                   .bodyText1
