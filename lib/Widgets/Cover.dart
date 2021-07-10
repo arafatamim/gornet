@@ -223,6 +223,8 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
             SizedBox(height: 10),
             Expanded(
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     flex: 11,
@@ -281,8 +283,12 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
           ? CachedNetworkImage(
               key: Key(widget.image!),
               fadeInDuration: Duration(milliseconds: 300),
-              placeholder: (_context, _uri) =>
-                  Center(child: CircularProgressIndicator()),
+              placeholder: (_context, _uri) => Center(
+                child: Icon(
+                  widget.icon ?? FeatherIcons.video,
+                  color: Colors.grey,
+                ),
+              ),
               imageUrl: widget.image!,
               fit: BoxFit.cover,
             )

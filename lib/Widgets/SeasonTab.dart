@@ -114,30 +114,33 @@ class _SeasonTabState extends State<SeasonTab>
           ? CachedNetworkImage(
               key: Key(imageUris!.primary!),
               fadeInDuration: Duration(milliseconds: 150),
-              placeholder: (_context, _url) =>
-                  Center(child: CircularProgressIndicator()),
+              placeholder: (_context, _url) => renderPlaceholderBox(),
+              errorWidget: (context, url, err) => renderPlaceholderBox(),
               imageUrl: imageUris.primary!,
               fit: BoxFit.cover,
             )
-          : ConstrainedBox(
-              constraints: BoxConstraints.expand(),
-              child: Container(
-                decoration:
-                    BoxDecoration(color: Theme.of(context).primaryColor),
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      widget.season.index.toString(),
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headline1?.apply(
-                            color: Colors.grey.shade400,
-                          ),
-                    ),
+          : renderPlaceholderBox(),
+    );
+  }
+
+  Widget renderPlaceholderBox() {
+    return ConstrainedBox(
+      constraints: BoxConstraints.expand(),
+      child: Container(
+        decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              widget.season.index.toString(),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headline1?.apply(
+                    color: Colors.grey.shade400,
                   ),
-                ),
-              ),
             ),
+          ),
+        ),
+      ),
     );
   }
 
