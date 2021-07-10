@@ -43,7 +43,6 @@ class Spotlight extends StatefulWidget {
 
 class _SpotlightState extends State<Spotlight> {
   late final FocusNode _node;
-  late final FocusNode _imageNode;
 
   @override
   void initState() {
@@ -65,7 +64,6 @@ class _SpotlightState extends State<Spotlight> {
   @override
   void dispose() {
     _node.dispose();
-    _imageNode.dispose();
     super.dispose();
   }
 
