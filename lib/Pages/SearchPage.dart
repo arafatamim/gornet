@@ -120,7 +120,7 @@ class _SearchPageState extends State<SearchPage> {
                             if (_debounce?.isActive ?? false)
                               _debounce?.cancel();
                             _debounce = Timer(
-                              const Duration(milliseconds: 1200),
+                              const Duration(milliseconds: 2000),
                               () {
                                 if (_textController.text.trim() != "")
                                   _getItems(_textController.text);
