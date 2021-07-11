@@ -1,3 +1,4 @@
+import 'package:chillyflix/Models/models.dart';
 import 'package:dio/dio.dart';
 
 class FavoritesService {
@@ -5,14 +6,16 @@ class FavoritesService {
 
   FavoritesService({required Dio dioClient}) : dio = dioClient;
 
-  Future<List<String>> getFavorites() async {
+  Future<List<SearchResult>> getFavorites() async {
     final res = await dio.get<Map<String, dynamic>>("/user/favorites");
-    return (res.data?["payload"] as List).cast<String>();
+    return (res.data?["payload"] as List)
+        .map((e) => SearchResult.fromJson(e))
+        .toList();
   }
 
   Future<bool> checkFavorite(String id) async {
     final favorites = await this.getFavorites();
-    return favorites.contains(id);
+    return favorites.map((e) => e.id).contains(id);
   }
 
   Future<void> saveFavorite(String id) async {
