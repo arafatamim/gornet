@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chillyflix/Models/models.dart';
 import 'package:chillyflix/Services/api.dart';
 import 'package:chillyflix/Services/next_up.dart';
@@ -111,22 +112,15 @@ class EpisodeSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // REMOVED DUE TO SLOW PERFORMANCE
-        /*
+        // POTENTIALLY SLOW PERFORMANCE ON OLDER PROCESSORS
         if (episode.imageUris?.backdrop != null)
           Positioned.fill(
-            child: ImageFiltered(
-              imageFilter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
-              child: FadeInImage.memoryNetwork(
-                placeholder: kTransparentImage,
-                image: episode.imageUris!.backdrop!,
-                fit: BoxFit.fitWidth,
-                imageErrorBuilder: (context, error, stackTrace) => Container(),
-                alignment: Alignment(0.0, 0.05),
-              ),
+            child: CachedNetworkImage(
+              imageUrl: episode.imageUris!.backdrop!,
+              fit: BoxFit.fitWidth,
+              alignment: Alignment(0.0, -.5),
             ),
           ),
-        */
         Container(
           decoration: BoxDecoration(
             // color: Colors.white,
