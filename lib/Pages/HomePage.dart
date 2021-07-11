@@ -1,10 +1,8 @@
-import 'package:chillyflix/Models/models.dart';
 import 'package:chillyflix/Services/api.dart';
 import 'package:chillyflix/Services/favorites.dart';
 import 'package:chillyflix/Tabs/HomeTab.dart';
 import 'package:chillyflix/Tabs/ItemsTab.dart';
 import 'package:chillyflix/Widgets/buttons/animated_icon_button.dart';
-import 'package:chillyflix/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,7 +11,10 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
 
 class HomePage extends StatefulWidget {
-  HomePage({Key? key, required this.title}) : super(key: key);
+  HomePage({
+    Key? key,
+    required this.title,
+  }) : super(key: key);
 
   final String title;
 
@@ -36,20 +37,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  Future<List<SearchResult>> _getFavs() async {
-    final strings = await Provider.of<FavoritesService>(context, listen: false)
-        .getFavorites()
-        .then((value) => value
-            .map(
-              (e) => mapIdToSearchResult(
-                MediaType.Series,
-                e,
-                service: Provider.of<FtpbdService>(context, listen: false),
-              ),
-            )
-            .toList());
-    return Future.wait(strings);
-  }
+  // Future<List<SearchResult>> _getFavs() async {
+  //   final strings = await Provider.of<FavoritesService>(context, listen: false)
+  //       .getFavorites()
+  //       .then((value) => value
+  //           .map(
+  //             (e) => mapIdToSearchResult(
+  //               MediaType.Series,
+  //               e,
+  //               service: Provider.of<FtpbdService>(context, listen: false),
+  //             ),
+  //           )
+  //           .toList());
+  //   return Future.wait(strings);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +160,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     children: <Widget>[
                       HomeTab(),
                       ItemsTab(
-                        future: _getFavs(),
+                        future: Provider.of<FavoritesService>(context)
+                            .getFavorites(),
                         showIcon: true,
                       ),
                       ItemsTab(
