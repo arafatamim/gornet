@@ -120,18 +120,22 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
                 fadeInDuration: Duration(milliseconds: 300),
                 imageUrl: widget.searchResult.imageUris!.backdrop!,
                 fit: BoxFit.cover,
+                placeholder: (context, url) => theatreBackdrop,
+                errorWidget: (context, url, error) => theatreBackdrop,
                 width: double.infinity,
                 height: double.infinity,
               )
-            : Image.asset(
-                "assets/theatre.jpg",
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: double.infinity,
-              )
+            : theatreBackdrop
       ],
     );
   }
+
+  Widget get theatreBackdrop => Image.asset(
+        "assets/theatre.jpg",
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+      );
 
   DetailShell _buildMovieDetails(Movie movie) {
     final _buildMeta = [
@@ -246,8 +250,6 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
         )
       ],
       [
-        if (series.studios != null && series.studios!.length > 0)
-          buildLabel("Production: " + series.studios![0]),
         if (series.cast != null && series.cast!.length > 0)
           Expanded(
             child: ScrollingText(
