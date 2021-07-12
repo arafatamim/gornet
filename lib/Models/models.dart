@@ -4,8 +4,8 @@ enum MediaType { Movie, Series }
 
 class ServerError implements Exception {
   final String message;
-  final int status;
-  ServerError(this.status, this.message);
+  final int? status;
+  ServerError({this.status, required this.message});
   ServerError.fromJson(Map<String, dynamic> json)
       : message = json["error"],
         status = json["status"];

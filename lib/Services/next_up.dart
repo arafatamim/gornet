@@ -1,5 +1,5 @@
-import 'package:goribernetflix/Models/models.dart';
 import "package:dio/dio.dart";
+import 'package:goribernetflix/utils.dart';
 
 class StorageFormat {
   final String seriesId;
@@ -48,7 +48,7 @@ class NextUpService {
       if (e.response?.statusCode == 404) {
         return null;
       } else {
-        rethrow;
+        throw mapToServerError(e);
       }
     }
   }
@@ -58,18 +58,14 @@ class NextUpService {
     required final int seasonIndex,
     required final int episodeIndex,
   }) async {
-    try {
-      await dio.post(
-        '/user/nextup/create',
-        data: {
-          "id": seriesId,
-          "seasonIndex": seasonIndex.toString(),
-          "episodeIndex": episodeIndex.toString(),
-        },
-      );
-    } on DioError catch (e) {
-      throw ServerError.fromJson(e.response?.data!);
-    }
+    await dio.post(
+      '/user/nextup/create',
+      data: {
+        "id": seriesId,
+        "seasonIndex": seasonIndex.toString(),
+        "episodeIndex": episodeIndex.toString(),
+      },
+    ).catchError((e) => throw mapToServerError(e));
   }
 
   Future<void> addOrUpdateNextUp({
@@ -77,17 +73,13 @@ class NextUpService {
     required final int seasonIndex,
     required final int episodeIndex,
   }) async {
-    try {
-      await dio.put(
-        '/user/nextup/$seriesId',
-        data: {
-          "seasonIndex": seasonIndex.toString(),
-          "episodeIndex": episodeIndex.toString()
-        },
-      );
-    } on DioError catch (e) {
-      throw ServerError.fromJson(e.response?.data!);
-    }
+    await dio.put(
+      '/user/nextup/$seriesId',
+      data: {
+        "seasonIndex": seasonIndex.toString(),
+        "episodeIndex": episodeIndex.toString()
+      },
+    ).catchError((e) => throw mapToServerError(e));
   }
 
   // Future<bool?> checkFavorite(MediaType mediaType, String id) async {

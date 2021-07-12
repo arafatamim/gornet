@@ -1,5 +1,6 @@
 import 'package:goribernetflix/Models/models.dart';
 import 'package:dio/dio.dart';
+import 'package:goribernetflix/utils.dart';
 
 class FtpbdService {
   final Dio dio;
@@ -27,8 +28,7 @@ class FtpbdService {
     final res = await dio.get<Map<String, dynamic>>(pathname, queryParameters: {
       'limit': limit.toString(),
       'query': query,
-    });
-
+    }).catchError((e) => throw mapToServerError(e));
     List payload = res.data?['payload'];
     final results = payload.map((e) => SearchResult.fromJson(e)).toList();
     return results;
@@ -39,7 +39,7 @@ class FtpbdService {
     final res =
         await dio.get<Map<String, dynamic>>("/search/multi", queryParameters: {
       'query': query,
-    });
+    }).catchError((e) => throw mapToServerError(e));
 
     List payload = res.data?['payload'];
     final results = payload.map((e) => SearchResult.fromJson(e)).toList();
@@ -47,21 +47,27 @@ class FtpbdService {
   }
 
   Future<Movie> getMovie(String id) async {
-    final res = await dio.get<Map<String, dynamic>>("/movie/$id");
+    final res = await dio
+        .get<Map<String, dynamic>>("/movie/$id")
+        .catchError((e) => throw mapToServerError(e));
 
     Map<String, dynamic> payload = res.data?['payload'];
     return Movie.fromJson(payload);
   }
 
   Future<Series> getSeries(String id) async {
-    final res = await dio.get<Map<String, dynamic>>("/series/$id");
+    final res = await dio
+        .get<Map<String, dynamic>>("/series/$id")
+        .catchError((e) => throw mapToServerError(e));
 
     Map<String, dynamic> payload = res.data?['payload'];
     return Series.fromJson(payload);
   }
 
   Future<List<Season>> getSeasons(String id) async {
-    final res = await dio.get<Map<String, dynamic>>("/series/$id/seasons");
+    final res = await dio
+        .get<Map<String, dynamic>>("/series/$id/seasons")
+        .catchError((e) => throw mapToServerError(e));
 
     List payload = res.data?['payload'];
     return payload.map((e) => Season.fromJson(e)).toList();
@@ -69,7 +75,8 @@ class FtpbdService {
 
   Future<Season> getSeason(String seriesId, int seasonIndex) async {
     final res = await dio
-        .get<Map<String, dynamic>>("/series/$seriesId/seasons/$seasonIndex");
+        .get<Map<String, dynamic>>("/series/$seriesId/seasons/$seasonIndex")
+        .catchError((e) => throw mapToServerError(e));
 
     return Season.fromJson(res.data?["payload"]);
   }
@@ -79,15 +86,19 @@ class FtpbdService {
     int seasonIndex,
     int episodeIndex,
   ) async {
-    final res = await dio.get<Map<String, dynamic>>(
-        "/series/$seriesId/seasons/$seasonIndex/episodes/$episodeIndex");
+    final res = await dio
+        .get<Map<String, dynamic>>(
+            "/series/$seriesId/seasons/$seasonIndex/episodes/$episodeIndex")
+        .catchError((e) => throw mapToServerError(e));
 
     return Episode.fromJson(res.data?["payload"]);
   }
 
   Future<List<Episode>> getEpisodes(String seriesId, int seasonIndex) async {
-    final res = await dio.get<Map<String, dynamic>>(
-        "/series/$seriesId/seasons/$seasonIndex/episodes");
+    final res = await dio
+        .get<Map<String, dynamic>>(
+            "/series/$seriesId/seasons/$seasonIndex/episodes")
+        .catchError((e) => throw mapToServerError(e));
 
     List payload = res.data?['payload'];
     return payload.map((e) => Episode.fromJson(e)).toList();
@@ -101,7 +112,9 @@ class FtpbdService {
     final pathname = (seasonIndex != null && episodeIndex != null)
         ? "/series/$id/seasons/$seasonIndex/episodes/$episodeIndex/sources"
         : "/movie/$id/sources";
-    final res = await dio.get<Map<String, dynamic>>(pathname);
+    final res = await dio
+        .get<Map<String, dynamic>>(pathname)
+        .catchError((e) => throw mapToServerError(e));
 
     List payload = res.data?['payload'];
     return MediaSource.fromJsonList(payload);
@@ -110,7 +123,9 @@ class FtpbdService {
   Future<List<SearchResult>> getSimilar(String id, String mediaType) async {
     assert(mediaType == "movie" || mediaType == "series");
 
-    final res = await dio.get<Map<String, dynamic>>("/$mediaType/$id/similar");
+    final res = await dio
+        .get<Map<String, dynamic>>("/$mediaType/$id/similar")
+        .catchError((e) => throw mapToServerError(e));
 
     List payload = res.data?['payload'];
     final results = payload.map((e) => SearchResult.fromJson(e)).toList();

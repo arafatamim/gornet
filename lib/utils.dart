@@ -207,3 +207,19 @@ Future<SearchResult> mapIdToSearchResult(
       return item;
   }
 }
+
+ServerError mapToServerError(dynamic e) {
+  if (e is DioError) {
+    if (e.response?.data != null) {
+      return ServerError.fromJson(e.response!.data!);
+    } else {
+      return ServerError(message: e.message);
+    }
+  } else if (e is Exception) {
+    return ServerError(message: e.toString());
+  } else {
+    return ServerError(
+      message: "Unknown error. Contact administrator if problem persists.",
+    );
+  }
+}
