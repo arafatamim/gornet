@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chillyflix/Widgets/buttons/animated_icon_button.dart';
-import 'package:chillyflix/Widgets/scrolling_text.dart';
-import 'package:chillyflix/utils.dart';
+import 'package:goribernetflix/Widgets/buttons/animated_icon_button.dart';
+import 'package:goribernetflix/Widgets/scrolling_text.dart';
+import 'package:goribernetflix/utils.dart';
 import 'package:duration/duration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';

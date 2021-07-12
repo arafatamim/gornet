@@ -1,5 +1,5 @@
-import 'package:chillyflix/Services/favorites.dart';
-import 'package:chillyflix/Widgets/RoundedCard.dart';
+import 'package:goribernetflix/Services/favorites.dart';
+import 'package:goribernetflix/Widgets/RoundedCard.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

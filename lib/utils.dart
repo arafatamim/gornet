@@ -1,6 +1,6 @@
 import 'dart:math' as Math;
-import 'package:chillyflix/Models/models.dart';
-import 'package:chillyflix/Services/api.dart';
+import 'package:goribernetflix/Models/models.dart';
+import 'package:goribernetflix/Services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';

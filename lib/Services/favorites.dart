@@ -1,4 +1,4 @@
-import 'package:chillyflix/Models/models.dart';
+import 'package:goribernetflix/Models/models.dart';
 import 'package:dio/dio.dart';
 
 class FavoritesService {

@@ -1,4 +1,4 @@
-package com.example.chillyflix
+package com.arafatamim.goribernetflix
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity

@@ -1,4 +1,4 @@
-import 'package:chillyflix/Widgets/RoundedCard.dart';
+import 'package:goribernetflix/Widgets/RoundedCard.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 

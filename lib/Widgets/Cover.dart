@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chillyflix/Models/models.dart';
-import 'package:chillyflix/Widgets/RoundedCard.dart';
-import 'package:chillyflix/Widgets/scrolling_text.dart';
-import 'package:chillyflix/Widgets/shimmers.dart';
-import 'package:chillyflix/utils.dart';
+import 'package:goribernetflix/Models/models.dart';
+import 'package:goribernetflix/Widgets/RoundedCard.dart';
+import 'package:goribernetflix/Widgets/scrolling_text.dart';
+import 'package:goribernetflix/Widgets/shimmers.dart';
+import 'package:goribernetflix/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_fonts/google_fonts.dart';

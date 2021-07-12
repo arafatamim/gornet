@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(runner LANGUAGES CXX)
 
-set(BINARY_NAME "chillyflix")
-set(APPLICATION_ID "com.example.chillyflix")
+set(BINARY_NAME "goribernetflix")
+set(APPLICATION_ID "com.arafatamim.goribernetflix")
 
 cmake_policy(SET CMP0063 NEW)
 

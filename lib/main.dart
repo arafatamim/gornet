@@ -1,18 +1,18 @@
-import 'package:chillyflix/Models/models.dart';
-import 'package:chillyflix/Pages/DetailPage.dart';
-import 'package:chillyflix/Pages/SearchPage.dart';
-import 'package:chillyflix/Services/favorites.dart';
-import 'package:chillyflix/Services/next_up.dart';
-import 'package:chillyflix/theme/modern.dart';
-import 'package:chillyflix/utils.dart';
+import 'package:goribernetflix/Models/models.dart';
+import 'package:goribernetflix/Pages/DetailPage.dart';
+import 'package:goribernetflix/Pages/SearchPage.dart';
+import 'package:goribernetflix/Services/favorites.dart';
+import 'package:goribernetflix/Services/next_up.dart';
+import 'package:goribernetflix/theme/modern.dart';
+import 'package:goribernetflix/utils.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import 'package:chillyflix/Pages/HomePage.dart';
-import 'package:chillyflix/Services/api.dart';
+import 'package:goribernetflix/Pages/HomePage.dart';
+import 'package:goribernetflix/Services/api.dart';
 
 // extension Precision on double {
 //   double toPrecision(int fractionDigits) {

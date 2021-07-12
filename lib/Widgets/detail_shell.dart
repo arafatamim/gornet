@@ -1,4 +1,4 @@
-import 'package:chillyflix/Widgets/scrolling_text.dart';
+import 'package:goribernetflix/Widgets/scrolling_text.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:transparent_image/transparent_image.dart';

@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:chillyflix/Models/models.dart';
-import 'package:chillyflix/Services/api.dart';
-import 'package:chillyflix/Widgets/Cover.dart';
-import 'package:chillyflix/Widgets/virtual_keyboard/virtual_keyboard.dart';
-import 'package:chillyflix/utils.dart';
+import 'package:goribernetflix/Models/models.dart';
+import 'package:goribernetflix/Services/api.dart';
+import 'package:goribernetflix/Widgets/Cover.dart';
+import 'package:goribernetflix/Widgets/virtual_keyboard/virtual_keyboard.dart';
+import 'package:goribernetflix/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';

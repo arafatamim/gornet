@@ -1,10 +1,10 @@
-import 'package:chillyflix/Models/models.dart';
-import 'package:chillyflix/Widgets/RoundedCard.dart';
-import 'package:chillyflix/Widgets/shimmers.dart';
-import 'package:chillyflix/utils.dart';
+import 'package:goribernetflix/Models/models.dart';
+import 'package:goribernetflix/Widgets/RoundedCard.dart';
+import 'package:goribernetflix/Widgets/shimmers.dart';
+import 'package:goribernetflix/utils.dart';
 import 'package:flutter/material.dart';
 
-import 'package:chillyflix/Widgets/Cover.dart';
+import 'package:goribernetflix/Widgets/Cover.dart';
 
 class ItemsTab extends StatefulWidget {
   final Future<List<SearchResult>> future;

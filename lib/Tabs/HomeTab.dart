@@ -1,13 +1,13 @@
 import 'dart:math';
 
-import 'package:chillyflix/Models/models.dart';
-import 'package:chillyflix/Services/api.dart';
-import 'package:chillyflix/Widgets/shimmers.dart';
-import 'package:chillyflix/Widgets/spotlight.dart';
-import 'package:chillyflix/utils.dart';
+import 'package:goribernetflix/Models/models.dart';
+import 'package:goribernetflix/Services/api.dart';
+import 'package:goribernetflix/Widgets/shimmers.dart';
+import 'package:goribernetflix/Widgets/spotlight.dart';
+import 'package:goribernetflix/utils.dart';
 import 'package:flutter/material.dart';
 
-import 'package:chillyflix/Widgets/Cover.dart';
+import 'package:goribernetflix/Widgets/Cover.dart';
 import 'package:provider/provider.dart';
 
 class HomeTab extends StatefulWidget {
