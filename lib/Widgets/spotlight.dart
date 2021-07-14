@@ -5,6 +5,7 @@ import 'package:goribernetflix/utils.dart';
 import 'package:duration/duration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class Spotlight extends StatefulWidget {
   final String? id;
@@ -88,7 +89,9 @@ class _SpotlightState extends State<Spotlight> {
               borderRadius: BorderRadius.circular(8),
               child: ColorFiltered(
                 colorFilter: ColorFilter.mode(
-                    Colors.black.withAlpha(70), BlendMode.darken),
+                  Colors.black.withAlpha(70),
+                  BlendMode.darken,
+                ),
                 child: CachedNetworkImage(
                   imageUrl: widget.backdrop!,
                   fit: BoxFit.fitWidth,
@@ -105,11 +108,46 @@ class _SpotlightState extends State<Spotlight> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      widget.title,
-                      style: Theme.of(context).textTheme.headline1,
-                    ),
-                    const SizedBox(height: 5),
+                    widget.logo != null
+                        ? (isSvg(widget.logo!)
+                            ? ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxHeight: 150,
+                                  maxWidth: 500,
+                                ),
+                                child: SvgPicture.network(
+                                  widget.logo!,
+                                  color: Colors.grey.shade50,
+                                  colorBlendMode: BlendMode.srcIn,
+                                  alignment: Alignment.bottomLeft,
+                                ),
+                              )
+                            : CachedNetworkImage(
+                                imageBuilder: (context, imageProvider) {
+                                  return Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Container(
+                                      constraints: const BoxConstraints(
+                                        maxHeight: 150,
+                                      ),
+                                      child: Image(
+                                        image: imageProvider,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                imageUrl: widget.logo!,
+                                fadeInDuration:
+                                    const Duration(milliseconds: 150),
+                                errorWidget: (context, url, error) =>
+                                    headlineText,
+                                fit: BoxFit.scaleDown,
+                              ))
+                        : Text(
+                            widget.title,
+                            style: Theme.of(context).textTheme.headline1,
+                          ),
+                    const SizedBox(height: 20),
                     Row(
                       children: _buildMeta(
                         ageRating: widget.ageRating,
@@ -124,7 +162,7 @@ class _SpotlightState extends State<Spotlight> {
                     if (widget.synopsis != null)
                       ConstrainedBox(
                         constraints:
-                            BoxConstraints(maxHeight: 250, maxWidth: 550),
+                            const BoxConstraints(maxHeight: 250, maxWidth: 550),
                         child: ScrollingText(
                           speed: 12,
                           child: Text(
@@ -140,7 +178,7 @@ class _SpotlightState extends State<Spotlight> {
                       ),
                     const SizedBox(height: 15),
                     AnimatedIconButton(
-                      icon: Icon(FeatherIcons.play),
+                      icon: const Icon(FeatherIcons.play),
                       label: Text(
                         "Watch",
                         style: Theme.of(context).textTheme.bodyText1,
@@ -154,6 +192,14 @@ class _SpotlightState extends State<Spotlight> {
       ),
     );
   }
+
+  Widget get headlineText => Align(
+        alignment: Alignment.topLeft,
+        child: Text(
+          widget.title,
+          style: Theme.of(context).textTheme.headline1,
+        ),
+      );
 
   final _buildMeta = ({
     num? rating,

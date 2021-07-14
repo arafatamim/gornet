@@ -29,6 +29,7 @@ dependencies:
   duration: ^3.0.6
   web_socket_channel: ^2.1.0
   shimmer: ^2.0.0
+  flutter_svg: ^0.22.0
   google_nav_bar: ^5.0.5
   flutter_feather_icons: ^2.0.0+1
   fading_edge_scrollview: ^2.0.0

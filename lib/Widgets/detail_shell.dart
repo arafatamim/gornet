@@ -1,7 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:goribernetflix/Widgets/scrolling_text.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:transparent_image/transparent_image.dart';
+import 'package:goribernetflix/utils.dart';
 
 class DetailShell extends StatefulWidget {
   final String title;
@@ -42,25 +44,46 @@ class _DetailShellState extends State<DetailShell>
             flex: 5,
             child: Column(
               children: <Widget>[
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: widget.logoUrl != null
-                      ? FadeInImage.memoryNetwork(
-                          image: widget.logoUrl!,
-                          placeholder: kTransparentImage,
-                        )
-                      : Text(
-                          widget.title,
-                          style: Theme.of(context).textTheme.headline1,
-                        ),
-                ),
+                widget.logoUrl != null
+                    ? isSvg(widget.logoUrl!)
+                        ? Align(
+                            alignment: Alignment.topLeft,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxHeight: 200,
+                              ),
+                              child: SvgPicture.network(
+                                widget.logoUrl!,
+                                color: Colors.grey.shade50,
+                                colorBlendMode: BlendMode.srcIn,
+                                alignment: Alignment.topLeft,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          )
+                        : CachedNetworkImage(
+                            imageBuilder: (context, imageProvider) {
+                              return Align(
+                                alignment: Alignment.topLeft,
+                                child: ConstrainedBox(
+                                  constraints: BoxConstraints(maxHeight: 200),
+                                  child: Image(image: imageProvider),
+                                ),
+                              );
+                            },
+                            imageUrl: widget.logoUrl!,
+                            fadeInDuration: Duration(milliseconds: 150),
+                            errorWidget: (context, url, error) => headlineText,
+                            fit: BoxFit.scaleDown,
+                          )
+                    : headlineText,
                 SizedBox(height: 20),
                 for (final row in widget.meta) ...[
                   Row(children: row),
                   SizedBox(height: 10)
                 ],
                 if (widget.genres?.length != 0) ...[
-                  SizedBox(height: 20),
+                  SizedBox(height: 10),
                   Align(
                     alignment: Alignment.topLeft,
                     child: Text(
@@ -105,4 +128,12 @@ class _DetailShellState extends State<DetailShell>
       ),
     );
   }
+
+  Widget get headlineText => Align(
+        alignment: Alignment.topLeft,
+        child: Text(
+          widget.title,
+          style: Theme.of(context).textTheme.headline1,
+        ),
+      );
 }

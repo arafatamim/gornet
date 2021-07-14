@@ -223,3 +223,7 @@ ServerError mapToServerError(dynamic e) {
     );
   }
 }
+
+bool isSvg(String uri) {
+  return uri.endsWith(".svg");
+}
