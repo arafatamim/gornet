@@ -48,9 +48,9 @@ class ScrollingText extends StatefulWidget {
 
   const ScrollingText({
     required this.child,
-    this.scrollDirection: Axis.horizontal,
-    this.backDuration: const Duration(milliseconds: 800),
-    this.startPauseDuration: const Duration(seconds: 10),
+    this.scrollDirection = Axis.horizontal,
+    this.backDuration = const Duration(milliseconds: 800),
+    this.startPauseDuration = const Duration(seconds: 10),
     this.speed = 20,
     this.endPauseDuration,
     this.controller,
@@ -77,10 +77,11 @@ class _ScrollingTextState extends State<ScrollingText> {
     _autoScrollController =
         widget.controller ?? AutoScrollController(autoStart: true);
 
-    if (_autoScrollController.autoStart)
+    if (_autoScrollController.autoStart) {
       WidgetsBinding.instance?.addPostFrameCallback((_) => _scroll());
-    else
+    } else {
       _autoScrollController.addListener(_scroll);
+    }
 
     super.initState();
   }
@@ -95,7 +96,7 @@ class _ScrollingTextState extends State<ScrollingText> {
   Widget build(BuildContext context) {
     return FadingEdgeScrollView.fromSingleChildScrollView(
       child: SingleChildScrollView(
-        physics: NeverScrollableScrollPhysics(),
+        physics: const NeverScrollableScrollPhysics(),
         child: widget.child,
         scrollDirection: widget.scrollDirection,
         controller: _scrollController,
@@ -125,10 +126,11 @@ class _ScrollingTextState extends State<ScrollingText> {
       }).then((_) {
         if (_scrollController.hasClients &&
             _autoScrollController.started &&
-            _scrollController.offset == maxScrollDistance)
+            _scrollController.offset == maxScrollDistance) {
           return Future.delayed(
             widget.endPauseDuration ?? widget.startPauseDuration,
           );
+        }
       }).then((_) {
         if (_scrollController.hasClients &&
             _scrollController.offset == maxScrollDistance) {

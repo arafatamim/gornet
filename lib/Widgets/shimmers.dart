@@ -11,10 +11,10 @@ class ShimmerList extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: 400),
+        constraints: const BoxConstraints(maxHeight: 400),
         child: GridView.builder(
           shrinkWrap: true,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 5,
             childAspectRatio: 0.55,
           ),
@@ -70,7 +70,7 @@ class CoverShimmer extends StatelessWidget {
                   width: 140,
                   height: 16.0,
                   color: color,
-                  margin: EdgeInsets.only(bottom: 5),
+                  margin: const EdgeInsets.only(bottom: 5),
                 ),
                 Container(
                   width: 80.0,

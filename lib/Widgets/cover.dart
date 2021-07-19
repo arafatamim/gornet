@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:goribernetflix/Models/models.dart';
-import 'package:goribernetflix/Widgets/RoundedCard.dart';
+import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:goribernetflix/Widgets/scrolling_text.dart';
 import 'package:goribernetflix/Widgets/shimmers.dart';
 import 'package:goribernetflix/utils.dart';
@@ -33,9 +33,9 @@ class _CoverListViewBuilderState extends State<CoverListViewBuilder> {
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
-            return ShimmerList(itemCount: 6);
+            return const ShimmerList(itemCount: 6);
           case ConnectionState.done:
-            if (snapshot.hasData && snapshot.data?.length != 0) {
+            if (snapshot.hasData && snapshot.data!.isNotEmpty) {
               final items = snapshot.data!;
               return CoverListView(
                 items,
@@ -220,7 +220,7 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
                 ],
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -235,8 +235,8 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
                         ScrollingText(
                           scrollDirection: Axis.horizontal,
                           speed: 20,
-                          startPauseDuration: Duration(milliseconds: 500),
-                          endPauseDuration: Duration(seconds: 2),
+                          startPauseDuration: const Duration(milliseconds: 500),
+                          endPauseDuration: const Duration(seconds: 2),
                           controller: _autoScrollController,
                           child: Text(
                             widget.title,
@@ -261,7 +261,7 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
                     ),
                   ),
                   if (widget.icon != null) ...[
-                    Spacer(),
+                    const Spacer(),
                     Icon(
                       widget.icon!,
                       color: _mutedTextColor,
@@ -278,11 +278,11 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
 
   Widget buildPosterImage() {
     return ConstrainedBox(
-      constraints: BoxConstraints.tightFor(height: 350),
+      constraints: const BoxConstraints.tightFor(height: 350),
       child: (widget.image != null)
           ? CachedNetworkImage(
               key: Key(widget.image!),
-              fadeInDuration: Duration(milliseconds: 300),
+              fadeInDuration: const Duration(milliseconds: 300),
               placeholder: (_context, _uri) => Center(
                 child: Icon(
                   widget.icon ?? FeatherIcons.video,
@@ -299,7 +299,7 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
                     Theme.of(context).colorScheme.primary,
                     Theme.of(context).colorScheme.secondary,
                   ],
-                  focal: Alignment(0, 0),
+                  focal: const Alignment(0, 0),
                   focalRadius: 1,
                   radius: 0.5,
                   center: Alignment.bottomCenter,

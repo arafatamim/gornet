@@ -11,13 +11,13 @@ class FavoritesService {
     final res = await dio
         .get<Map<String, dynamic>>("/user/favorites")
         .catchError((e) => throw mapToServerError(e));
-    return (res.data?["payload"] as List)
+    return (res.data?["payload"] as List<dynamic>)
         .map((e) => SearchResult.fromJson(e))
         .toList();
   }
 
   Future<bool> checkFavorite(String id) async {
-    final favorites = await this.getFavorites();
+    final favorites = await getFavorites();
     return favorites.map((e) => e.id).contains(id);
   }
 

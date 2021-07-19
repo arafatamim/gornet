@@ -78,7 +78,7 @@ class _SpotlightState extends State<Spotlight> {
         children: [
           ShaderMask(
             shaderCallback: (rect) {
-              return LinearGradient(
+              return const LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [Colors.black, Colors.transparent],
@@ -103,7 +103,11 @@ class _SpotlightState extends State<Spotlight> {
           Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding: const EdgeInsets.only(
+                  left: 16.0,
+                  right: 16.0,
+                  top: 16.0,
+                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,7 +115,7 @@ class _SpotlightState extends State<Spotlight> {
                     widget.logo != null
                         ? (isSvg(widget.logo!)
                             ? ConstrainedBox(
-                                constraints: BoxConstraints(
+                                constraints: const BoxConstraints(
                                   maxHeight: 150,
                                   maxWidth: 500,
                                 ),
@@ -201,7 +205,7 @@ class _SpotlightState extends State<Spotlight> {
         ),
       );
 
-  final _buildMeta = ({
+  List<Widget> _buildMeta({
     num? rating,
     Duration? runtime,
     String? ageRating,
@@ -209,37 +213,38 @@ class _SpotlightState extends State<Spotlight> {
     bool? hasEnded,
     DateTime? endDate,
     List<String>? genres,
-  }) =>
-      <Widget>[
-        if (genres != null) buildLabel(genres.join(", ")),
-        if (rating != null)
-          buildLabel(
-            rating.toStringAsFixed(2),
-            icon: FeatherIcons.star,
+  }) {
+    return <Widget>[
+      if (genres != null) buildLabel(genres.join(", ")),
+      if (rating != null)
+        buildLabel(
+          rating.toStringAsFixed(2),
+          icon: FeatherIcons.star,
+        ),
+      if (runtime != null)
+        buildLabel(
+          prettyDuration(
+            runtime,
+            tersity: DurationTersity.minute,
+            abbreviated: true,
+            delimiter: " ",
           ),
-        if (runtime != null)
-          buildLabel(
-            prettyDuration(
-              runtime,
-              tersity: DurationTersity.minute,
-              abbreviated: true,
-              delimiter: " ",
-            ),
-            icon: FeatherIcons.clock,
-          ),
-        if (ageRating != null) buildLabel(ageRating, hasBackground: true),
-        if (year != null)
-          buildLabel(
-            year.toString() +
-                (hasEnded != null
-                    ? (hasEnded
-                        ? (endDate != null
-                            ? (endDate.year == year
-                                ? ""
-                                : " - " + endDate.year.toString())
-                            : " - ENDED")
-                        : " - PRESENT")
-                    : ""),
-          ),
-      ];
+          icon: FeatherIcons.clock,
+        ),
+      if (ageRating != null) buildLabel(ageRating, hasBackground: true),
+      if (year != null)
+        buildLabel(
+          year.toString() +
+              (hasEnded != null
+                  ? (hasEnded
+                      ? (endDate != null
+                          ? (endDate.year == year
+                              ? ""
+                              : " - " + endDate.year.toString())
+                          : " - ENDED")
+                      : " - PRESENT")
+                  : ""),
+        ),
+    ];
+  }
 }

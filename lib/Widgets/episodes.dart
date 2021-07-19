@@ -7,7 +7,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:goribernetflix/Models/models.dart';
 import 'package:goribernetflix/Services/api.dart';
 import 'package:goribernetflix/Services/next_up.dart';
-import 'package:goribernetflix/Widgets/RoundedCard.dart';
+import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:goribernetflix/Widgets/scrolling_text.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:dio/dio.dart';
@@ -20,7 +20,7 @@ import 'package:provider/provider.dart';
 
 class Episodes extends StatefulWidget {
   final Season season;
-  Episodes(this.season);
+  const Episodes(this.season);
 
   @override
   _EpisodesState createState() => _EpisodesState();
@@ -40,7 +40,7 @@ class _EpisodesState extends State<Episodes>
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           case ConnectionState.done:
             if (snapshot.hasData) {
               return _buildEpisodesList(snapshot.data!);
@@ -118,7 +118,7 @@ class EpisodeSheet extends StatelessWidget {
             child: CachedNetworkImage(
               imageUrl: episode.imageUris!.backdrop!,
               fit: BoxFit.fitWidth,
-              alignment: Alignment(0.0, -.5),
+              alignment: const Alignment(0.0, -.5),
             ),
           ),
         Container(
@@ -192,8 +192,8 @@ class EpisodeDetails extends StatelessWidget {
                 const SizedBox(height: 15),
                 Expanded(
                   child: ScrollingText(
-                    startPauseDuration: Duration(seconds: 10),
-                    endPauseDuration: Duration(seconds: 10),
+                    startPauseDuration: const Duration(seconds: 10),
+                    endPauseDuration: const Duration(seconds: 10),
                     scrollDirection: Axis.vertical,
                     speed: 12,
                     child: Text(
@@ -249,7 +249,7 @@ class EpisodeSources extends StatelessWidget {
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           case ConnectionState.done:
             if (snapshot.hasData) {
               final mediaSources = snapshot.data!;

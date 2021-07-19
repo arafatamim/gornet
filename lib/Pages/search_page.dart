@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:goribernetflix/Models/models.dart';
 import 'package:goribernetflix/Services/api.dart';
-import 'package:goribernetflix/Widgets/Cover.dart';
+import 'package:goribernetflix/Widgets/cover.dart';
 import 'package:goribernetflix/Widgets/virtual_keyboard/virtual_keyboard.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +19,7 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   final _textController = TextEditingController();
   late FocusNode _focusNode;
-  StreamController<List<SearchResult>?> _resultsStream =
+  final StreamController<List<SearchResult>?> _resultsStream =
       StreamController<List<SearchResult>?>();
   Timer? _debounce;
 
@@ -28,15 +28,17 @@ class _SearchPageState extends State<SearchPage> {
     _focusNode = FocusNode();
 
     _focusNode.onKey = (node, keyEvent) {
-      if (keyEvent.logicalKey == LogicalKeyboardKey.arrowDown)
+      if (keyEvent.logicalKey == LogicalKeyboardKey.arrowDown) {
         node.previousFocus();
-      else if (keyEvent.logicalKey == LogicalKeyboardKey.arrowUp)
+      } else if (keyEvent.logicalKey == LogicalKeyboardKey.arrowUp) {
         node.nextFocus();
+      }
       return KeyEventResult.ignored;
     };
     super.initState();
   }
 
+  @override
   void dispose() {
     _textController.dispose();
     _resultsStream.close();
@@ -59,13 +61,15 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Shortcuts(
-      shortcuts: {LogicalKeySet(LogicalKeyboardKey.select): ActivateIntent()},
+      shortcuts: {
+        LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent()
+      },
       child: Scaffold(
         floatingActionButton: coalesceException(
           () => Platform.isLinux
               ? FloatingActionButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Icon(Icons.arrow_back),
+                  child: const Icon(Icons.arrow_back),
                 )
               : null,
           null,
@@ -96,7 +100,7 @@ class _SearchPageState extends State<SearchPage> {
                             decoration: InputDecoration(
                               fillColor: Colors.transparent,
                               filled: true,
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 8,
                                 vertical: 2,
                               ),
@@ -109,7 +113,7 @@ class _SearchPageState extends State<SearchPage> {
                           ),
                         ),
                       ),
-                      SizedBox(width: 25),
+                      const SizedBox(width: 25),
                       Expanded(
                         child: VirtualKeyboard(
                           controller: _textController,
@@ -117,13 +121,15 @@ class _SearchPageState extends State<SearchPage> {
                           textTransformer: (incomingValue) =>
                               incomingValue?.toLowerCase(),
                           onChanged: (value) {
-                            if (_debounce?.isActive ?? false)
+                            if (_debounce?.isActive ?? false) {
                               _debounce?.cancel();
+                            }
                             _debounce = Timer(
                               const Duration(milliseconds: 2000),
                               () {
-                                if (_textController.text.trim() != "")
+                                if (_textController.text.trim() != "") {
                                   _getItems(_textController.text);
+                                }
                               },
                             );
                           },
@@ -158,8 +164,8 @@ class _SearchPageState extends State<SearchPage> {
       case ConnectionState.active:
       case ConnectionState.done:
         if (snapshot.data == null) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasData && snapshot.data!.length > 0) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
           return CoverListView(snapshot.data!, showIcon: true);
         } else if (snapshot.hasError) {
           return Center(

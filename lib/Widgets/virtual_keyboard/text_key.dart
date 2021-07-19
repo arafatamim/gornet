@@ -1,4 +1,4 @@
-import 'package:goribernetflix/Widgets/RoundedCard.dart';
+import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:flutter/material.dart';
 
 class TextKey extends StatefulWidget {

@@ -7,11 +7,11 @@ import 'package:goribernetflix/Widgets/spotlight.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:flutter/material.dart';
 
-import 'package:goribernetflix/Widgets/Cover.dart';
+import 'package:goribernetflix/Widgets/cover.dart';
 import 'package:provider/provider.dart';
 
 class HomeTab extends StatefulWidget {
-  HomeTab({Key? key}) : super(key: key);
+  const HomeTab({Key? key}) : super(key: key);
   @override
   _HomeTabState createState() => _HomeTabState();
 }
@@ -19,6 +19,7 @@ class HomeTab extends StatefulWidget {
 class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
   late final ScrollController _controller;
 
+  @override
   bool get wantKeepAlive => true;
 
   @override
@@ -49,7 +50,7 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 400),
             child: Consumer<FtpbdService>(
-                child: ShimmerItem(child: SpotlightShimmer()),
+                child: const ShimmerItem(child: SpotlightShimmer()),
                 builder: (context, service, shimmer) {
                   final seriesList = [
                     /* Expanse */ "63639",
@@ -70,7 +71,7 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
                   //   /* Ted Lasso */ "362077",
                   //   /* Space Force */ "361049",
                   // ];
-                  final random = new Random();
+                  final random = Random();
                   // final series = value.getSeries("361693");
                   final series = service
                       .getSeries(seriesList[random.nextInt(seriesList.length)]);

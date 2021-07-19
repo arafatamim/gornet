@@ -11,18 +11,20 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Shortcuts(
       // needed for AndroidTV to be able to select
-      shortcuts: {LogicalKeySet(LogicalKeyboardKey.select): ActivateIntent()},
+      shortcuts: {
+        LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent()
+      },
       child: Scaffold(
         body: ListView(
           children: ListTile.divideTiles(context: context, tiles: [
             ListTile(
-              title: Text('Trakt'),
-              subtitle: Text('Login to Trakt'),
+              title: const Text('Trakt'),
+              subtitle: const Text('Login to Trakt'),
               onTap: () {},
             ),
             ListTile(
-                title: Text('RD'),
-                subtitle: Text('Login to RealDebrid'),
+                title: const Text('RD'),
+                subtitle: const Text('Login to RealDebrid'),
                 onTap: () {}),
           ]).toList(),
         ),

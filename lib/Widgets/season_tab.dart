@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:goribernetflix/Models/models.dart';
-import 'package:goribernetflix/Widgets/RoundedCard.dart';
+import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -113,7 +113,7 @@ class _SeasonTabState extends State<SeasonTab>
       child: (imageUris?.primary != null)
           ? CachedNetworkImage(
               key: Key(imageUris!.primary!),
-              fadeInDuration: Duration(milliseconds: 150),
+              fadeInDuration: const Duration(milliseconds: 150),
               placeholder: (_context, _url) => renderPlaceholderBox(),
               errorWidget: (context, url, err) => renderPlaceholderBox(),
               imageUrl: imageUris.primary!,
@@ -125,7 +125,7 @@ class _SeasonTabState extends State<SeasonTab>
 
   Widget renderPlaceholderBox() {
     return ConstrainedBox(
-      constraints: BoxConstraints.expand(),
+      constraints: const BoxConstraints.expand(),
       child: Container(
         decoration: BoxDecoration(color: Theme.of(context).primaryColor),
         child: Center(

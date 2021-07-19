@@ -1,5 +1,5 @@
 import 'package:goribernetflix/Services/favorites.dart';
-import 'package:goribernetflix/Widgets/RoundedCard.dart';
+import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -92,8 +92,9 @@ class _FavoriteIconState extends State<FavoriteIcon> {
           : () async {
               if (isFavorite) {
                 await _removeFavorite();
-              } else
+              } else {
                 await _setFavorite();
+              }
               setState(() {});
             },
       child: Container(

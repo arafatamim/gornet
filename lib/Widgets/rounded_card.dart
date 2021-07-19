@@ -118,8 +118,8 @@ class _RoundedCardState extends State<RoundedCard>
         speed: 16,
         scrollDirection: widget.scrollAxis,
         controller: _autoScrollController,
-        startPauseDuration: Duration(seconds: 2),
-        endPauseDuration: Duration(seconds: 4),
+        startPauseDuration: const Duration(seconds: 2),
+        endPauseDuration: const Duration(seconds: 4),
         child: Text(
           widget.subtitle ?? "",
           // maxLines: widget.style.subtitleMaxLines,
@@ -152,12 +152,12 @@ class _RoundedCardState extends State<RoundedCard>
               BoxShadow(
                 color: Colors.black.withAlpha(150),
                 blurRadius: 7,
-                offset: Offset(1, 5),
+                offset: const Offset(1, 5),
               )
             ],
           ),
           height: widget.style.cardHeight,
-          margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             // crossAxisAlignment: CrossAxisAlignment.end,

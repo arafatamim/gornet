@@ -1,4 +1,4 @@
-import 'dart:math' as Math;
+import 'dart:math' as math;
 import 'package:goribernetflix/Models/models.dart';
 import 'package:goribernetflix/Services/api.dart';
 import 'package:dio/dio.dart';
@@ -9,12 +9,12 @@ import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 
 String formatBytes(int bytes, {int decimals = 1}) {
   if (bytes == 0) return "0 Bytes";
-  final k = 1024;
+  const k = 1024;
   final sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 
-  final i = (Math.log(bytes) / Math.log(k)).floor();
+  final i = (math.log(bytes) / math.log(k)).floor();
   final finalSize =
-      (bytes / Math.pow(k, i)).toStringAsFixed(decimals.abs()); // 830.0
+      (bytes / math.pow(k, i)).toStringAsFixed(decimals.abs()); // 830.0
   return finalSize + " " + sizes[i];
 }
 
@@ -33,7 +33,7 @@ Widget buildLabel(
             color: Colors.grey.shade300,
             size: 25,
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
         ],
         if (imageAsset != null) ...[
           Image.asset(
@@ -41,11 +41,11 @@ Widget buildLabel(
             width: 30,
             height: 30,
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
         ],
         Container(
           padding: hasBackground
-              ? EdgeInsets.symmetric(horizontal: 10, vertical: 6)
+              ? const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
               : null,
           decoration: hasBackground
               ? BoxDecoration(
@@ -62,7 +62,7 @@ Widget buildLabel(
             ),
           ),
         ),
-        SizedBox(width: 30),
+        const SizedBox(width: 30),
       ],
     ),
   );
@@ -93,7 +93,7 @@ Widget buildLabel(
 
 Widget buildErrorBox(BuildContext context, Object? error) {
   return ConstrainedBox(
-    constraints: BoxConstraints.tightFor(height: 110),
+    constraints: const BoxConstraints.tightFor(height: 110),
     child: DecoratedBox(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primary,
@@ -104,11 +104,11 @@ Widget buildErrorBox(BuildContext context, Object? error) {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               FeatherIcons.frown,
               size: 28,
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               error is DioError
                   ? error.message
@@ -153,14 +153,14 @@ extension Converters on DateTime {
       11: "november",
       12: "december"
     };
-    return monthsInYear[this.month]!;
+    return monthsInYear[month]!;
   }
 }
 
 extension CapExtension on String {
-  String get capitalizeFirst => '${this[0].toUpperCase()}${this.substring(1)}';
+  String get capitalizeFirst => '${this[0].toUpperCase()}${substring(1)}';
   String get capitalizeFirstOfEachWord =>
-      this.split(" ").map((str) => str.capitalizeFirst).join(" ");
+      split(" ").map((str) => str.capitalizeFirst).join(" ");
 }
 
 final cacheOptions = CacheOptions(
@@ -187,7 +187,7 @@ Future<SearchResult> mapIdToSearchResult(
   required FtpbdService service,
 }) async {
   switch (mediaType) {
-    case MediaType.Movie:
+    case MediaType.movie:
       final movie = await service.getMovie(id);
       final item = SearchResult(
         id: movie.id,
@@ -196,7 +196,7 @@ Future<SearchResult> mapIdToSearchResult(
         imageUris: movie.imageUris,
       );
       return item;
-    case MediaType.Series:
+    case MediaType.series:
       final series = await service.getSeries(id);
       final item = SearchResult(
         id: series.id,
@@ -211,7 +211,7 @@ Future<SearchResult> mapIdToSearchResult(
 ServerError mapToServerError(dynamic e) {
   if (e is DioError) {
     if (e.response?.data != null) {
-      return ServerError.fromJson(e.response!.data!);
+      return ServerError.fromJson(e.response!.data! as Map<String, dynamic>);
     } else {
       return ServerError(message: e.message);
     }

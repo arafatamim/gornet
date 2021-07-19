@@ -139,7 +139,7 @@ class _VirtualKeyboardState extends State<VirtualKeyboard> {
   }
 
   void _backspaceHandler() {
-    if (effectiveController.text.length > 0) {
+    if (effectiveController.text.isNotEmpty) {
       effectiveController.text = effectiveController.text
           .substring(0, effectiveController.text.length - 1);
     }
@@ -155,11 +155,12 @@ class _VirtualKeyboardState extends State<VirtualKeyboard> {
 
   void _textInputHandler(String? text) {
     if (text != null) {
-      if (widget.textTransformer != null)
+      if (widget.textTransformer != null) {
         effectiveController.text =
             effectiveController.text + widget.textTransformer!(text)!;
-      else
+      } else {
         effectiveController.text = effectiveController.text + text;
+      }
     }
     onChangedCallback();
   }

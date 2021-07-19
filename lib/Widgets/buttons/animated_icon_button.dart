@@ -1,4 +1,4 @@
-import 'package:goribernetflix/Widgets/RoundedCard.dart';
+import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -76,10 +76,11 @@ class _AnimatedIconButtonState extends State<AnimatedIconButton>
   Widget build(BuildContext context) {
     final curveValue = _controller.drive(CurveTween(curve: Curves.ease)).value;
 
-    if (expanded)
+    if (expanded) {
       _controller.forward();
-    else
+    } else {
       _controller.reverse();
+    }
 
     return Material(
       type: MaterialType.transparency,
@@ -90,10 +91,10 @@ class _AnimatedIconButtonState extends State<AnimatedIconButton>
         onTap: widget.onPressed,
         child: AnimatedContainer(
           constraints: expanded
-              ? BoxConstraints.loose(Size(200, 65))
-              : BoxConstraints.tightFor(height: 65, width: 65),
+              ? BoxConstraints.loose(const Size(200, 65))
+              : const BoxConstraints.tightFor(height: 65, width: 65),
           curve: Curves.easeOut,
-          padding: EdgeInsets.all(18),
+          padding: const EdgeInsets.all(18),
           duration: widget.duration,
           decoration: BoxDecoration(
             // boxShadow: widget.shadow,
@@ -131,7 +132,8 @@ class _AnimatedIconButtonState extends State<AnimatedIconButton>
                                       .value
                                   : pow(_controller.value, 13) as double,
                               child: Padding(
-                                padding: EdgeInsets.only(left: 8, right: 8),
+                                padding:
+                                    const EdgeInsets.only(left: 8, right: 8),
                                 child: widget.label,
                               ),
                             ),

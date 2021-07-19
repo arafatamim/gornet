@@ -1,7 +1,7 @@
 import 'package:goribernetflix/Services/api.dart';
 import 'package:goribernetflix/Services/favorites.dart';
-import 'package:goribernetflix/Tabs/HomeTab.dart';
-import 'package:goribernetflix/Tabs/ItemsTab.dart';
+import 'package:goribernetflix/Tabs/home_tab.dart';
+import 'package:goribernetflix/Tabs/items_tab.dart';
 import 'package:goribernetflix/Widgets/buttons/animated_icon_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +11,7 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
 
 class HomePage extends StatefulWidget {
-  HomePage({
+  const HomePage({
     Key? key,
     required this.title,
   }) : super(key: key);
@@ -67,21 +67,22 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               stops: [0, 1],
               center: Alignment.bottomCenter,
               radius: 1.4,
-              focal: Alignment(0, 2.5),
+              focal: const Alignment(0, 2.5),
             ),
           ),
           child: Column(
             children: [
               // Nav bar
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 48, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 48, vertical: 10),
                 height: 100,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     AnimatedIconButton(
                       autofocus: true,
-                      icon: Icon(FeatherIcons.search),
+                      icon: const Icon(FeatherIcons.search),
                       label: Text(
                         "Search",
                         style: Theme.of(context).textTheme.bodyText1,
@@ -90,7 +91,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         Navigator.pushNamed(context, "/search");
                       },
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     GNav(
                       key: ValueKey(_controller.index),
                       selectedIndex: _controller.index,
@@ -130,9 +131,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                       ],
                     ),
-                    Spacer(),
+                    const Spacer(),
                     AnimatedIconButton(
-                      icon: Icon(FeatherIcons.refreshCw),
+                      icon: const Icon(FeatherIcons.refreshCw),
                       label: Text(
                         "Refresh",
                         style: Theme.of(context).textTheme.bodyText1,
@@ -141,7 +142,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         setState(() {});
                       },
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     Text(
                       widget.title,
                       style: GoogleFonts.gloriaHallelujah(fontSize: 24.0),
@@ -158,7 +159,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     controller: _controller,
                     physics: const NeverScrollableScrollPhysics(),
                     children: <Widget>[
-                      HomeTab(),
+                      const HomeTab(),
                       ItemsTab(
                         future: Provider.of<FavoritesService>(context)
                             .getFavorites(),

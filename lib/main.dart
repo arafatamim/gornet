@@ -1,6 +1,6 @@
 import 'package:goribernetflix/Models/models.dart';
-import 'package:goribernetflix/Pages/DetailPage.dart';
-import 'package:goribernetflix/Pages/SearchPage.dart';
+import 'package:goribernetflix/Pages/detail_page.dart';
+import 'package:goribernetflix/Pages/search_page.dart';
 import 'package:goribernetflix/Services/favorites.dart';
 import 'package:goribernetflix/Services/next_up.dart';
 import 'package:goribernetflix/theme/modern.dart';
@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import 'package:goribernetflix/Pages/HomePage.dart';
+import 'package:goribernetflix/Pages/home_page.dart';
 import 'package:goribernetflix/Services/api.dart';
 
 // extension Precision on double {
@@ -71,18 +71,18 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           title: 'Goriber Netflix',
           theme: ModernTheme.darkTheme,
-          home: HomePage(title: 'Goriber Netflix'),
+          home: const HomePage(title: 'Goriber Netflix'),
           onGenerateRoute: (settings) {
             if (settings.name == "/detail") {
               return MaterialPageRoute(
-                settings: RouteSettings(name: "detail"),
+                settings: const RouteSettings(name: "detail"),
                 builder: (context) =>
                     DetailPage(settings.arguments as SearchResult),
               );
             }
             if (settings.name == "/search") {
               return MaterialPageRoute(
-                settings: RouteSettings(name: "search"),
+                settings: const RouteSettings(name: "search"),
                 builder: (context) => SearchPage(),
               );
             }

@@ -13,9 +13,9 @@ class StorageFormat {
   });
 
   StorageFormat.fromJson(Map<String, dynamic> json)
-      : seriesId = json["id"],
-        seasonIndex = json["seasonIndex"],
-        episodeIndex = json["episodeIndex"];
+      : seriesId = json["id"] as String,
+        seasonIndex = json["seasonIndex"] as int,
+        episodeIndex = json["episodeIndex"] as int;
 
   Map<String, dynamic> toJson() => {
         "id": seriesId,
@@ -23,7 +23,7 @@ class StorageFormat {
         "episodeIndex": episodeIndex,
       };
 
-  static List<StorageFormat> fromJsonArray(List<dynamic> json) =>
+  static List<StorageFormat> fromJsonArray(List<Map<String, dynamic>> json) =>
       json.map((e) => StorageFormat.fromJson(e)).toSet().toList();
 
   static List<Map<String, dynamic>> toJsonArray(List<StorageFormat> items) =>
@@ -43,7 +43,9 @@ class NextUpService {
   Future<StorageFormat?> getNextUp(String seriesId) async {
     try {
       final res = await dio.get<Map<String, dynamic>>('/user/nextup/$seriesId');
-      return StorageFormat.fromJson(res.data?["payload"]);
+      return StorageFormat.fromJson(
+        res.data?["payload"] as Map<String, dynamic>,
+      );
     } on DioError catch (e) {
       if (e.response?.statusCode == 404) {
         return null;

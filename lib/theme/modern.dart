@@ -10,15 +10,15 @@ class ModernTheme {
     const _orangePrimaryValue = 0xFFF55951;
 
     return ThemeData(
-      colorScheme: ColorScheme.dark(
+      colorScheme: const ColorScheme.dark(
         primary: Color(0xFF543C52),
         secondary: Color(_orangePrimaryValue),
         secondaryVariant: Color(0xFFF22C22),
       ),
-      primaryColor: Color(0xFF543C52),
+      primaryColor: const Color(0xFF543C52),
       visualDensity: VisualDensity.adaptivePlatformDensity,
       // scaffoldBackgroundColor: Color(0xFF361D32),
-      scaffoldBackgroundColor: Color(0xFF222222),
+      scaffoldBackgroundColor: const Color(0xFF222222),
       fontFamily: GoogleFonts.sourceSansPro().fontFamily,
       textTheme: TextTheme(
         headline1: GoogleFonts.poppins(
@@ -37,12 +37,12 @@ class ModernTheme {
           color: Colors.grey.shade300,
         ),
         bodyText1: GoogleFonts.sourceSansPro(
-          color: Color(0xFFEEEEEE),
+          color: const Color(0xFFEEEEEE),
           height: 1.5,
           fontSize: 18,
         ),
         bodyText2: GoogleFonts.sourceSansPro(
-          color: Color(0xFFEEEEEE),
+          color: const Color(0xFFEEEEEE),
         ),
       ),
       buttonTheme: ButtonThemeData(

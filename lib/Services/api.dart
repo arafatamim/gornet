@@ -29,7 +29,7 @@ class FtpbdService {
       'limit': limit.toString(),
       'query': query,
     }).catchError((e) => throw mapToServerError(e));
-    List payload = res.data?['payload'];
+    final payload = res.data?['payload'] as List<dynamic>;
     final results = payload.map((e) => SearchResult.fromJson(e)).toList();
     return results;
   }
@@ -41,7 +41,7 @@ class FtpbdService {
       'query': query,
     }).catchError((e) => throw mapToServerError(e));
 
-    List payload = res.data?['payload'];
+    final payload = res.data?['payload'] as List<dynamic>;
     final results = payload.map((e) => SearchResult.fromJson(e)).toList();
     return results;
   }
@@ -51,7 +51,7 @@ class FtpbdService {
         .get<Map<String, dynamic>>("/movie/$id")
         .catchError((e) => throw mapToServerError(e));
 
-    Map<String, dynamic> payload = res.data?['payload'];
+    Map<String, dynamic> payload = res.data?['payload'] as Map<String, dynamic>;
     return Movie.fromJson(payload);
   }
 
@@ -60,7 +60,7 @@ class FtpbdService {
         .get<Map<String, dynamic>>("/series/$id")
         .catchError((e) => throw mapToServerError(e));
 
-    Map<String, dynamic> payload = res.data?['payload'];
+    Map<String, dynamic> payload = res.data?['payload'] as Map<String, dynamic>;
     return Series.fromJson(payload);
   }
 
@@ -69,7 +69,7 @@ class FtpbdService {
         .get<Map<String, dynamic>>("/series/$id/seasons")
         .catchError((e) => throw mapToServerError(e));
 
-    List payload = res.data?['payload'];
+    final payload = res.data?['payload'] as List<dynamic>;
     return payload.map((e) => Season.fromJson(e)).toList();
   }
 
@@ -78,7 +78,7 @@ class FtpbdService {
         .get<Map<String, dynamic>>("/series/$seriesId/seasons/$seasonIndex")
         .catchError((e) => throw mapToServerError(e));
 
-    return Season.fromJson(res.data?["payload"]);
+    return Season.fromJson(res.data?["payload"] as Map<String, dynamic>);
   }
 
   Future<Episode> getEpisode(
@@ -91,7 +91,7 @@ class FtpbdService {
             "/series/$seriesId/seasons/$seasonIndex/episodes/$episodeIndex")
         .catchError((e) => throw mapToServerError(e));
 
-    return Episode.fromJson(res.data?["payload"]);
+    return Episode.fromJson(res.data?["payload"] as Map<String, dynamic>);
   }
 
   Future<List<Episode>> getEpisodes(String seriesId, int seasonIndex) async {
@@ -100,7 +100,7 @@ class FtpbdService {
             "/series/$seriesId/seasons/$seasonIndex/episodes")
         .catchError((e) => throw mapToServerError(e));
 
-    List payload = res.data?['payload'];
+    final payload = res.data?['payload'] as List<dynamic>;
     return payload.map((e) => Episode.fromJson(e)).toList();
   }
 
@@ -116,7 +116,7 @@ class FtpbdService {
         .get<Map<String, dynamic>>(pathname)
         .catchError((e) => throw mapToServerError(e));
 
-    List payload = res.data?['payload'];
+    final payload = res.data?['payload'] as List<dynamic>;
     return MediaSource.fromJsonList(payload);
   }
 
@@ -127,7 +127,7 @@ class FtpbdService {
         .get<Map<String, dynamic>>("/$mediaType/$id/similar")
         .catchError((e) => throw mapToServerError(e));
 
-    List payload = res.data?['payload'];
+    final payload = res.data?['payload'] as List<Map<String, dynamic>>;
     final results = payload.map((e) => SearchResult.fromJson(e)).toList();
     return results;
   }
@@ -137,8 +137,8 @@ class SearchModel {
   final String type;
   final String payload;
   SearchModel.fromJson(Map<String, dynamic> json)
-      : type = json["type"],
-        payload = json["payload"];
+      : type = json["type"] as String,
+        payload = json["payload"] as String;
 }
 
 // class SearchService {

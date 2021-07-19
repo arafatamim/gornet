@@ -15,7 +15,7 @@ class DetailShell extends StatefulWidget {
   final Widget? continueWidget;
   final Widget? bottomWidget;
 
-  DetailShell({
+  const DetailShell({
     required this.title,
     required this.meta,
     required this.child,
@@ -34,99 +34,111 @@ class _DetailShellState extends State<DetailShell>
     with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(50.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Flexible(
-            flex: 5,
-            child: Column(
-              children: <Widget>[
-                widget.logoUrl != null
-                    ? isSvg(widget.logoUrl!)
-                        ? Align(
+    final mainLayout = <Widget>[
+      Flexible(
+        flex: 5,
+        child: Column(
+          children: <Widget>[
+            widget.logoUrl != null
+                ? isSvg(widget.logoUrl!)
+                    ? Align(
+                        alignment: Alignment.topLeft,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxHeight: 200,
+                          ),
+                          child: SvgPicture.network(
+                            widget.logoUrl!,
+                            height: 150,
+                            color: Colors.grey.shade50,
+                            colorBlendMode: BlendMode.srcIn,
+                            alignment: Alignment.topLeft,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      )
+                    : CachedNetworkImage(
+                        imageBuilder: (context, imageProvider) {
+                          return Align(
                             alignment: Alignment.topLeft,
                             child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                maxHeight: 200,
-                              ),
-                              child: SvgPicture.network(
-                                widget.logoUrl!,
-                                color: Colors.grey.shade50,
-                                colorBlendMode: BlendMode.srcIn,
-                                alignment: Alignment.topLeft,
-                                fit: BoxFit.contain,
-                              ),
+                              constraints: const BoxConstraints(maxHeight: 200),
+                              child: Image(image: imageProvider),
                             ),
-                          )
-                        : CachedNetworkImage(
-                            imageBuilder: (context, imageProvider) {
-                              return Align(
-                                alignment: Alignment.topLeft,
-                                child: ConstrainedBox(
-                                  constraints: BoxConstraints(maxHeight: 200),
-                                  child: Image(image: imageProvider),
-                                ),
-                              );
-                            },
-                            imageUrl: widget.logoUrl!,
-                            fadeInDuration: Duration(milliseconds: 150),
-                            errorWidget: (context, url, error) => headlineText,
-                            fit: BoxFit.scaleDown,
-                          )
-                    : headlineText,
-                SizedBox(height: 20),
-                for (final row in widget.meta) ...[
-                  Row(children: row),
-                  SizedBox(height: 10)
-                ],
-                if (widget.genres?.length != 0) ...[
-                  SizedBox(height: 10),
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: Text(
-                      widget.genres!.join(", "),
-                      style: GoogleFonts.sourceSansPro(
-                        color: Colors.grey.shade400,
-                        fontSize: 20,
-                      ),
-                    ),
-                  )
-                ],
-                if (widget.synopsis != null) ...[
-                  SizedBox(height: 20),
-                  SizedBox(
-                    height: 150,
-                    child: ScrollingText(
-                      scrollDirection: Axis.vertical,
-                      child: Text(
-                        widget.synopsis.toString(),
-                        softWrap: true,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyText1
-                            ?.copyWith(height: 1.4),
-                      ),
-                    ),
+                          );
+                        },
+                        imageUrl: widget.logoUrl!,
+                        fadeInDuration: const Duration(milliseconds: 150),
+                        errorWidget: (context, url, error) => headlineText,
+                        fit: BoxFit.scaleDown,
+                      )
+                : headlineText,
+            const SizedBox(height: 20),
+            for (final row in widget.meta) ...[
+              Row(children: row),
+              const SizedBox(height: 10)
+            ],
+            if (widget.genres != null && widget.genres!.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  widget.genres!.join(", "),
+                  style: GoogleFonts.sourceSansPro(
+                    color: Colors.grey.shade400,
+                    fontSize: 20,
                   ),
-                ],
-                SizedBox(height: 20),
-                if (widget.continueWidget != null) widget.continueWidget!,
-                if (widget.bottomWidget != null)
-                  Expanded(child: widget.bottomWidget!),
-              ],
-            ),
-          ),
-          SizedBox(width: 50),
-          Flexible(
-            flex: 5,
-            child: widget.child,
-          ),
-        ],
+                ),
+              )
+            ],
+            if (widget.synopsis != null) ...[
+              const SizedBox(height: 20),
+              SizedBox(
+                height: 150,
+                child: ScrollingText(
+                  scrollDirection: Axis.vertical,
+                  child: Text(
+                    widget.synopsis.toString(),
+                    softWrap: true,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyText1
+                        ?.copyWith(height: 1.4),
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 20),
+            if (widget.continueWidget != null) widget.continueWidget!,
+            if (widget.bottomWidget != null)
+              Expanded(child: widget.bottomWidget!),
+          ],
+        ),
       ),
-    );
+      const SizedBox(width: 50, height: 50),
+      Flexible(
+        flex: 5,
+        child: widget.child,
+      ),
+    ];
+
+    return Padding(
+        padding: const EdgeInsets.all(50.0),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxWidth >= 760) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: mainLayout,
+              );
+            } else {
+              return const Center(
+                child: Text("Rotate screen"),
+              );
+            }
+          },
+        ));
   }
 
   Widget get headlineText => Align(

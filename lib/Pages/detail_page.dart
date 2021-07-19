@@ -5,9 +5,9 @@ import 'package:android_intent_plus/flag.dart';
 import 'package:goribernetflix/Models/models.dart';
 import 'package:goribernetflix/Services/api.dart';
 import 'package:goribernetflix/Services/next_up.dart';
-import 'package:goribernetflix/Widgets/Episodes.dart';
-import 'package:goribernetflix/Widgets/RoundedCard.dart';
-import 'package:goribernetflix/Widgets/SeasonTab.dart';
+import 'package:goribernetflix/Widgets/episodes.dart';
+import 'package:goribernetflix/Widgets/rounded_card.dart';
+import 'package:goribernetflix/Widgets/season_tab.dart';
 import 'package:goribernetflix/Widgets/detail_shell.dart';
 import 'package:goribernetflix/Widgets/favorites.dart';
 import 'package:goribernetflix/Widgets/scrolling_text.dart';
@@ -22,7 +22,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 class DetailPage extends StatefulWidget {
   final SearchResult searchResult;
 
-  DetailPage(this.searchResult);
+  const DetailPage(this.searchResult);
   @override
   _DetailPageState createState() => _DetailPageState();
 }
@@ -84,14 +84,15 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
                   future: media,
                   builder: (context, mediaSnapshot) {
                     if (mediaSnapshot.hasData) {
-                      if (mediaSnapshot.data! is Movie)
+                      if (mediaSnapshot.data! is Movie) {
                         return _buildMovieDetails(
                           mediaSnapshot.data! as Movie,
                         );
-                      else
+                      } else {
                         return _buildSeriesDetails(
                           mediaSnapshot.data! as Series,
                         );
+                      }
                     } else if (mediaSnapshot.hasError) {
                       print(mediaSnapshot.error);
                       return Center(
@@ -99,7 +100,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
                       );
                     } else {
                       return const Center(
-                        child: const CircularProgressIndicator(),
+                        child: CircularProgressIndicator(),
                       );
                     }
                   },
@@ -117,7 +118,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
       children: <Widget>[
         widget.searchResult.imageUris?.backdrop != null
             ? CachedNetworkImage(
-                fadeInDuration: Duration(milliseconds: 300),
+                fadeInDuration: const Duration(milliseconds: 300),
                 imageUrl: widget.searchResult.imageUris!.backdrop!,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => theatreBackdrop,
@@ -156,11 +157,11 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
           buildLabel(movie.ageRating!, hasBackground: true),
       ],
       <Widget>[
-        if (movie.directors != null && movie.directors!.length > 0)
+        if (movie.directors != null && movie.directors!.isNotEmpty)
           buildLabel("Directed by " + movie.directors!.join(",")),
       ],
       [
-        if (movie.studios != null && movie.studios!.length > 0)
+        if (movie.studios != null && movie.studios!.isNotEmpty)
           buildLabel("Production: " + movie.studios![0]),
         if (movie.cast != null)
           Expanded(
@@ -189,11 +190,11 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(),
               );
             case ConnectionState.done:
-              if (snapshot.hasData && snapshot.data!.length > 0) {
+              if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                 return _buildSources(snapshot.data!);
               } else {
                 return Center(
@@ -250,7 +251,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
         )
       ],
       [
-        if (series.cast != null && series.cast!.length > 0)
+        if (series.cast != null && series.cast!.isNotEmpty)
           Expanded(
             child: ScrollingText(
               scrollDirection: Axis.horizontal,
@@ -277,7 +278,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
             case ConnectionState.done:
               if (snapshot.data != null) {
                 final item = snapshot.data!;
-                return FutureBuilder<List>(
+                return FutureBuilder<List<dynamic>>(
                   future: Future.wait([
                     Provider.of<FtpbdService>(context)
                         .getSeason(item.seriesId, item.seasonIndex),
@@ -291,18 +292,17 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
                     switch (snapshot.connectionState) {
                       case ConnectionState.waiting:
                         return const Center(
-                          child: const CircularProgressIndicator(),
+                          child: CircularProgressIndicator(),
                         );
                       case ConnectionState.done:
                         if (snapshot.data != null) {
-                          final Season season = snapshot.data![0];
-                          final Episode episode = snapshot.data![1];
+                          final Season season = snapshot.data![0] as Season;
+                          final Episode episode = snapshot.data![1] as Episode;
                           return RoundedCard(
                             title: "Continue watching",
-                            subtitle:
-                                "S${season.index.toString().padLeft(2, "0")}" +
+                            subtitle: "S${season.index.toString().padLeft(2, "0")}"
                                     "E${episode.index.toString().padLeft(2, "0")}" +
-                                    (" - " + episode.name),
+                                (" - " + episode.name),
                             onTap: () {
                               showModalBottomSheet(
                                 useRootNavigator: true,
@@ -320,15 +320,17 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
                               );
                             },
                           );
-                        } else
+                        } else {
                           return const SizedBox.shrink();
+                        }
                       default:
                         return const SizedBox.shrink();
                     }
                   },
                 );
-              } else
+              } else {
                 return const SizedBox.shrink();
+              }
             default:
               return const SizedBox.shrink();
           }
@@ -339,7 +341,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
-              return const Center(child: const CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator());
             case ConnectionState.done:
               if (snapshot.hasData) {
                 return _buildSeasons(snapshot.data!);
@@ -357,7 +359,7 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
   }
 
   Widget _buildSeasons(List<Season> seasons) {
-    if (seasons.length != 0) {
+    if (seasons.isNotEmpty) {
       TabController _tabController = TabController(
         length: seasons.length,
         vsync: this,
@@ -396,14 +398,15 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
           ),
         ],
       );
-    } else
+    } else {
       return const Center(
-        child: const CircularProgressIndicator(),
+        child: CircularProgressIndicator(),
       );
+    }
   }
 
   Widget _buildSources(List<MediaSource> sources) {
-    if (sources.length != 0) {
+    if (sources.isNotEmpty) {
       return Container(
         child: Column(
           children: [
@@ -414,15 +417,16 @@ class _DetailPageState extends State<DetailPage> with TickerProviderStateMixin {
                     fontSize: 20.0,
                   ),
             ),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Expanded(
               child: sourceList(sources),
             ),
           ],
         ),
       );
-    } else
-      return CircularProgressIndicator();
+    } else {
+      return const CircularProgressIndicator();
+    }
   }
 
   Widget sourceList(List<MediaSource> sources) {

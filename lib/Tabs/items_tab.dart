@@ -1,10 +1,10 @@
 import 'package:goribernetflix/Models/models.dart';
-import 'package:goribernetflix/Widgets/RoundedCard.dart';
+import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:goribernetflix/Widgets/shimmers.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:flutter/material.dart';
 
-import 'package:goribernetflix/Widgets/Cover.dart';
+import 'package:goribernetflix/Widgets/cover.dart';
 
 class ItemsTab extends StatefulWidget {
   final Future<List<SearchResult>> future;
@@ -53,6 +53,7 @@ class _ItemsTabState extends State<ItemsTab>
   //   );                                                                // NEW
   // }
 
+  @override
   bool get wantKeepAlive => true;
 
   @override
@@ -62,18 +63,20 @@ class _ItemsTabState extends State<ItemsTab>
       future: widget.future,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.hasData && snapshot.data?.length != 0) {
+          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
             return _buildGridView(context, snapshot.data!);
-          } else if (snapshot.hasError)
+          } else if (snapshot.hasError) {
             return Center(
               child: buildErrorBox(context, snapshot.error),
             );
-          else
+          } else {
             return Center(
               child: buildErrorBox(context, "No favorites found"),
             );
-        } else
-          return ShimmerList(itemCount: 12);
+          }
+        } else {
+          return const ShimmerList(itemCount: 12);
+        }
       },
     );
   }
