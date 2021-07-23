@@ -55,6 +55,50 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: MediaQuery.of(context).size.width > 720
+          ? null
+          : AppBar(
+              elevation: 7,
+              title: Text(
+                widget.title,
+                style: GoogleFonts.gloriaHallelujah(fontSize: 20.0),
+              ),
+              bottom: TabBar(
+                controller: _controller,
+                tabs: <Widget>[
+                  const Tab(
+                    icon: Icon(FeatherIcons.home),
+                    text: "Home",
+                  ),
+                  const Tab(
+                    icon: Icon(FeatherIcons.heart),
+                    text: "My list",
+                  ),
+                  const Tab(
+                    icon: Icon(FeatherIcons.film),
+                    text: "Movies",
+                  ),
+                  const Tab(
+                    icon: Icon(FeatherIcons.tv),
+                    text: "Shows",
+                  )
+                ],
+              ),
+              actions: [
+                IconButton(
+                  onPressed: () {
+                    setState(() {});
+                  },
+                  icon: const Icon(FeatherIcons.refreshCcw),
+                ),
+                IconButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, "/search");
+                  },
+                  icon: const Icon(FeatherIcons.search),
+                )
+              ],
+            ),
       body: FocusTraversalGroup(
         policy: OrderedTraversalPolicy(),
         child: Container(
@@ -73,88 +117,23 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           child: Column(
             children: [
               // Nav bar
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 48, vertical: 10),
-                height: 100,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    AnimatedIconButton(
-                      autofocus: true,
-                      icon: const Icon(FeatherIcons.search),
-                      label: Text(
-                        "Search",
-                        style: Theme.of(context).textTheme.bodyText1,
-                      ),
-                      onPressed: () {
-                        Navigator.pushNamed(context, "/search");
-                      },
-                    ),
-                    const SizedBox(width: 16),
-                    GNav(
-                      key: ValueKey(_controller.index),
-                      selectedIndex: _controller.index,
-                      onTabChange: (value) {
-                        _controller.animateTo(value);
-                      },
-                      gap: 8,
-                      color: Colors.white.withAlpha(100),
-                      activeColor: Colors.grey.shade200,
-                      iconSize: 32,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 16,
-                        horizontal: 16,
-                      ),
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeInOutCubic,
-                      tabs: [
-                        GButton(
-                          textStyle: Theme.of(context).textTheme.bodyText1,
-                          icon: FeatherIcons.home,
-                          text: "Home",
-                        ),
-                        GButton(
-                          textStyle: Theme.of(context).textTheme.bodyText1,
-                          icon: FeatherIcons.heart,
-                          text: "My list",
-                        ),
-                        GButton(
-                          textStyle: Theme.of(context).textTheme.bodyText1,
-                          icon: FeatherIcons.film,
-                          text: "Movies",
-                        ),
-                        GButton(
-                          textStyle: Theme.of(context).textTheme.bodyText1,
-                          icon: FeatherIcons.tv,
-                          text: "Shows",
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    AnimatedIconButton(
-                      icon: const Icon(FeatherIcons.refreshCw),
-                      label: Text(
-                        "Refresh",
-                        style: Theme.of(context).textTheme.bodyText1,
-                      ),
-                      onPressed: () {
-                        setState(() {});
-                      },
-                    ),
-                    const SizedBox(width: 16),
-                    Text(
-                      widget.title,
-                      style: GoogleFonts.gloriaHallelujah(fontSize: 24.0),
-                    ),
-                  ],
-                ),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  if (constraints.maxWidth > 700) {
+                    return _buildNavBar(context);
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
               ),
               // Main view
               Expanded(
                 child: Container(
                   clipBehavior: Clip.none,
-                  margin: const EdgeInsets.symmetric(horizontal: 64),
+                  margin: EdgeInsets.symmetric(
+                    horizontal:
+                        MediaQuery.of(context).size.width > 700 ? 64 : 0,
+                  ),
                   child: TabBarView(
                     controller: _controller,
                     physics: const NeverScrollableScrollPhysics(),
@@ -189,103 +168,182 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       ),
     );
   }
+
+  Widget _buildNavBar(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 10),
+      height: 100,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          AnimatedIconButton(
+            autofocus: true,
+            icon: const Icon(FeatherIcons.search),
+            label: Text(
+              "Search",
+              style: Theme.of(context).textTheme.bodyText1,
+            ),
+            onPressed: () {
+              Navigator.pushNamed(context, "/search");
+            },
+          ),
+          const SizedBox(width: 16),
+          GNav(
+            key: ValueKey(_controller.index),
+            selectedIndex: _controller.index,
+            onTabChange: (value) {
+              _controller.animateTo(value);
+            },
+            gap: 8,
+            color: Colors.white.withAlpha(100),
+            activeColor: Colors.grey.shade200,
+            iconSize: 32,
+            padding: const EdgeInsets.symmetric(
+              vertical: 16,
+              horizontal: 16,
+            ),
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOutCubic,
+            tabs: [
+              GButton(
+                textStyle: Theme.of(context).textTheme.bodyText1,
+                icon: FeatherIcons.home,
+                text: "Home",
+              ),
+              GButton(
+                textStyle: Theme.of(context).textTheme.bodyText1,
+                icon: FeatherIcons.heart,
+                text: "My list",
+              ),
+              GButton(
+                textStyle: Theme.of(context).textTheme.bodyText1,
+                icon: FeatherIcons.film,
+                text: "Movies",
+              ),
+              GButton(
+                textStyle: Theme.of(context).textTheme.bodyText1,
+                icon: FeatherIcons.tv,
+                text: "Shows",
+              ),
+            ],
+          ),
+          const Spacer(),
+          AnimatedIconButton(
+            icon: const Icon(FeatherIcons.refreshCw),
+            label: Text(
+              "Refresh",
+              style: Theme.of(context).textTheme.bodyText1,
+            ),
+            onPressed: () {
+              setState(() {});
+            },
+          ),
+          const SizedBox(width: 16),
+          Text(
+            widget.title,
+            style: GoogleFonts.gloriaHallelujah(fontSize: 24.0),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-        // appBar: AppBar(
-        //   toolbarHeight: 80,
-        //   flexibleSpace: Container(
-        //     decoration: BoxDecoration(
-        //       gradient: LinearGradient(
-        //           colors: [
-        //             Theme.of(context).colorScheme.primary,
-        //             Theme.of(context).colorScheme.secondary,
-        //           ],
-        //           begin: const FractionalOffset(0.0, 0.0),
-        //           end: const FractionalOffset(1.0, 0.0),
-        //           stops: [0.0, 1.0],
-        //           tileMode: TileMode.clamp),
-        //     ),
-        //   ),
-        //   title: Row(
-        //     children: <Widget>[
-        //       Text(
-        //         widget.title,
-        //         style: GoogleFonts.gloriaHallelujah(fontSize: 24.0),
-        //       ),
-        //       SizedBox(width: 30),
-        //       GNav(
-        //           onTabChange: (value) {
-        //             _controller.animateTo(value);
-        //           },
-        //           gap: 8,
-        //           color: Colors.white.withAlpha(100),
-        //           activeColor: Colors.grey.shade200,
-        //           iconSize: 32,
-        //           padding: const EdgeInsets.all(16),
-        //           duration: const Duration(milliseconds: 200),
-        //           curve: Curves.easeInOutCubic,
-        //           tabs: [
-        //             GButton(
-        //               textStyle: Theme.of(context).textTheme.bodyText1,
-        //               icon: FeatherIcons.home,
-        //               text: "Home",
-        //             ),
-        //             GButton(
-        //               textStyle: Theme.of(context).textTheme.bodyText1,
-        //               icon: FeatherIcons.heart,
-        //               text: "Favorites",
-        //             ),
-        //             GButton(
-        //               textStyle: Theme.of(context).textTheme.bodyText1,
-        //               icon: FeatherIcons.film,
-        //               text: "Movies",
-        //             ),
-        //             GButton(
-        //               textStyle: Theme.of(context).textTheme.bodyText1,
-        //               icon: FeatherIcons.tv,
-        //               text: "Shows",
-        //             ),
-        //           ])
-        //       // TabBar(
-        //       //   controller: _controller,
-        //       //   physics: NeverScrollableScrollPhysics(),
-        //       //   indicator: UnderlineTabIndicator(
-        //       //     borderSide: BorderSide(
-        //       //       width: 4,
-        //       //       color: Theme.of(context).colorScheme.secondary,
-        //       //     ),
-        //       //   ),
-        //       //   labelStyle: GoogleFonts.sourceSansPro(fontSize: 20.0),
-        //       //   overlayColor: MaterialStateProperty.resolveWith((states) {
-        //       //     const Set<MaterialState> interactiveStates = {
-        //       //       MaterialState.pressed,
-        //       //       MaterialState.hovered,
-        //       //       MaterialState.focused,
-        //       //     };
-        //       //     if (states.any(interactiveStates.contains)) {
-        //       //       return Colors.white.withAlpha(60);
-        //       //     }
-        //       //     return Colors.teal;
-        //       //   }),
-        //       //   labelColor: Colors.white,
-        //       //   unselectedLabelColor: Colors.grey.shade400,
-        //       //   isScrollable: true,
-        //       //   tabs: <Widget>[
-        //       //     Tab(text: 'Home', icon: Icon(Icons.home)),
-        //       //     Tab(text: 'Favorites', icon: Icon(Icons.favorite_rounded)),
-        //       //     Tab(text: 'Movies', icon: Icon(Icons.movie)),
-        //       //     Tab(text: 'Shows', icon: Icon(Icons.tv)),
-        //       //   ],
-        //       // ),
-        //     ],
-        //   ),
-        //   actions: <Widget>[
-        //     IconButton(
-        //       icon: Icon(FeatherIcons.search),
-        //       focusColor: Colors.white.withAlpha(100),
-        //       onPressed: () {
-        //         Navigator.pushNamed(context, "/search");
-        //       },
-        //     ),
-        //   ],
-        // ),
+// appBar: AppBar(
+//   toolbarHeight: 80,
+//   flexibleSpace: Container(
+//     decoration: BoxDecoration(
+//       gradient: LinearGradient(
+//           colors: [
+//             Theme.of(context).colorScheme.primary,
+//             Theme.of(context).colorScheme.secondary,
+//           ],
+//           begin: const FractionalOffset(0.0, 0.0),
+//           end: const FractionalOffset(1.0, 0.0),
+//           stops: [0.0, 1.0],
+//           tileMode: TileMode.clamp),
+//     ),
+//   ),
+//   title: Row(
+//     children: <Widget>[
+//       Text(
+//         widget.title,
+//         style: GoogleFonts.gloriaHallelujah(fontSize: 24.0),
+//       ),
+//       SizedBox(width: 30),
+//       GNav(
+//           onTabChange: (value) {
+//             _controller.animateTo(value);
+//           },
+//           gap: 8,
+//           color: Colors.white.withAlpha(100),
+//           activeColor: Colors.grey.shade200,
+//           iconSize: 32,
+//           padding: const EdgeInsets.all(16),
+//           duration: const Duration(milliseconds: 200),
+//           curve: Curves.easeInOutCubic,
+//           tabs: [
+//             GButton(
+//               textStyle: Theme.of(context).textTheme.bodyText1,
+//               icon: FeatherIcons.home,
+//               text: "Home",
+//             ),
+//             GButton(
+//               textStyle: Theme.of(context).textTheme.bodyText1,
+//               icon: FeatherIcons.heart,
+//               text: "Favorites",
+//             ),
+//             GButton(
+//               textStyle: Theme.of(context).textTheme.bodyText1,
+//               icon: FeatherIcons.film,
+//               text: "Movies",
+//             ),
+//             GButton(
+//               textStyle: Theme.of(context).textTheme.bodyText1,
+//               icon: FeatherIcons.tv,
+//               text: "Shows",
+//             ),
+//           ])
+//       // TabBar(
+//       //   controller: _controller,
+//       //   physics: NeverScrollableScrollPhysics(),
+//       //   indicator: UnderlineTabIndicator(
+//       //     borderSide: BorderSide(
+//       //       width: 4,
+//       //       color: Theme.of(context).colorScheme.secondary,
+//       //     ),
+//       //   ),
+//       //   labelStyle: GoogleFonts.sourceSansPro(fontSize: 20.0),
+//       //   overlayColor: MaterialStateProperty.resolveWith((states) {
+//       //     const Set<MaterialState> interactiveStates = {
+//       //       MaterialState.pressed,
+//       //       MaterialState.hovered,
+//       //       MaterialState.focused,
+//       //     };
+//       //     if (states.any(interactiveStates.contains)) {
+//       //       return Colors.white.withAlpha(60);
+//       //     }
+//       //     return Colors.teal;
+//       //   }),
+//       //   labelColor: Colors.white,
+//       //   unselectedLabelColor: Colors.grey.shade400,
+//       //   isScrollable: true,
+//       //   tabs: <Widget>[
+//       //     Tab(text: 'Home', icon: Icon(Icons.home)),
+//       //     Tab(text: 'Favorites', icon: Icon(Icons.favorite_rounded)),
+//       //     Tab(text: 'Movies', icon: Icon(Icons.movie)),
+//       //     Tab(text: 'Shows', icon: Icon(Icons.tv)),
+//       //   ],
+//       // ),
+//     ],
+//   ),
+//   actions: <Widget>[
+//     IconButton(
+//       icon: Icon(FeatherIcons.search),
+//       focusColor: Colors.white.withAlpha(100),
+//       onPressed: () {
+//         Navigator.pushNamed(context, "/search");
+//       },
+//     ),
+//   ],
+// ),

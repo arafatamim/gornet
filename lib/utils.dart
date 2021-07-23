@@ -19,6 +19,7 @@ String formatBytes(int bytes, {int decimals = 1}) {
 }
 
 Widget buildLabel(
+  BuildContext context,
   String label, {
   IconData? icon,
   String? imageAsset,
@@ -62,7 +63,9 @@ Widget buildLabel(
             ),
           ),
         ),
-        const SizedBox(width: 30),
+        MediaQuery.of(context).size.width > 720
+            ? const SizedBox(width: 30)
+            : const SizedBox(width: 15),
       ],
     ),
   );

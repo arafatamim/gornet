@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:meta/meta.dart';
 
 enum MediaType { movie, series }

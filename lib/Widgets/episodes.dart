@@ -10,7 +10,6 @@ import 'package:goribernetflix/Services/next_up.dart';
 import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:goribernetflix/Widgets/scrolling_text.dart';
 import 'package:goribernetflix/utils.dart';
-import 'package:dio/dio.dart';
 import 'package:duration/duration.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +42,14 @@ class _EpisodesState extends State<Episodes>
             return const Center(child: CircularProgressIndicator());
           case ConnectionState.done:
             if (snapshot.hasData) {
-              return _buildEpisodesList(snapshot.data!);
+              final episodes = snapshot.data!;
+              final deviceSize = MediaQuery.of(context).size;
+
+              if (deviceSize.width > 720) {
+                return _buildWideEpisodesList(episodes);
+              } else {
+                return _buildMobileEpisodesList(episodes);
+              }
             } else {
               return Center(child: Text(snapshot.error.toString()));
             }
@@ -54,7 +60,23 @@ class _EpisodesState extends State<Episodes>
     );
   }
 
-  Widget _buildEpisodesList(List<Episode> episodes) {
+  Widget _buildMobileEpisodesList(List<Episode> episodes) {
+    return ListView.builder(
+      itemCount: episodes.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(episodes[index].name),
+          subtitle: Text(episodes[index].synopsis ?? ""),
+          leading: Text(episodes[index].index.toString()),
+          onTap: () {
+            _displaySheet(context, episodes, index);
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildWideEpisodesList(List<Episode> episodes) {
     return FocusTraversalGroup(
       policy: OrderedTraversalPolicy(),
       child: ListView.builder(
@@ -77,23 +99,27 @@ class _EpisodesState extends State<Episodes>
               cardHeight: 125,
             ),
             onTap: () {
-              showModalBottomSheet(
-                useRootNavigator: true,
-                isDismissible: false,
-                routeSettings: const RouteSettings(name: "episode"),
-                backgroundColor: Colors.transparent,
-                context: context,
-                builder: (context) {
-                  return EpisodeSheet(
-                    season: widget.season,
-                    episode: episodes[index],
-                  );
-                },
-              );
+              _displaySheet(context, episodes, index);
             },
           );
         },
       ),
+    );
+  }
+
+  void _displaySheet(BuildContext context, List<Episode> episodes, int index) {
+    showModalBottomSheet(
+      useRootNavigator: true,
+      isDismissible: false,
+      routeSettings: const RouteSettings(name: "episode"),
+      backgroundColor: Colors.transparent,
+      context: context,
+      builder: (context) {
+        return EpisodeSheet(
+          season: widget.season,
+          episode: episodes[index],
+        );
+      },
     );
   }
 }
@@ -112,12 +138,11 @@ class EpisodeSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // POTENTIALLY SLOW PERFORMANCE ON OLDER PROCESSORS
         if (episode.imageUris?.backdrop != null)
           Positioned.fill(
             child: CachedNetworkImage(
               imageUrl: episode.imageUris!.backdrop!,
-              fit: BoxFit.fitWidth,
+              fit: BoxFit.cover,
               alignment: const Alignment(0.0, -.5),
             ),
           ),
@@ -146,85 +171,138 @@ class EpisodeDetails extends StatelessWidget {
   final Season season;
 
   const EpisodeDetails(this.episode, this.season);
+
   @override
   Widget build(BuildContext context) {
+    final deviceSize = MediaQuery.of(context).size;
+    if (deviceSize.width > 720) {
+      return _buildWideDetails(context);
+    } else {
+      return _buildMobileDetails(context);
+    }
+  }
+
+  Padding _buildMobileDetails(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(30),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildEpisodeTitle(context),
+            const SizedBox(height: 6),
+            _buildEpisodeNumber(),
+            const SizedBox(height: 15),
+            _buildMeta(context),
+            const SizedBox(height: 15),
+            _buildSynopsis(),
+            const SizedBox(height: 15),
+            _buildSourcesWidget(context)
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWideDetails(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 38),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  episode.name,
-                  maxLines: 3,
-                  softWrap: true,
-                  style: Theme.of(context).textTheme.headline2,
+      child: Row(children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildEpisodeTitle(context),
+              const SizedBox(height: 6),
+              _buildEpisodeNumber(),
+              const SizedBox(height: 15),
+              _buildMeta(context),
+              const SizedBox(height: 15),
+              Expanded(
+                child: ScrollingText(
+                  startPauseDuration: const Duration(seconds: 10),
+                  endPauseDuration: const Duration(seconds: 10),
+                  scrollDirection: Axis.vertical,
+                  speed: 12,
+                  child: _buildSynopsis(),
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  "S${season.index.toString().padLeft(2, "0")}E${episode.index.toString().padLeft(2, '0')}",
-                  style: GoogleFonts.sourceSansPro(
-                    color: Colors.grey.shade300,
-                    fontSize: 25,
-                  ),
-                ),
-                const SizedBox(height: 15),
-                Row(
-                  children: [
-                    if (episode.runtime != null)
-                      buildLabel(
-                        prettyDuration(
-                          episode.runtime!,
-                          tersity: DurationTersity.minute,
-                          abbreviated: true,
-                          delimiter: " ",
-                        ),
-                        icon: FeatherIcons.clock,
-                      ),
-                    if (episode.airDate != null)
-                      buildLabel(
-                        "Aired on ${episode.airDate!.longMonth.capitalizeFirst} ${episode.airDate!.day}, ${episode.airDate!.year}",
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 15),
-                Expanded(
-                  child: ScrollingText(
-                    startPauseDuration: const Duration(seconds: 10),
-                    endPauseDuration: const Duration(seconds: 10),
-                    scrollDirection: Axis.vertical,
-                    speed: 12,
-                    child: Text(
-                      episode.synopsis ?? "",
-                      style: GoogleFonts.sourceSansPro(
-                        color: Colors.grey.shade300,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                )
-              ],
-            ),
+              )
+            ],
           ),
-          const Spacer(),
-          Expanded(
-            child: EpisodeSources(
-              episode.seriesId,
-              episode.seasonIndex,
-              episode.index,
-              onPlay: () => Provider.of<NextUpService>(
-                context,
-                listen: false,
-              ).createNextUp(
-                seriesId: episode.seriesId,
-                seasonIndex: episode.seasonIndex,
-                episodeIndex: episode.index,
-              ),
+        ),
+        const Spacer(),
+        Expanded(
+          child: _buildSourcesWidget(context),
+        )
+      ]),
+    );
+  }
+
+  Text _buildEpisodeTitle(BuildContext context) {
+    return Text(
+      episode.name,
+      maxLines: 3,
+      softWrap: true,
+      style: Theme.of(context).textTheme.headline2,
+    );
+  }
+
+  Text _buildEpisodeNumber() {
+    return Text(
+      "S${season.index.toString().padLeft(2, "0")}"
+      "E${episode.index.toString().padLeft(2, '0')}",
+      style: GoogleFonts.sourceSansPro(
+        color: Colors.grey.shade300,
+        fontSize: 25,
+      ),
+    );
+  }
+
+  Row _buildMeta(BuildContext context) {
+    return Row(
+      children: [
+        if (episode.runtime != null)
+          buildLabel(
+            context,
+            prettyDuration(
+              episode.runtime!,
+              tersity: DurationTersity.minute,
+              abbreviated: true,
+              delimiter: " ",
             ),
+            icon: FeatherIcons.clock,
           ),
-        ],
+        if (episode.airDate != null)
+          buildLabel(
+            context,
+            "Aired on ${episode.airDate!.longMonth.capitalizeFirst} ${episode.airDate!.day}, ${episode.airDate!.year}",
+          ),
+      ],
+    );
+  }
+
+  Widget _buildSourcesWidget(BuildContext context) {
+    return EpisodeSources(
+      episode.seriesId,
+      episode.seasonIndex,
+      episode.index,
+      onPlay: () => Provider.of<NextUpService>(
+        context,
+        listen: false,
+      ).createNextUp(
+        seriesId: episode.seriesId,
+        seasonIndex: episode.seasonIndex,
+        episodeIndex: episode.index,
+      ),
+    );
+  }
+
+  Text _buildSynopsis() {
+    return Text(
+      episode.synopsis ?? "",
+      style: GoogleFonts.sourceSansPro(
+        color: Colors.grey.shade300,
+        fontSize: 16,
       ),
     );
   }
@@ -236,8 +314,13 @@ class EpisodeSources extends StatelessWidget {
   final int episodeIndex;
   final VoidCallback? onPlay;
 
-  const EpisodeSources(this.seriesId, this.seasonIndex, this.episodeIndex,
-      {this.onPlay});
+  const EpisodeSources(
+    this.seriesId,
+    this.seasonIndex,
+    this.episodeIndex, {
+    this.onPlay,
+  });
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<MediaSource>>(
@@ -253,43 +336,13 @@ class EpisodeSources extends StatelessWidget {
           case ConnectionState.done:
             if (snapshot.hasData) {
               final mediaSources = snapshot.data!;
-              return ListView(
-                shrinkWrap: true,
-                children: [
-                  for (final source in mediaSources)
-                    RoundedCard(
-                      title: source.displayName +
-                          ", " +
-                          formatBytes(source.fileSize),
-                      subtitle: source.fileName,
-                      style: const RoundedCardStyle(cardHeight: null),
-                      scrollAxis: Axis.horizontal,
-                      onTap: () {
-                        try {
-                          if (Platform.isAndroid) {
-                            final AndroidIntent intent = AndroidIntent(
-                              action: 'action_view',
-                              data: source.streamUri,
-                              type: source.mimeType ?? "video/*",
-                              flags: [
-                                Flag.FLAG_GRANT_PERSISTABLE_URI_PERMISSION,
-                                Flag.FLAG_GRANT_PREFIX_URI_PERMISSION,
-                                Flag.FLAG_GRANT_WRITE_URI_PERMISSION,
-                                Flag.FLAG_GRANT_READ_URI_PERMISSION
-                              ],
-                            );
-                            intent.launch();
-                            onPlay?.call();
-                          } else {
-                            print("DING DING DING");
-                          }
-                        } on UnsupportedError {
-                          print("It's the web!");
-                        }
-                      },
-                    ),
-                ],
-              );
+              final deviceSize = MediaQuery.of(context).size;
+
+              if (deviceSize.width > 720) {
+                return _buildWideLayout(mediaSources);
+              } else {
+                return _buildMobileLayout(mediaSources);
+              }
             } else {
               return buildErrorBox(
                 context,
@@ -297,9 +350,54 @@ class EpisodeSources extends StatelessWidget {
               );
             }
           default:
-            return Container();
+            return const SizedBox.shrink();
         }
       },
+    );
+  }
+
+  Widget _buildSourceCard(MediaSource source) {
+    return RoundedCard(
+      title: source.displayName + ", " + formatBytes(source.fileSize),
+      subtitle: source.fileName,
+      style: const RoundedCardStyle(cardHeight: null),
+      scrollAxis: Axis.horizontal,
+      onTap: () {
+        try {
+          if (Platform.isAndroid) {
+            final AndroidIntent intent = AndroidIntent(
+              action: 'action_view',
+              data: source.streamUri,
+              type: source.mimeType ?? "video/*",
+              flags: [
+                Flag.FLAG_GRANT_PERSISTABLE_URI_PERMISSION,
+                Flag.FLAG_GRANT_PREFIX_URI_PERMISSION,
+                Flag.FLAG_GRANT_WRITE_URI_PERMISSION,
+                Flag.FLAG_GRANT_READ_URI_PERMISSION
+              ],
+            );
+            intent.launch();
+            onPlay?.call();
+          } else {
+            print("DING DING DING");
+          }
+        } on UnsupportedError {
+          print("It's the web!");
+        }
+      },
+    );
+  }
+
+  Widget _buildWideLayout(List<MediaSource> mediaSources) {
+    return ListView(
+      shrinkWrap: true,
+      children: [for (final source in mediaSources) _buildSourceCard(source)],
+    );
+  }
+
+  Widget _buildMobileLayout(List<MediaSource> mediaSources) {
+    return Column(
+      children: [for (final source in mediaSources) _buildSourceCard(source)],
     );
   }
 }

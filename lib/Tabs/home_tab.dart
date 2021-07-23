@@ -44,9 +44,6 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          const SizedBox(height: 40),
-          // _buildSectionTitle("Spotlight"),
-          // const SizedBox(height: 20),
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 400),
             child: Consumer<FtpbdService>(

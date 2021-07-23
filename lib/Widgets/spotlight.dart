@@ -70,6 +70,8 @@ class _SpotlightState extends State<Spotlight> {
 
   @override
   Widget build(BuildContext context) {
+    final deviceSize = MediaQuery.of(context).size;
+
     return Focus(
       focusNode: _node,
       canRequestFocus: false,
@@ -94,7 +96,7 @@ class _SpotlightState extends State<Spotlight> {
                 ),
                 child: CachedNetworkImage(
                   imageUrl: widget.backdrop!,
-                  fit: BoxFit.fitWidth,
+                  fit: BoxFit.cover,
                   alignment: const Alignment(0.0, -0.5),
                 ),
               ),
@@ -152,17 +154,19 @@ class _SpotlightState extends State<Spotlight> {
                             style: Theme.of(context).textTheme.headline1,
                           ),
                     const SizedBox(height: 20),
-                    Row(
-                      children: _buildMeta(
-                        ageRating: widget.ageRating,
-                        endDate: widget.endDate,
-                        hasEnded: widget.hasEnded,
-                        rating: widget.rating,
-                        year: widget.year,
-                        genres: widget.genres,
+                    if (deviceSize.width > 720) ...[
+                      Row(
+                        children: _buildMeta(
+                          ageRating: widget.ageRating,
+                          endDate: widget.endDate,
+                          hasEnded: widget.hasEnded,
+                          rating: widget.rating,
+                          year: widget.year,
+                          genres: widget.genres,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 15),
+                      const SizedBox(height: 15),
+                    ],
                     if (widget.synopsis != null)
                       ConstrainedBox(
                         constraints:
@@ -215,14 +219,16 @@ class _SpotlightState extends State<Spotlight> {
     List<String>? genres,
   }) {
     return <Widget>[
-      if (genres != null) buildLabel(genres.join(", ")),
+      if (genres != null) buildLabel(context, genres.join(", ")),
       if (rating != null)
         buildLabel(
+          context,
           rating.toStringAsFixed(2),
           icon: FeatherIcons.star,
         ),
       if (runtime != null)
         buildLabel(
+          context,
           prettyDuration(
             runtime,
             tersity: DurationTersity.minute,
@@ -231,9 +237,11 @@ class _SpotlightState extends State<Spotlight> {
           ),
           icon: FeatherIcons.clock,
         ),
-      if (ageRating != null) buildLabel(ageRating, hasBackground: true),
+      if (ageRating != null)
+        buildLabel(context, ageRating, hasBackground: true),
       if (year != null)
         buildLabel(
+          context,
           year.toString() +
               (hasEnded != null
                   ? (hasEnded

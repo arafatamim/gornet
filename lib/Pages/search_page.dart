@@ -76,78 +76,131 @@ class _SearchPageState extends State<SearchPage> {
         ),
         floatingActionButtonLocation:
             FloatingActionButtonLocation.miniStartFloat,
-        body: Container(
-          child: Padding(
-            padding: const EdgeInsets.all(32.0),
-            child: Column(
-              children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: FocusScope(
-                          canRequestFocus: false,
-                          child: TextField(
-                            controller: _textController,
-                            readOnly: true,
-                            textInputAction: TextInputAction.go,
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.sourceSansPro(
-                              color: Colors.white,
-                              fontSize: 30.0,
-                            ),
-                            decoration: InputDecoration(
-                              fillColor: Colors.transparent,
-                              filled: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
-                              border: InputBorder.none,
-                              hintText: "Search...",
-                              hintStyle: GoogleFonts.sourceSansPro(
-                                color: Colors.grey,
-                              ),
-                            ),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxWidth > 720) {
+              return _buildWideLayout();
+            } else {
+              return Container(
+                padding: const EdgeInsets.all(15.0),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _textController,
+                      textInputAction: TextInputAction.go,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.sourceSansPro(
+                        color: Colors.white,
+                        fontSize: 30.0,
+                      ),
+                      onSubmitted: (value) {
+                        if (_textController.text.trim() != "") {
+                          _getItems(_textController.text);
+                        }
+                      },
+                      decoration: InputDecoration(
+                        fillColor: Colors.transparent,
+                        filled: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        border: InputBorder.none,
+                        hintText: "Search...",
+                        hintStyle: GoogleFonts.sourceSansPro(
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 25),
+                    Expanded(
+                      flex: 2,
+                      child: StreamBuilder<List<SearchResult>?>(
+                        stream: _resultsStream.stream,
+                        builder: _buildSearchResults,
+                      ),
+                    )
+                  ],
+                ),
+              );
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  Container _buildWideLayout() {
+    return Container(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: FocusScope(
+                      canRequestFocus: false,
+                      child: TextField(
+                        controller: _textController,
+                        readOnly: true,
+                        textInputAction: TextInputAction.go,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.sourceSansPro(
+                          color: Colors.white,
+                          fontSize: 30.0,
+                        ),
+                        decoration: InputDecoration(
+                          fillColor: Colors.transparent,
+                          filled: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          border: InputBorder.none,
+                          hintText: "Search...",
+                          hintStyle: GoogleFonts.sourceSansPro(
+                            color: Colors.grey,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 25),
-                      Expanded(
-                        child: VirtualKeyboard(
-                          controller: _textController,
-                          keyboardHeight: 185,
-                          textTransformer: (incomingValue) =>
-                              incomingValue?.toLowerCase(),
-                          onChanged: (value) {
-                            if (_debounce?.isActive ?? false) {
-                              _debounce?.cancel();
+                    ),
+                  ),
+                  const SizedBox(width: 25),
+                  Expanded(
+                    child: VirtualKeyboard(
+                      controller: _textController,
+                      keyboardHeight: 185,
+                      textTransformer: (incomingValue) =>
+                          incomingValue?.toLowerCase(),
+                      onChanged: (value) {
+                        if (_debounce?.isActive ?? false) {
+                          _debounce?.cancel();
+                        }
+                        _debounce = Timer(
+                          const Duration(milliseconds: 2000),
+                          () {
+                            if (_textController.text.trim() != "") {
+                              _getItems(_textController.text);
                             }
-                            _debounce = Timer(
-                              const Duration(milliseconds: 2000),
-                              () {
-                                if (_textController.text.trim() != "") {
-                                  _getItems(_textController.text);
-                                }
-                              },
-                            );
                           },
-                        ),
-                      ),
-                    ],
+                        );
+                      },
+                    ),
                   ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: StreamBuilder<List<SearchResult>?>(
-                    stream: _resultsStream.stream,
-                    builder: _buildSearchResults,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+            Expanded(
+              flex: 2,
+              child: StreamBuilder<List<SearchResult>?>(
+                stream: _resultsStream.stream,
+                builder: _buildSearchResults,
+              ),
+            ),
+          ],
         ),
       ),
     );

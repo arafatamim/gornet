@@ -82,38 +82,36 @@ class _ItemsTabState extends State<ItemsTab>
   }
 
   Widget _buildGridView(BuildContext context, List<SearchResult> values) {
-    return OrientationBuilder(
-      builder: (context, orientation) {
-        int itemCount = orientation == Orientation.landscape ? 5 : 3;
-        return GridView.builder(
-          // controller: _scrollController,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: itemCount,
-            childAspectRatio: 0.5,
-          ),
-          itemCount: values.length,
+    final deviceSize = MediaQuery.of(context).size;
+    final int itemCount = deviceSize.width ~/ 230;
 
-          itemBuilder: (BuildContext context, int index) {
-            SearchResult item = values[index];
-            return Cover(
-              title: item.name,
-              subtitle: "",
-              // subtitle: (item.year ?? "").toString(),
-              image: item.imageUris?.primary,
-              // showIcon: widget.showIcon,
-              style: RoundedCardStyle(
-                primaryColor: Colors.transparent,
-                textColor: Colors.grey.shade300,
-                focusTextColor: Colors.white,
-                mutedTextColor: Colors.grey.shade400,
-                focusMutedTextColor: Colors.grey.shade300,
-              ),
-              onTap: () {
-                Navigator.pushNamed(context, "/detail", arguments: item);
-              },
-              // onFocus: () {_toEnd(index, 4);}
-            );
+    return GridView.builder(
+      // controller: _scrollController,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: itemCount,
+        childAspectRatio: 0.5,
+      ),
+      itemCount: values.length,
+
+      itemBuilder: (BuildContext context, int index) {
+        SearchResult item = values[index];
+        return Cover(
+          title: item.name,
+          subtitle: "",
+          // subtitle: (item.year ?? "").toString(),
+          image: item.imageUris?.primary,
+          // showIcon: widget.showIcon,
+          style: RoundedCardStyle(
+            primaryColor: Colors.transparent,
+            textColor: Colors.grey.shade300,
+            focusTextColor: Colors.white,
+            mutedTextColor: Colors.grey.shade400,
+            focusMutedTextColor: Colors.grey.shade300,
+          ),
+          onTap: () {
+            Navigator.pushNamed(context, "/detail", arguments: item);
           },
+          // onFocus: () {_toEnd(index, 4);}
         );
       },
     );
