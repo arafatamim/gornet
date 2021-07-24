@@ -10,21 +10,26 @@ class ShimmerList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 400),
-        child: GridView.builder(
-          shrinkWrap: true,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 5,
-            childAspectRatio: 0.55,
-          ),
-          itemCount: itemCount,
-          itemBuilder: (context, index) => const ShimmerItem(
-            child: CoverShimmer(),
-          ),
-        ),
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        physics: const NeverScrollableScrollPhysics(),
+        children: [
+          for (int i = 0; i < itemCount; i++)
+            const ShimmerItem(child: CoverShimmer())
+        ],
       ),
     );
+    // child: GridView.builder(
+    //   shrinkWrap: true,
+    //   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+    //     crossAxisCount: 5,
+    //     childAspectRatio: 0.55,
+    //   ),
+    //   itemCount: itemCount,
+    //   itemBuilder: (context, index) => const ShimmerItem(
+    //     child: CoverShimmer(),
+    //   ),
+    // ),
   }
 }
 

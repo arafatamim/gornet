@@ -56,9 +56,16 @@ class _ItemsTabState extends State<ItemsTab>
   @override
   bool get wantKeepAlive => true;
 
+  int get itemCount {
+    final deviceSize = MediaQuery.of(context).size;
+    final int itemCount = deviceSize.width ~/ 210;
+    return itemCount;
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
     return FutureBuilder<List<SearchResult>>(
       future: widget.future,
       builder: (context, snapshot) {
@@ -75,21 +82,18 @@ class _ItemsTabState extends State<ItemsTab>
             );
           }
         } else {
-          return const ShimmerList(itemCount: 12);
+          return ShimmerList(itemCount: itemCount);
         }
       },
     );
   }
 
   Widget _buildGridView(BuildContext context, List<SearchResult> values) {
-    final deviceSize = MediaQuery.of(context).size;
-    final int itemCount = deviceSize.width ~/ 230;
-
     return GridView.builder(
       // controller: _scrollController,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: itemCount,
-        childAspectRatio: 0.5,
+        childAspectRatio: 0.56,
       ),
       itemCount: values.length,
 

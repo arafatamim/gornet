@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class CoverListViewBuilder extends StatefulWidget {
+class CoverListViewBuilder extends StatelessWidget {
   final Future<List<SearchResult>> results;
   final bool showIcon;
   final bool separator;
@@ -22,25 +22,22 @@ class CoverListViewBuilder extends StatefulWidget {
   });
 
   @override
-  State<CoverListViewBuilder> createState() => _CoverListViewBuilderState();
-}
-
-class _CoverListViewBuilderState extends State<CoverListViewBuilder> {
-  @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<SearchResult>>(
-      future: widget.results,
+      future: results,
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
-            return const ShimmerList(itemCount: 6);
+            return const ShimmerList(
+              itemCount: 6,
+            );
           case ConnectionState.done:
             if (snapshot.hasData && snapshot.data!.isNotEmpty) {
               final items = snapshot.data!;
               return CoverListView(
                 items,
-                controller: widget.controller,
-                separator: widget.separator,
+                controller: controller,
+                separator: separator,
               );
               /*
               return OrientationBuilder(builder: (context, orientation) {
@@ -207,7 +204,7 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
         child: Column(
           children: <Widget>[
             Container(
-              child: buildPosterImage(),
+              child: AspectRatio(aspectRatio: 0.66, child: buildPosterImage()),
               decoration: BoxDecoration(
                 border: Border.all(width: 4, color: _primaryColor),
                 borderRadius: BorderRadius.circular(5),
@@ -277,53 +274,53 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
   }
 
   Widget buildPosterImage() {
-    return ConstrainedBox(
-      constraints: const BoxConstraints.tightFor(height: 350),
-      child: (widget.image != null)
-          ? CachedNetworkImage(
-              key: Key(widget.image!),
-              fadeInDuration: const Duration(milliseconds: 300),
-              placeholder: (_context, _uri) => Center(
-                child: Icon(
-                  widget.icon ?? FeatherIcons.video,
-                  color: Colors.grey,
-                ),
-              ),
-              imageUrl: widget.image!,
-              fit: BoxFit.cover,
-            )
-          : Container(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  colors: [
-                    Theme.of(context).colorScheme.primary,
-                    Theme.of(context).colorScheme.secondary,
-                  ],
-                  focal: const Alignment(0, 0),
-                  focalRadius: 1,
-                  radius: 0.5,
-                  center: Alignment.bottomCenter,
-                ),
-              ),
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Align(
-                    alignment: Alignment.topRight,
-                    child: Text(
-                      '${widget.title} (${widget.subtitle})'.toUpperCase(),
-                      textAlign: TextAlign.right,
-                      style: Theme.of(context).textTheme.bodyText1?.apply(
-                            color: Colors.grey.shade400,
-                            fontSizeFactor: 1.3,
-                            heightFactor: 0.7,
-                          ),
+    if (widget.image != null) {
+      return CachedNetworkImage(
+        key: Key(widget.image!),
+        fadeInDuration: const Duration(milliseconds: 300),
+        placeholder: (_context, _uri) => AspectRatio(
+          aspectRatio: 0.6,
+          child: Icon(
+            widget.icon ?? FeatherIcons.video,
+            color: Colors.grey,
+          ),
+        ),
+        imageUrl: widget.image!,
+        fit: BoxFit.cover,
+      );
+    } else {
+      return Container(
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            colors: [
+              Theme.of(context).colorScheme.primary,
+              Theme.of(context).colorScheme.secondary,
+            ],
+            focal: const Alignment(0, 0),
+            focalRadius: 1,
+            radius: 0.5,
+            center: Alignment.bottomCenter,
+          ),
+        ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Text(
+                '${widget.title} (${widget.subtitle})'.toUpperCase(),
+                textAlign: TextAlign.right,
+                style: Theme.of(context).textTheme.bodyText1?.apply(
+                      color: Colors.grey.shade400,
+                      fontSizeFactor: 1.3,
+                      heightFactor: 0.7,
                     ),
-                  ),
-                ),
               ),
             ),
-    );
+          ),
+        ),
+      );
+    }
   }
 
   @override
