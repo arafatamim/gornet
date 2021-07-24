@@ -80,7 +80,7 @@ class _CoverListViewBuilderState extends State<CoverListViewBuilder> {
               });*/
             } else {
               return Center(
-                child: buildErrorBox(context, snapshot.error),
+                child: buildErrorBox(snapshot.error),
               );
             }
           default:

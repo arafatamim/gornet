@@ -108,7 +108,7 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
                                   );
                                 });
                           } else {
-                            return buildErrorBox(context, snapshot.error);
+                            return buildErrorBox(snapshot.error);
                           }
                         default:
                           return Container();

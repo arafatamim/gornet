@@ -158,10 +158,10 @@ class Movie extends Media {
         super(
           id: payload["id"] as String,
           title: payload["title"] as String,
-          year: payload["year"] as int,
+          year: payload["year"] as int?,
           genres: List<String>.from(payload["genres"] as List<dynamic>),
-          ageRating: payload["ageRating"] as String,
-          synopsis: payload["synopsis"] as String,
+          ageRating: payload["ageRating"] as String?,
+          synopsis: payload["synopsis"] as String?,
           imageUris:
               ImageUris.fromJson(payload["imageUris"] as Map<String, dynamic>),
           cast: Cast.fromJsonArray(payload["cast"] as List<dynamic>),
@@ -182,7 +182,7 @@ class Series extends Media {
       : averageRuntime = payload["averageRuntime"] != null
             ? Duration(minutes: payload["averageRuntime"].toInt() as int)
             : null,
-        hasEnded = payload["hasEnded"] as bool,
+        hasEnded = payload["hasEnded"] as bool?,
         lastAired = payload["lastAired"] != null
             ? DateTime.parse(payload["lastAired"] as String)
             : null,
@@ -191,14 +191,14 @@ class Series extends Media {
         ),
         super(
           id: payload["id"] as String,
-          ageRating: payload["ageRating"] as String,
+          ageRating: payload["ageRating"] as String?,
           title: payload["title"] as String,
           year: payload["year"] as int,
           genres: List.from(payload["genres"] as List<dynamic>),
           imageUris: ImageUris.fromJson(
             payload["imageUris"] as Map<String, dynamic>,
           ),
-          synopsis: payload["synopsis"] as String,
+          synopsis: payload["synopsis"] as String?,
           cast: Cast.fromJsonArray(payload["cast"] as List<dynamic>),
           studios: payload["studios"] != null
               ? (payload["studios"] as List<dynamic>).cast<String>()
@@ -276,7 +276,7 @@ class Episode {
         seasonIndex = json["seasonIndex"] as int,
         index = json["index"] as int,
         name = json["name"] as String,
-        synopsis = json["synopsis"] as String,
+        synopsis = json["synopsis"] as String?,
         runtime = json["runtime"] != null
             ? Duration(milliseconds: json['runtime'].toInt() as int)
             : null,

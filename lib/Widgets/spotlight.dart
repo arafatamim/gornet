@@ -71,6 +71,7 @@ class _SpotlightState extends State<Spotlight> {
   @override
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
+    final isWide = deviceSize.width > 720;
 
     return Focus(
       focusNode: _node,
@@ -88,7 +89,8 @@ class _SpotlightState extends State<Spotlight> {
             },
             blendMode: BlendMode.dstIn,
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius:
+                  isWide ? BorderRadius.circular(8) : BorderRadius.circular(0),
               child: ColorFiltered(
                 colorFilter: ColorFilter.mode(
                   Colors.black.withAlpha(70),
@@ -219,16 +221,14 @@ class _SpotlightState extends State<Spotlight> {
     List<String>? genres,
   }) {
     return <Widget>[
-      if (genres != null) buildLabel(context, genres.join(", ")),
+      if (genres != null) buildLabel(genres.join(", ")),
       if (rating != null)
         buildLabel(
-          context,
           rating.toStringAsFixed(2),
           icon: FeatherIcons.star,
         ),
       if (runtime != null)
         buildLabel(
-          context,
           prettyDuration(
             runtime,
             tersity: DurationTersity.minute,
@@ -237,11 +237,9 @@ class _SpotlightState extends State<Spotlight> {
           ),
           icon: FeatherIcons.clock,
         ),
-      if (ageRating != null)
-        buildLabel(context, ageRating, hasBackground: true),
+      if (ageRating != null) buildLabel(ageRating, hasBackground: true),
       if (year != null)
         buildLabel(
-          context,
           year.toString() +
               (hasEnded != null
                   ? (hasEnded

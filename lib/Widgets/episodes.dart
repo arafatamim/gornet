@@ -61,18 +61,18 @@ class _EpisodesState extends State<Episodes>
   }
 
   Widget _buildMobileEpisodesList(List<Episode> episodes) {
-    return ListView.builder(
-      itemCount: episodes.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text(episodes[index].name),
-          subtitle: Text(episodes[index].synopsis ?? ""),
-          leading: Text(episodes[index].index.toString()),
-          onTap: () {
-            _displaySheet(context, episodes, index);
-          },
-        );
-      },
+    return ListView(
+      children: [
+        for (var index = 0; index < episodes.length; index++)
+          ListTile(
+            title: Text(episodes[index].name),
+            subtitle: Text(episodes[index].synopsis ?? ""),
+            leading: Text(episodes[index].index.toString()),
+            onTap: () {
+              _displaySheet(context, episodes, index);
+            },
+          )
+      ],
     );
   }
 
@@ -189,15 +189,15 @@ class EpisodeDetails extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildEpisodeTitle(context),
+            _buildEpisodeTitle(),
             const SizedBox(height: 6),
             _buildEpisodeNumber(),
             const SizedBox(height: 15),
-            _buildMeta(context),
+            _buildMeta(),
             const SizedBox(height: 15),
             _buildSynopsis(),
-            const SizedBox(height: 15),
-            _buildSourcesWidget(context)
+            const SizedBox(height: 20),
+            _buildSourcesWidget()
           ],
         ),
       ),
@@ -212,11 +212,11 @@ class EpisodeDetails extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildEpisodeTitle(context),
+              _buildEpisodeTitle(),
               const SizedBox(height: 6),
               _buildEpisodeNumber(),
               const SizedBox(height: 15),
-              _buildMeta(context),
+              _buildMeta(),
               const SizedBox(height: 15),
               Expanded(
                 child: ScrollingText(
@@ -232,18 +232,20 @@ class EpisodeDetails extends StatelessWidget {
         ),
         const Spacer(),
         Expanded(
-          child: _buildSourcesWidget(context),
+          child: _buildSourcesWidget(),
         )
       ]),
     );
   }
 
-  Text _buildEpisodeTitle(BuildContext context) {
-    return Text(
-      episode.name,
-      maxLines: 3,
-      softWrap: true,
-      style: Theme.of(context).textTheme.headline2,
+  Widget _buildEpisodeTitle() {
+    return Builder(
+      builder: (context) => Text(
+        episode.name,
+        maxLines: 3,
+        softWrap: true,
+        style: Theme.of(context).textTheme.headline2,
+      ),
     );
   }
 
@@ -258,12 +260,11 @@ class EpisodeDetails extends StatelessWidget {
     );
   }
 
-  Row _buildMeta(BuildContext context) {
+  Row _buildMeta() {
     return Row(
       children: [
         if (episode.runtime != null)
           buildLabel(
-            context,
             prettyDuration(
               episode.runtime!,
               tersity: DurationTersity.minute,
@@ -274,25 +275,26 @@ class EpisodeDetails extends StatelessWidget {
           ),
         if (episode.airDate != null)
           buildLabel(
-            context,
             "Aired on ${episode.airDate!.longMonth.capitalizeFirst} ${episode.airDate!.day}, ${episode.airDate!.year}",
           ),
       ],
     );
   }
 
-  Widget _buildSourcesWidget(BuildContext context) {
-    return EpisodeSources(
-      episode.seriesId,
-      episode.seasonIndex,
-      episode.index,
-      onPlay: () => Provider.of<NextUpService>(
-        context,
-        listen: false,
-      ).createNextUp(
-        seriesId: episode.seriesId,
-        seasonIndex: episode.seasonIndex,
-        episodeIndex: episode.index,
+  Widget _buildSourcesWidget() {
+    return Builder(
+      builder: (context) => EpisodeSources(
+        episode.seriesId,
+        episode.seasonIndex,
+        episode.index,
+        onPlay: () => Provider.of<NextUpService>(
+          context,
+          listen: false,
+        ).createNextUp(
+          seriesId: episode.seriesId,
+          seasonIndex: episode.seasonIndex,
+          episodeIndex: episode.index,
+        ),
       ),
     );
   }
@@ -344,10 +346,7 @@ class EpisodeSources extends StatelessWidget {
                 return _buildMobileLayout(mediaSources);
               }
             } else {
-              return buildErrorBox(
-                context,
-                snapshot.error,
-              );
+              return buildErrorBox(snapshot.error);
             }
           default:
             return const SizedBox.shrink();

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:io';
 
 import 'package:goribernetflix/Models/models.dart';
@@ -11,6 +12,35 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+class SearchModel extends ChangeNotifier {
+  bool _hasNotStartedYet = true;
+  bool _loading = false;
+  Object? _error;
+  List<SearchResult> _results = [];
+
+  UnmodifiableListView<SearchResult> get results =>
+      UnmodifiableListView(_results);
+  bool get isLoading => _loading;
+  Object? get error => _error;
+  bool get isNotStartedYet => _hasNotStartedYet;
+
+  void getItems(BuildContext context, String query) async {
+    try {
+      _hasNotStartedYet = false;
+      _loading = true;
+      _error = null;
+      final results = await Provider.of<FtpbdService>(context, listen: false)
+          .multiSearch(query: query);
+      _results = results;
+      _loading = false;
+    } catch (e) {
+      _error = e;
+    } finally {
+      notifyListeners();
+    }
+  }
+}
+
 class SearchPage extends StatefulWidget {
   @override
   _SearchPageState createState() => _SearchPageState();
@@ -19,8 +49,8 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   final _textController = TextEditingController();
   late FocusNode _focusNode;
-  final StreamController<List<SearchResult>?> _resultsStream =
-      StreamController<List<SearchResult>?>();
+  // final StreamController<List<SearchResult>?> _resultsStream =
+  //     StreamController<List<SearchResult>?>();
   Timer? _debounce;
 
   @override
@@ -41,22 +71,22 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void dispose() {
     _textController.dispose();
-    _resultsStream.close();
+    // _resultsStream.close();
     _debounce?.cancel();
     _focusNode.dispose();
     super.dispose();
   }
 
-  void _getItems(String query) async {
-    try {
-      _resultsStream.add(null);
-      final results = await Provider.of<FtpbdService>(context, listen: false)
-          .multiSearch(query: query);
-      _resultsStream.add(results);
-    } catch (e) {
-      _resultsStream.addError(e);
-    }
-  }
+  // void _getItems(String query) async {
+  //   try {
+  //     _resultsStream.add(null);
+  //     final results = await Provider.of<FtpbdService>(context, listen: false)
+  //         .multiSearch(query: query);
+  //     _resultsStream.add(results);
+  //   } catch (e) {
+  //     _resultsStream.addError(e);
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -76,61 +106,48 @@ class _SearchPageState extends State<SearchPage> {
         ),
         floatingActionButtonLocation:
             FloatingActionButtonLocation.miniStartFloat,
-        body: LayoutBuilder(
-          builder: (context, constraints) {
-            if (constraints.maxWidth > 720) {
-              return _buildWideLayout();
-            } else {
-              return Container(
-                padding: const EdgeInsets.all(15.0),
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: _textController,
-                      textInputAction: TextInputAction.go,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.sourceSansPro(
-                        color: Colors.white,
-                        fontSize: 30.0,
-                      ),
-                      onSubmitted: (value) {
-                        if (_textController.text.trim() != "") {
-                          _getItems(_textController.text);
-                        }
-                      },
-                      decoration: InputDecoration(
-                        fillColor: Colors.transparent,
-                        filled: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        border: InputBorder.none,
-                        hintText: "Search...",
-                        hintStyle: GoogleFonts.sourceSansPro(
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 25),
-                    Expanded(
-                      flex: 2,
-                      child: StreamBuilder<List<SearchResult>?>(
-                        stream: _resultsStream.stream,
-                        builder: _buildSearchResults,
-                      ),
-                    )
-                  ],
-                ),
-              );
-            }
-          },
+        body: ChangeNotifierProvider(
+          create: (context) => SearchModel(),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth > 720) {
+                return _buildWideLayout();
+              } else {
+                return _buildMobileLayout();
+              }
+            },
+          ),
         ),
       ),
     );
   }
 
-  Container _buildWideLayout() {
+  Container _buildMobileLayout() {
+    return Container(
+      padding: const EdgeInsets.all(15.0),
+      child: Column(
+        children: [
+          Consumer<SearchModel>(
+            builder: (context, store, child) => SearchWidget(
+              controller: _textController,
+              onSubmitted: (value) {
+                if (_textController.text.trim() != "") {
+                  store.getItems(context, _textController.text);
+                }
+              },
+            ),
+          ),
+          const SizedBox(height: 25),
+          Expanded(
+            flex: 2,
+            child: Consumer<SearchModel>(builder: _buildSearchResults),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWideLayout() {
     return Container(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -143,51 +160,34 @@ class _SearchPageState extends State<SearchPage> {
                     flex: 2,
                     child: FocusScope(
                       canRequestFocus: false,
-                      child: TextField(
+                      child: SearchWidget(
                         controller: _textController,
                         readOnly: true,
-                        textInputAction: TextInputAction.go,
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.sourceSansPro(
-                          color: Colors.white,
-                          fontSize: 30.0,
-                        ),
-                        decoration: InputDecoration(
-                          fillColor: Colors.transparent,
-                          filled: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          border: InputBorder.none,
-                          hintText: "Search...",
-                          hintStyle: GoogleFonts.sourceSansPro(
-                            color: Colors.grey,
-                          ),
-                        ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 25),
                   Expanded(
-                    child: VirtualKeyboard(
-                      controller: _textController,
-                      keyboardHeight: 185,
-                      textTransformer: (incomingValue) =>
-                          incomingValue?.toLowerCase(),
-                      onChanged: (value) {
-                        if (_debounce?.isActive ?? false) {
-                          _debounce?.cancel();
-                        }
-                        _debounce = Timer(
-                          const Duration(milliseconds: 2000),
-                          () {
-                            if (_textController.text.trim() != "") {
-                              _getItems(_textController.text);
-                            }
-                          },
-                        );
-                      },
+                    child: Consumer<SearchModel>(
+                      builder: (context, store, child) => VirtualKeyboard(
+                        controller: _textController,
+                        keyboardHeight: 185,
+                        textTransformer: (incomingValue) =>
+                            incomingValue?.toLowerCase(),
+                        onChanged: (value) {
+                          if (_debounce?.isActive ?? false) {
+                            _debounce?.cancel();
+                          }
+                          _debounce = Timer(
+                            const Duration(milliseconds: 2000),
+                            () {
+                              if (_textController.text.trim() != "") {
+                                store.getItems(context, _textController.text);
+                              }
+                            },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],
@@ -195,10 +195,7 @@ class _SearchPageState extends State<SearchPage> {
             ),
             Expanded(
               flex: 2,
-              child: StreamBuilder<List<SearchResult>?>(
-                stream: _resultsStream.stream,
-                builder: _buildSearchResults,
-              ),
+              child: Consumer<SearchModel>(builder: _buildSearchResults),
             ),
           ],
         ),
@@ -206,33 +203,83 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget _buildSearchResults(
-    BuildContext context,
-    AsyncSnapshot<List<SearchResult>?> snapshot,
-  ) {
-    switch (snapshot.connectionState) {
-      case ConnectionState.waiting:
-        return Container();
-      case ConnectionState.none:
-      case ConnectionState.active:
-      case ConnectionState.done:
-        if (snapshot.data == null) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-          return CoverListView(snapshot.data!, showIcon: true);
-        } else if (snapshot.hasError) {
-          return Center(
-            child: buildErrorBox(context, snapshot.error),
-          );
-        } else {
-          return Center(
-            child: buildErrorBox(context, "No results found"),
-          );
-        }
+  Widget _buildSearchResults(BuildContext context, SearchModel model, _) {
+    if (model.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    } else if (model.error != null) {
+      return Center(child: buildErrorBox(model.error));
+    } else if (model.results.isNotEmpty) {
+      return CoverListView(model.results, showIcon: true);
+    } else if (!model.isNotStartedYet && model.results.isEmpty) {
+      return Center(child: buildErrorBox("No results found"));
+    } else {
+      return const SizedBox.shrink();
     }
+
+    // switch (snapshot.connectionState) {
+    //   case ConnectionState.waiting:
+    //     return Container();
+    //   case ConnectionState.none:
+    //   case ConnectionState.active:
+    //   case ConnectionState.done:
+    //     if (snapshot.data == null) {
+    //       return const Center(child: CircularProgressIndicator());
+    //     } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+    //       return CoverListView(snapshot.data!, showIcon: true);
+    //     } else if (snapshot.hasError) {
+    //       return Center(
+    //         child: buildErrorBox(snapshot.error),
+    //       );
+    //     } else {
+    //       return Center(
+    //         child: buildErrorBox("No results found"),
+    //       );
+    //     }
+    // }
   }
 }
 
 // bool _isUtf16Surrogate(int value) {
 //   return value & 0xF800 == 0xD800;
 // }
+
+class SearchWidget extends StatelessWidget {
+  final TextEditingController? controller;
+  final void Function(String)? onSubmitted;
+  final bool readOnly;
+
+  const SearchWidget({
+    Key? key,
+    this.onSubmitted,
+    this.readOnly = false,
+    this.controller,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      readOnly: readOnly,
+      controller: controller,
+      textInputAction: TextInputAction.go,
+      textAlign: TextAlign.center,
+      style: GoogleFonts.sourceSansPro(
+        color: Colors.white,
+        fontSize: 30.0,
+      ),
+      onSubmitted: onSubmitted,
+      decoration: InputDecoration(
+        fillColor: Colors.transparent,
+        filled: true,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 8,
+          vertical: 2,
+        ),
+        border: InputBorder.none,
+        hintText: "Search...",
+        hintStyle: GoogleFonts.sourceSansPro(
+          color: Colors.grey,
+        ),
+      ),
+    );
+  }
+}

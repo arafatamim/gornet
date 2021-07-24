@@ -22,10 +22,10 @@ class SeriesDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     return DetailShell(
       title: series.title ?? "Untitled Series",
-      logoUrl: series.imageUris?.logo,
       meta: _buildMeta(context),
       genres: series.genres,
       synopsis: series.synopsis,
+      imageUris: series.imageUris,
       actions: [
         FavoriteIcon(id: series.id),
       ],
@@ -98,27 +98,32 @@ class SeriesDetails extends StatelessWidget {
                         final Season season = snapshot.data![0] as Season;
                         final Episode episode = snapshot.data![1] as Episode;
 
+                        const title = "Continue watching";
+                        final subtitle =
+                            "S${season.index.toString().padLeft(2, "0")}"
+                                    "E${episode.index.toString().padLeft(2, "0")}" +
+                                (" - " + episode.name);
+                        onTap() {
+                          showModalBottomSheet(
+                            useRootNavigator: true,
+                            isDismissible: false,
+                            routeSettings: const RouteSettings(name: "episode"),
+                            backgroundColor: Colors.transparent,
+                            context: context,
+                            builder: (context) {
+                              return EpisodeSheet(
+                                season: season,
+                                episode: episode,
+                              );
+                            },
+                          );
+                        }
+
                         return RoundedCard(
-                          title: "Continue watching",
-                          subtitle: "S${season.index.toString().padLeft(2, "0")}"
-                                  "E${episode.index.toString().padLeft(2, "0")}" +
-                              (" - " + episode.name),
-                          onTap: () {
-                            showModalBottomSheet(
-                              useRootNavigator: true,
-                              isDismissible: false,
-                              routeSettings:
-                                  const RouteSettings(name: "episode"),
-                              backgroundColor: Colors.transparent,
-                              context: context,
-                              builder: (context) {
-                                return EpisodeSheet(
-                                  season: season,
-                                  episode: episode,
-                                );
-                              },
-                            );
-                          },
+                          title: title,
+                          subtitle: subtitle,
+                          onTap: onTap,
+                          leading: const Icon(FeatherIcons.play),
                         );
                       } else {
                         return const SizedBox.shrink();
@@ -142,7 +147,6 @@ class SeriesDetails extends StatelessWidget {
         <Widget>[
           if (series.year != null)
             buildLabel(
-              context,
               series.year.toString() +
                   (series.hasEnded != null
                       ? (series.hasEnded!
@@ -156,13 +160,11 @@ class SeriesDetails extends StatelessWidget {
             ),
           if (series.criticRatings?.community != null)
             buildLabel(
-              context,
               series.criticRatings!.community!.toStringAsFixed(2),
               icon: FeatherIcons.star,
             ),
           if (series.averageRuntime != null)
             buildLabel(
-              context,
               prettyDuration(
                 series.averageRuntime!,
                 tersity: DurationTersity.minute,
@@ -172,7 +174,7 @@ class SeriesDetails extends StatelessWidget {
               icon: FeatherIcons.clock,
             ),
           if (series.ageRating != null)
-            buildLabel(context, series.ageRating!, hasBackground: true),
+            buildLabel(series.ageRating!, hasBackground: true),
         ],
         [
           if (series.cast != null && series.cast!.isNotEmpty)
@@ -180,7 +182,6 @@ class SeriesDetails extends StatelessWidget {
               child: ScrollingText(
                 scrollDirection: Axis.horizontal,
                 child: buildLabel(
-                  context,
                   "Cast: " +
                       series.cast!.take(10).map((i) => i.name).join(", "),
                 ),
@@ -221,35 +222,28 @@ class SeriesDetails extends StatelessWidget {
   }
 
   Widget _buildMobileSeasons(BuildContext context, List<Season> seasons) {
-    return Container(
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: Colors.black.withAlpha(120),
-      ),
-      child: Column(
-        children: [
-          SizedBox(
-            height: 50,
-            child: TabBar(
-              indicatorColor: Theme.of(context).colorScheme.secondary,
-              isScrollable: true,
-              tabs: [
-                for (final season in seasons)
-                  Tab(text: "Season ${season.index}")
-              ],
-            ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          height: 50,
+          child: TabBar(
+            indicatorColor: Theme.of(context).colorScheme.secondary,
+            isScrollable: true,
+            tabs: [
+              for (final season in seasons) Tab(text: "Season ${season.index}")
+            ],
           ),
-          const SizedBox(height: 5),
-          Expanded(
-            child: _buildEpisodesWidget(seasons),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 5),
+        Expanded(
+          child: _buildEpisodesWidget(seasons),
+        ),
+      ],
     );
   }
 
-  TabBarView _buildEpisodesWidget(
+  Widget _buildEpisodesWidget(
     List<Season> seasons,
   ) {
     return TabBarView(

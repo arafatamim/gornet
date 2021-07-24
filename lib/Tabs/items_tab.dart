@@ -67,11 +67,11 @@ class _ItemsTabState extends State<ItemsTab>
             return _buildGridView(context, snapshot.data!);
           } else if (snapshot.hasError) {
             return Center(
-              child: buildErrorBox(context, snapshot.error),
+              child: buildErrorBox(snapshot.error),
             );
           } else {
             return Center(
-              child: buildErrorBox(context, "No favorites found"),
+              child: buildErrorBox("No favorites found"),
             );
           }
         } else {

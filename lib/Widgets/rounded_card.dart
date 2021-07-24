@@ -37,7 +37,7 @@ class RoundedCard extends StatefulWidget {
   final String? subtitle;
   final Widget? leading;
   final Axis scrollAxis;
-  final Function? onTap;
+  final void Function()? onTap;
   final RoundedCardStyle style;
 
   @override
@@ -98,6 +98,25 @@ class _RoundedCardState extends State<RoundedCard>
 
   @override
   Widget build(BuildContext context) {
+    final deviceSize = MediaQuery.of(context).size;
+    if (deviceSize.width > 720) {
+      return _buildWide();
+    } else {
+      return _buildMobile();
+    }
+  }
+
+  Widget _buildMobile() {
+    return ListTile(
+      title: Text(widget.title ?? ""),
+      subtitle: Text(widget.subtitle ?? ""),
+      leading: widget.leading,
+      onTap: widget.onTap,
+      tileColor: Colors.white.withAlpha(15),
+    );
+  }
+
+  Widget _buildWide() {
     final buildTitle = Align(
       alignment: Alignment.centerLeft,
       child: Text(
@@ -134,6 +153,7 @@ class _RoundedCardState extends State<RoundedCard>
         ),
       ),
     );
+
     return RawMaterialButton(
       focusNode: _node,
       onPressed: _onTap,

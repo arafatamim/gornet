@@ -22,10 +22,10 @@ class MovieDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     return DetailShell(
       title: movie.title ?? "Untitled Movie",
-      logoUrl: movie.imageUris?.logo,
       meta: _buildMeta(context),
       genres: movie.genres,
       synopsis: movie.synopsis,
+      imageUris: movie.imageUris,
       child: FutureBuilder<List<MediaSource>>(
         future: Provider.of<FtpbdService>(context).getSources(id: movie.id),
         builder: (context, snapshot) {
@@ -40,10 +40,10 @@ class MovieDetails extends StatelessWidget {
               } else {
                 return Center(
                   child: buildErrorBox(
-                      context,
-                      snapshot.error != null
-                          ? snapshot.error.toString()
-                          : "Error while fetching sources. Contact your system administrator."),
+                    snapshot.error != null
+                        ? snapshot.error.toString()
+                        : "Error while fetching sources. Contact your system administrator.",
+                  ),
                 );
               }
             default:
@@ -116,12 +116,10 @@ class MovieDetails extends StatelessWidget {
 
   List<List<Widget>> _buildMeta(BuildContext context) => [
         <Widget>[
-          buildLabel(context, movie.year.toString()),
+          buildLabel(movie.year.toString()),
           if (movie.criticRatings?.tmdb != null)
-            buildLabel(context, movie.criticRatings!.tmdb!.toString(),
-                icon: Icons.star),
+            buildLabel(movie.criticRatings!.tmdb!.toString(), icon: Icons.star),
           buildLabel(
-            context,
             prettyDuration(
               movie.runtime,
               tersity: DurationTersity.minute,
@@ -131,21 +129,20 @@ class MovieDetails extends StatelessWidget {
             icon: FeatherIcons.clock,
           ),
           if (movie.ageRating != null)
-            buildLabel(context, movie.ageRating!, hasBackground: true),
+            buildLabel(movie.ageRating!, hasBackground: true),
         ],
         <Widget>[
           if (movie.directors != null && movie.directors!.isNotEmpty)
-            buildLabel(context, "Directed by " + movie.directors!.join(",")),
+            buildLabel("Directed by " + movie.directors!.join(",")),
         ],
         [
           if (movie.studios != null && movie.studios!.isNotEmpty)
-            buildLabel(context, "Production: " + movie.studios![0]),
+            buildLabel("Production: " + movie.studios![0]),
           if (movie.cast != null)
             Expanded(
               child: ScrollingText(
                 scrollDirection: Axis.horizontal,
                 child: buildLabel(
-                  context,
                   "Cast: " + movie.cast!.take(10).map((i) => i.name).join(", "),
                 ),
               ),

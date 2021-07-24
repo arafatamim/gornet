@@ -19,54 +19,55 @@ String formatBytes(int bytes, {int decimals = 1}) {
 }
 
 Widget buildLabel(
-  BuildContext context,
   String label, {
   IconData? icon,
   String? imageAsset,
   bool hasBackground = false,
 }) {
-  return Container(
-    child: Row(
-      children: [
-        if (icon != null) ...[
-          Icon(
-            icon,
-            color: Colors.grey.shade300,
-            size: 25,
-          ),
-          const SizedBox(width: 10),
-        ],
-        if (imageAsset != null) ...[
-          Image.asset(
-            imageAsset,
-            width: 30,
-            height: 30,
-          ),
-          const SizedBox(width: 10),
-        ],
-        Container(
-          padding: hasBackground
-              ? const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
-              : null,
-          decoration: hasBackground
-              ? BoxDecoration(
-                  color: Colors.grey.shade900.withAlpha(200),
-                  borderRadius: BorderRadius.circular(6),
-                )
-              : null,
-          child: Text(
-            label,
-            style: GoogleFonts.sourceSansPro(
-              color:
-                  hasBackground ? Colors.grey.shade300 : Colors.grey.shade200,
-              fontSize: hasBackground ? 16 : 18,
+  return Builder(
+    builder: (context) => Container(
+      child: Row(
+        children: [
+          if (icon != null) ...[
+            Icon(
+              icon,
+              color: Colors.grey.shade300,
+              size: 25,
+            ),
+            const SizedBox(width: 10),
+          ],
+          if (imageAsset != null) ...[
+            Image.asset(
+              imageAsset,
+              width: 30,
+              height: 30,
+            ),
+            const SizedBox(width: 10),
+          ],
+          Container(
+            padding: hasBackground
+                ? const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
+                : null,
+            decoration: hasBackground
+                ? BoxDecoration(
+                    color: Colors.grey.shade900.withAlpha(200),
+                    borderRadius: BorderRadius.circular(6),
+                  )
+                : null,
+            child: Text(
+              label,
+              style: GoogleFonts.sourceSansPro(
+                color:
+                    hasBackground ? Colors.grey.shade300 : Colors.grey.shade200,
+                fontSize: hasBackground ? 16 : 18,
+              ),
             ),
           ),
-        ),
-        MediaQuery.of(context).size.width > 720
-            ? const SizedBox(width: 30)
-            : const SizedBox(width: 15),
-      ],
+          MediaQuery.of(context).size.width > 720
+              ? const SizedBox(width: 30)
+              : const SizedBox(width: 15),
+        ],
+      ),
     ),
   );
 }
@@ -94,37 +95,41 @@ Widget buildLabel(
 //   );
 // }
 
-Widget buildErrorBox(BuildContext context, Object? error) {
-  return ConstrainedBox(
-    constraints: const BoxConstraints.tightFor(height: 110),
-    child: DecoratedBox(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              FeatherIcons.frown,
-              size: 28,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              error is DioError
-                  ? error.message
-                  : error is ServerError
-                      ? error.message
-                      : error is String
-                          ? error
-                          : "Unhandled error. Contact system administrator.",
-              textAlign: TextAlign.center,
-              style:
-                  Theme.of(context).textTheme.bodyText1?.copyWith(height: 1.1),
-            )
-          ],
+Widget buildErrorBox(Object? error) {
+  return Builder(
+    builder: (context) => ConstrainedBox(
+      constraints: const BoxConstraints.tightFor(height: 110),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primary,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                FeatherIcons.frown,
+                size: 28,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                error is DioError
+                    ? error.message
+                    : error is ServerError
+                        ? error.message
+                        : error is String
+                            ? error
+                            : "Unhandled error. Contact system administrator.",
+                textAlign: TextAlign.center,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyText1
+                    ?.copyWith(height: 1.1),
+              )
+            ],
+          ),
         ),
       ),
     ),

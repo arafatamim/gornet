@@ -27,8 +27,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   void initState() {
-    _controller = TabController(length: 4, vsync: this);
     super.initState();
+    _controller = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -54,8 +54,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final bool isWide = MediaQuery.of(context).size.width > 720;
+
     return Scaffold(
-      appBar: MediaQuery.of(context).size.width > 720
+      appBar: isWide
           ? null
           : AppBar(
               elevation: 7,
@@ -64,6 +66,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 style: GoogleFonts.gloriaHallelujah(fontSize: 20.0),
               ),
               bottom: TabBar(
+                indicatorColor: Theme.of(context).colorScheme.secondary,
                 controller: _controller,
                 tabs: <Widget>[
                   const Tab(
@@ -117,22 +120,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           child: Column(
             children: [
               // Nav bar
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  if (constraints.maxWidth > 700) {
-                    return _buildNavBar(context);
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              ),
+              if (isWide) _buildNavBar(context),
+
               // Main view
               Expanded(
                 child: Container(
                   clipBehavior: Clip.none,
                   margin: EdgeInsets.symmetric(
-                    horizontal:
-                        MediaQuery.of(context).size.width > 700 ? 64 : 0,
+                    horizontal: isWide ? 64 : 0,
                   ),
                   child: TabBarView(
                     controller: _controller,

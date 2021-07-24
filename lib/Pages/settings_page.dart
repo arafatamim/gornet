@@ -16,17 +16,20 @@ class _SettingsPageState extends State<SettingsPage> {
       },
       child: Scaffold(
         body: ListView(
-          children: ListTile.divideTiles(context: context, tiles: [
-            ListTile(
-              title: const Text('Trakt'),
-              subtitle: const Text('Login to Trakt'),
-              onTap: () {},
-            ),
-            ListTile(
-                title: const Text('RD'),
-                subtitle: const Text('Login to RealDebrid'),
-                onTap: () {}),
-          ]).toList(),
+          children: ListTile.divideTiles(
+            context: context,
+            tiles: [
+              ListTile(
+                title: const Text('Trakt'),
+                subtitle: const Text('Login to Trakt'),
+                onTap: () {},
+              ),
+              ListTile(
+                  title: const Text('RD'),
+                  subtitle: const Text('Login to RealDebrid'),
+                  onTap: () {}),
+            ],
+          ).toList(),
         ),
       ),
     );

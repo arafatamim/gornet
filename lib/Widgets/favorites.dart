@@ -68,11 +68,11 @@ class _FavoriteIconState extends State<FavoriteIcon> {
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
-            return _buildButton(false, loading: true);
+            return _buildButton(context, false, loading: true);
           case ConnectionState.done:
             if (snapshot.hasData) {
               final isFavorite = snapshot.data!;
-              return _buildButton(isFavorite);
+              return _buildButton(context, isFavorite);
             } else {
               return Container();
             }
@@ -84,50 +84,64 @@ class _FavoriteIconState extends State<FavoriteIcon> {
     );
   }
 
-  Widget _buildButton(bool isFavorite, {bool loading = false}) {
-    return RawMaterialButton(
-      focusNode: _focusNode,
-      onPressed: loading
-          ? () {}
-          : () async {
-              if (isFavorite) {
-                await _removeFavorite();
-              } else {
-                await _setFavorite();
-              }
-              setState(() {});
-            },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          color: _primaryColor,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(
-              isFavorite
-                  ? Icons.favorite_rounded
-                  : Icons.favorite_border_rounded,
-              color: loading
-                  ? (Colors.grey)
-                  : isFavorite
-                      ? Colors.red
-                      : _textColor,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              "Add to list",
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyText1
-                  ?.apply(color: _textColor),
-            )
-          ],
-        ),
-      ),
+  Widget _buildButton(
+    BuildContext context,
+    bool isFavorite, {
+    bool loading = false,
+  }) {
+    final deviceSize = MediaQuery.of(context).size;
+    final onPressed = loading
+        ? () {}
+        : () async {
+            if (isFavorite) {
+              await _removeFavorite();
+            } else {
+              await _setFavorite();
+            }
+            setState(() {});
+          };
+    final icon = Icon(
+      isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+      color: loading
+          ? (Colors.grey)
+          : isFavorite
+              ? Colors.red
+              : _textColor,
     );
+
+    if (deviceSize.width > 720) {
+      return RawMaterialButton(
+        focusNode: _focusNode,
+        onPressed: onPressed,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            color: _primaryColor,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              icon,
+              const SizedBox(width: 6),
+              Text(
+                "Add to list",
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyText1
+                    ?.apply(color: _textColor),
+              )
+            ],
+          ),
+        ),
+      );
+    } else {
+      return IconButton(
+        onPressed: onPressed,
+        icon: icon,
+        tooltip: "Add to list",
+      );
+    }
   }
 }
