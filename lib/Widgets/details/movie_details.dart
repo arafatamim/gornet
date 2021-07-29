@@ -133,7 +133,7 @@ class MovieDetails extends StatelessWidget {
         ],
         <Widget>[
           if (movie.directors != null && movie.directors!.isNotEmpty)
-            buildLabel("Directed by " + movie.directors!.join(",")),
+            buildLabel("Directed by " + movie.directors![0]),
         ],
         [
           if (movie.studios != null && movie.studios!.isNotEmpty)

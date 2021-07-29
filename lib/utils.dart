@@ -226,7 +226,7 @@ ServerError mapToServerError(dynamic e) {
   } else if (e is Exception) {
     return ServerError(message: e.toString());
   } else {
-    return ServerError(
+    return const ServerError(
       message: "Unknown error. Contact administrator if problem persists.",
     );
   }
