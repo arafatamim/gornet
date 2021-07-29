@@ -1,40 +1,33 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:io';
 
 import 'package:goribernetflix/Models/models.dart';
 import 'package:goribernetflix/Services/api.dart';
 import 'package:goribernetflix/Widgets/cover.dart';
 import 'package:goribernetflix/Widgets/virtual_keyboard/virtual_keyboard.dart';
+import 'package:goribernetflix/network_response.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-class SearchModel extends ChangeNotifier {
-  bool _hasNotStartedYet = true;
-  bool _loading = false;
-  Object? _error;
-  List<SearchResult> _results = [];
-
-  UnmodifiableListView<SearchResult> get results =>
-      UnmodifiableListView(_results);
-  bool get isLoading => _loading;
-  Object? get error => _error;
-  bool get isNotStartedYet => _hasNotStartedYet;
+class SearchStore extends ChangeNotifier {
+  // Give us ADTs!!
+  NetworkResponse<List<SearchResult>> response =
+      NetworkResponse.hasNotStartedYet();
 
   void getItems(BuildContext context, String query) async {
     try {
-      _hasNotStartedYet = false;
-      _loading = true;
-      _error = null;
-      final results = await Provider.of<FtpbdService>(context, listen: false)
-          .multiSearch(query: query);
-      _results = results;
-      _loading = false;
+      response = NetworkResponse.loading();
+      notifyListeners();
+      final results = await Provider.of<FtpbdService>(
+        context,
+        listen: false,
+      ).multiSearch(query: query);
+      response = NetworkResponse.success(results);
     } catch (e) {
-      _error = e;
+      response = NetworkResponse.error(e);
     } finally {
       notifyListeners();
     }
@@ -77,17 +70,6 @@ class _SearchPageState extends State<SearchPage> {
     super.dispose();
   }
 
-  // void _getItems(String query) async {
-  //   try {
-  //     _resultsStream.add(null);
-  //     final results = await Provider.of<FtpbdService>(context, listen: false)
-  //         .multiSearch(query: query);
-  //     _resultsStream.add(results);
-  //   } catch (e) {
-  //     _resultsStream.addError(e);
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Shortcuts(
@@ -106,16 +88,18 @@ class _SearchPageState extends State<SearchPage> {
         ),
         floatingActionButtonLocation:
             FloatingActionButtonLocation.miniStartFloat,
-        body: ChangeNotifierProvider(
-          create: (context) => SearchModel(),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              if (constraints.maxWidth > 720) {
-                return _buildWideLayout();
-              } else {
-                return _buildMobileLayout();
-              }
-            },
+        body: SafeArea(
+          child: ChangeNotifierProvider(
+            create: (context) => SearchStore(),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth > 720) {
+                  return _buildWideLayout();
+                } else {
+                  return _buildMobileLayout();
+                }
+              },
+            ),
           ),
         ),
       ),
@@ -124,10 +108,11 @@ class _SearchPageState extends State<SearchPage> {
 
   Container _buildMobileLayout() {
     return Container(
+      height: MediaQuery.of(context).size.height * 0.75,
       padding: const EdgeInsets.all(15.0),
       child: Column(
         children: [
-          Consumer<SearchModel>(
+          Consumer<SearchStore>(
             builder: (context, store, child) => SearchWidget(
               controller: _textController,
               onSubmitted: (value) {
@@ -140,7 +125,7 @@ class _SearchPageState extends State<SearchPage> {
           const SizedBox(height: 25),
           Expanded(
             flex: 2,
-            child: Consumer<SearchModel>(builder: _buildSearchResults),
+            child: Consumer<SearchStore>(builder: _buildSearchResults),
           )
         ],
       ),
@@ -168,7 +153,7 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                   const SizedBox(width: 25),
                   Expanded(
-                    child: Consumer<SearchModel>(
+                    child: Consumer<SearchStore>(
                       builder: (context, store, child) => VirtualKeyboard(
                         controller: _textController,
                         keyboardHeight: 185,
@@ -195,7 +180,7 @@ class _SearchPageState extends State<SearchPage> {
             ),
             Expanded(
               flex: 2,
-              child: Consumer<SearchModel>(builder: _buildSearchResults),
+              child: Consumer<SearchStore>(builder: _buildSearchResults),
             ),
           ],
         ),
@@ -203,39 +188,21 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget _buildSearchResults(BuildContext context, SearchModel model, _) {
-    if (model.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    } else if (model.error != null) {
-      return Center(child: buildErrorBox(model.error));
-    } else if (model.results.isNotEmpty) {
-      return CoverListView(model.results, showIcon: true);
-    } else if (!model.isNotStartedYet && model.results.isEmpty) {
-      return Center(child: buildErrorBox("No results found"));
-    } else {
-      return const SizedBox.shrink();
-    }
-
-    // switch (snapshot.connectionState) {
-    //   case ConnectionState.waiting:
-    //     return Container();
-    //   case ConnectionState.none:
-    //   case ConnectionState.active:
-    //   case ConnectionState.done:
-    //     if (snapshot.data == null) {
-    //       return const Center(child: CircularProgressIndicator());
-    //     } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-    //       return CoverListView(snapshot.data!, showIcon: true);
-    //     } else if (snapshot.hasError) {
-    //       return Center(
-    //         child: buildErrorBox(snapshot.error),
-    //       );
-    //     } else {
-    //       return Center(
-    //         child: buildErrorBox("No results found"),
-    //       );
-    //     }
-    // }
+  Widget _buildSearchResults(BuildContext context, SearchStore store, _) {
+    return store.response.fold<Widget>(
+      onSuccess: (results) {
+        if (results.isEmpty) {
+          return Center(child: buildErrorBox("No results found"));
+        }
+        return CoverListView(
+          results,
+          showIcon: true,
+        );
+      },
+      onError: (error) => Center(child: buildErrorBox(error)),
+      onLoading: () => const Center(child: CircularProgressIndicator()),
+      onNotStartedYet: () => const SizedBox.shrink(),
+    );
   }
 }
 
