@@ -9,6 +9,7 @@ import 'package:goribernetflix/Widgets/cover.dart';
 class ItemsTab extends StatefulWidget {
   final Future<List<SearchResult>> future;
   final bool showIcon;
+
   const ItemsTab({
     required this.future,
     this.showIcon = false,
@@ -58,14 +59,13 @@ class _ItemsTabState extends State<ItemsTab>
 
   int get itemCount {
     final deviceSize = MediaQuery.of(context).size;
-    final int itemCount = deviceSize.width ~/ 210;
+    final int itemCount = deviceSize.width ~/ 200;
     return itemCount;
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
     return FutureBuilder<List<SearchResult>>(
       future: widget.future,
       builder: (context, snapshot) {
@@ -101,8 +101,7 @@ class _ItemsTabState extends State<ItemsTab>
         SearchResult item = values[index];
         return Cover(
           title: item.name,
-          subtitle: "",
-          // subtitle: (item.year ?? "").toString(),
+          subtitle: (item.year ?? "").toString(),
           image: item.imageUris?.primary,
           // showIcon: widget.showIcon,
           style: RoundedCardStyle(

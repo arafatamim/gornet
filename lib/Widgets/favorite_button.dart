@@ -1,22 +1,24 @@
+import 'package:goribernetflix/Models/user.dart';
 import 'package:goribernetflix/Services/favorites.dart';
+import 'package:goribernetflix/Services/user.dart';
 import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class FavoriteIcon extends StatefulWidget {
+class FavoriteButton extends StatefulWidget {
   final RoundedCardStyle style;
-  final String id;
+  final String seriesId;
 
-  const FavoriteIcon({
+  const FavoriteButton({
     this.style = const RoundedCardStyle(),
-    required this.id,
+    required this.seriesId,
   });
 
   @override
-  _FavoriteIconState createState() => _FavoriteIconState();
+  _FavoriteButtonState createState() => _FavoriteButtonState();
 }
 
-class _FavoriteIconState extends State<FavoriteIcon> {
+class _FavoriteButtonState extends State<FavoriteButton> {
   late Color _primaryColor;
   late Color _textColor;
   final FocusNode _focusNode = FocusNode();
@@ -49,36 +51,47 @@ class _FavoriteIconState extends State<FavoriteIcon> {
     }
   }
 
-  Future<void> _setFavorite() async {
+  Future<void> _setFavorite(int userId) async {
     return Provider.of<FavoritesService>(context, listen: false)
-        .saveFavorite(widget.id);
+        .saveFavorite(widget.seriesId, userId);
   }
 
-  Future<void> _removeFavorite() async {
+  Future<void> _removeFavorite(int userId) async {
     return Provider.of<FavoritesService>(context, listen: false)
-        .removeFavorite(widget.id);
+        .removeFavorite(widget.seriesId, userId);
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<bool?>(
-      future: Provider.of<FavoritesService>(context).checkFavorite(
-        widget.id,
-      ),
-      builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            return _buildButton(context, false, loading: true);
-          case ConnectionState.done:
-            if (snapshot.hasData) {
-              final isFavorite = snapshot.data!;
-              return _buildButton(context, isFavorite);
-            } else {
-              return Container();
+    Widget resolveFavorite(int userId) => FutureBuilder<bool?>(
+          future: Provider.of<FavoritesService>(context)
+              .checkFavorite(widget.seriesId, userId),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+                return _buildButton(context, userId, false, loading: true);
+              case ConnectionState.done:
+                if (snapshot.hasData) {
+                  final isFavorite = snapshot.data!;
+                  return _buildButton(context, userId, isFavorite);
+                } else {
+                  return const SizedBox.shrink();
+                }
+              default:
+                if (snapshot.hasError) print(snapshot.error?.toString());
+                return const SizedBox.shrink();
             }
-          default:
-            if (snapshot.hasError) print(snapshot.error?.toString());
-            return Container();
+          },
+        );
+
+    return FutureBuilder<User?>(
+      future: Provider.of<UserService>(context).getCurrentUser(),
+      builder: (context, snapshot) {
+        final user = snapshot.data;
+        if (user != null) {
+          return resolveFavorite(user.id);
+        } else {
+          return const SizedBox.shrink();
         }
       },
     );
@@ -86,6 +99,7 @@ class _FavoriteIconState extends State<FavoriteIcon> {
 
   Widget _buildButton(
     BuildContext context,
+    int userId,
     bool isFavorite, {
     bool loading = false,
   }) {
@@ -94,9 +108,9 @@ class _FavoriteIconState extends State<FavoriteIcon> {
         ? () {}
         : () async {
             if (isFavorite) {
-              await _removeFavorite();
+              await _removeFavorite(userId);
             } else {
-              await _setFavorite();
+              await _setFavorite(userId);
             }
             setState(() {});
           };

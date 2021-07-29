@@ -49,8 +49,28 @@ class ModernTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18.0),
         ),
-        buttonColor: Colors.blue,
+        colorScheme: const ColorScheme.dark(),
       ),
+      textButtonTheme: TextButtonThemeData(
+        style: ButtonStyle(
+          overlayColor: MaterialStateProperty.all(Colors.white.withAlpha(20)),
+          foregroundColor: MaterialStateProperty.all(
+            const Color(_orangePrimaryValue),
+          ),
+        ),
+      ),
+      inputDecorationTheme: const InputDecorationTheme(
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Color(_orangePrimaryValue),
+            width: 2.0,
+          ),
+        ),
+      ),
+      textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: Color(_orangePrimaryValue),
+          selectionColor: Color(_orangePrimaryValue),
+          selectionHandleColor: Color(_orangePrimaryValue)),
     );
   }
 }

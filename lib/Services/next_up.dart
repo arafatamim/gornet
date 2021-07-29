@@ -40,9 +40,10 @@ class NextUpService {
 
   NextUpService({required Dio dioClient}) : dio = dioClient;
 
-  Future<StorageFormat?> getNextUp(String seriesId) async {
+  Future<StorageFormat?> getNextUp(String seriesId, int userId) async {
     try {
-      final res = await dio.get<Map<String, dynamic>>('/user/nextup/$seriesId');
+      final res = await dio
+          .get<Map<String, dynamic>>('/users/$userId/nextup/$seriesId');
       return StorageFormat.fromJson(
         res.data?["payload"] as Map<String, dynamic>,
       );
@@ -59,9 +60,10 @@ class NextUpService {
     required final String seriesId,
     required final int seasonIndex,
     required final int episodeIndex,
+    required final int userId,
   }) async {
     await dio.post(
-      '/user/nextup/create',
+      '/users/$userId/nextup/create',
       data: {
         "id": seriesId,
         "seasonIndex": seasonIndex.toString(),
@@ -74,9 +76,10 @@ class NextUpService {
     required final String seriesId,
     required final int seasonIndex,
     required final int episodeIndex,
+    required final int userId,
   }) async {
     await dio.put(
-      '/user/nextup/$seriesId',
+      '/users/$userId/nextup/$seriesId',
       data: {
         "seasonIndex": seasonIndex.toString(),
         "episodeIndex": episodeIndex.toString()

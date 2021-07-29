@@ -13,16 +13,16 @@ class DetailShell extends StatelessWidget {
   final String title;
   final List<String>? genres;
   final String? synopsis;
-  final List<List<Widget>> meta;
-  final Widget child;
+  final List<List<Widget>>? meta;
+  final Widget? child;
   final Widget? continueWidget;
   final List<Widget>? actions;
   final ImageUris? imageUris;
 
   const DetailShell({
     required this.title,
-    required this.meta,
-    required this.child,
+    this.meta,
+    this.child,
     this.imageUris,
     this.genres,
     this.synopsis,
@@ -83,10 +83,11 @@ class DetailShell extends StatelessWidget {
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 children: [
-                  for (final row in meta) ...[
-                    Row(children: row),
-                    const SizedBox(height: 10)
-                  ],
+                  if (meta != null)
+                    for (final row in meta!) ...[
+                      Row(children: row),
+                      const SizedBox(height: 10)
+                    ],
                   if (genres != null && genres!.isNotEmpty) ...[
                     _buildGenres(),
                     const SizedBox(height: 10),
@@ -171,10 +172,11 @@ class DetailShell extends StatelessWidget {
                           Row(children: actions!),
                           const SizedBox(height: 10)
                         ],
-                        for (final row in meta) ...[
-                          Row(children: row),
-                          const SizedBox(height: 10)
-                        ],
+                        if (meta != null)
+                          for (final row in meta!) ...[
+                            Row(children: row),
+                            const SizedBox(height: 10)
+                          ],
                         if (genres != null && genres!.isNotEmpty) ...[
                           const SizedBox(height: 10),
                           _buildGenres()
@@ -197,7 +199,7 @@ class DetailShell extends StatelessWidget {
                   const SizedBox(width: 50, height: 50),
                   Flexible(
                     flex: 5,
-                    child: child,
+                    child: child ?? const SizedBox.shrink(),
                   ),
                 ],
               ),

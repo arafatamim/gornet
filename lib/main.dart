@@ -1,8 +1,10 @@
 import 'package:goribernetflix/Models/models.dart';
 import 'package:goribernetflix/Pages/detail_page.dart';
 import 'package:goribernetflix/Pages/search_page.dart';
+import 'package:goribernetflix/Pages/settings_page.dart';
 import 'package:goribernetflix/Services/favorites.dart';
 import 'package:goribernetflix/Services/next_up.dart';
+import 'package:goribernetflix/Services/user.dart';
 import 'package:goribernetflix/theme/modern.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:dio/dio.dart';
@@ -22,12 +24,6 @@ import 'package:goribernetflix/Services/api.dart';
 // }
 
 void main() {
-  try {
-    WidgetsFlutterBinding.ensureInitialized();
-    SystemChrome.setEnabledSystemUIOverlays([]);
-  } catch (e) {
-    print(e);
-  }
   runApp(MyApp());
 }
 
@@ -62,6 +58,9 @@ class MyApp extends StatelessWidget {
         Provider<NextUpService>(
           create: (_) => NextUpService(dioClient: dio),
         ),
+        Provider<UserService>(
+          create: (_) => UserService(dioClient: dio),
+        )
       ],
       child: Shortcuts(
         // needed for AndroidTV to be able to select
@@ -84,6 +83,12 @@ class MyApp extends StatelessWidget {
               return MaterialPageRoute(
                 settings: const RouteSettings(name: "search"),
                 builder: (context) => SearchPage(),
+              );
+            }
+            if (settings.name == "/settings") {
+              return MaterialPageRoute(
+                settings: const RouteSettings(name: "settings"),
+                builder: (context) => SettingsPage(),
               );
             }
           },

@@ -7,29 +7,29 @@ class FavoritesService {
 
   FavoritesService({required Dio dioClient}) : dio = dioClient;
 
-  Future<List<SearchResult>> getFavorites() async {
+  Future<List<SearchResult>> getFavorites(int userId) async {
     final res = await dio
-        .get<Map<String, dynamic>>("/user/favorites")
+        .get<Map<String, dynamic>>("/users/$userId/favorites")
         .catchError((e) => throw mapToServerError(e));
     return (res.data?["payload"] as List<dynamic>)
         .map((e) => SearchResult.fromJson(e))
         .toList();
   }
 
-  Future<bool> checkFavorite(String id) async {
-    final favorites = await getFavorites();
+  Future<bool> checkFavorite(String id, int userId) async {
+    final favorites = await getFavorites(userId);
     return favorites.map((e) => e.id).contains(id);
   }
 
-  Future<void> saveFavorite(String id) async {
+  Future<void> saveFavorite(String id, int userId) async {
     await dio
-        .put("/user/favorites/$id")
+        .put("/users/$userId/favorites/$id")
         .catchError((e) => throw mapToServerError(e));
   }
 
-  Future<void> removeFavorite(String id) async {
+  Future<void> removeFavorite(String id, int userId) async {
     await dio
-        .delete("/user/favorites/$id")
+        .delete("/users/$userId/favorites/$id")
         .catchError((e) => throw mapToServerError(e));
   }
 }

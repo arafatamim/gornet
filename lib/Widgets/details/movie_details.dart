@@ -16,7 +16,10 @@ import 'package:provider/provider.dart';
 class MovieDetails extends StatelessWidget {
   final Movie movie;
 
-  const MovieDetails(this.movie, {Key? key}) : super(key: key);
+  const MovieDetails(
+    this.movie, {
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +43,8 @@ class MovieDetails extends StatelessWidget {
               } else {
                 return Center(
                   child: buildErrorBox(
-                    snapshot.error != null
-                        ? snapshot.error.toString()
-                        : "Error while fetching sources. Contact your system administrator.",
+                    snapshot.error ??
+                        "Error fetching sources. Contact your system administrator.",
                   ),
                 );
               }
@@ -68,8 +70,8 @@ class MovieDetails extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Expanded(
-              child: _sourceList(sources),
-            ),
+              child: ListView(children: _sourceList(sources)),
+            )
           ],
         ),
       );
@@ -78,38 +80,36 @@ class MovieDetails extends StatelessWidget {
     }
   }
 
-  Widget _sourceList(List<MediaSource> sources) {
-    return ListView.builder(
-      itemCount: sources.length,
-      itemBuilder: (context, i) {
-        return RoundedCard(
-          title:
-              sources[i].displayName + ", ${formatBytes(sources[i].fileSize)}",
-          subtitle: sources[i].fileName,
-          scrollAxis: Axis.horizontal,
-          onTap: () {
-            try {
-              if (Platform.isAndroid) {
-                final AndroidIntent intent = AndroidIntent(
-                  action: 'action_view',
-                  data: sources[i].streamUri,
-                  type: sources[i].mimeType ?? "video/*",
-                  flags: [
-                    Flag.FLAG_GRANT_PERSISTABLE_URI_PERMISSION,
-                    Flag.FLAG_GRANT_PREFIX_URI_PERMISSION,
-                    Flag.FLAG_GRANT_WRITE_URI_PERMISSION,
-                    Flag.FLAG_GRANT_READ_URI_PERMISSION
-                  ],
-                );
-                intent.launch();
-              }
-            } on UnsupportedError {
-              print("It's the web!");
-            } catch (e) {
-              print(e);
-            }
-          },
-        );
+  List<Widget> _sourceList(List<MediaSource> sources) {
+    return <Widget>[for (final source in sources) _buildSourceTile(source)];
+  }
+
+  Widget _buildSourceTile(MediaSource source) {
+    return RoundedCard(
+      title: source.displayName + ", ${formatBytes(source.fileSize)}",
+      subtitle: source.fileName,
+      scrollAxis: Axis.horizontal,
+      onTap: () {
+        try {
+          if (Platform.isAndroid) {
+            final AndroidIntent intent = AndroidIntent(
+              action: 'action_view',
+              data: source.streamUri,
+              type: source.mimeType ?? "video/*",
+              flags: [
+                Flag.FLAG_GRANT_PERSISTABLE_URI_PERMISSION,
+                Flag.FLAG_GRANT_PREFIX_URI_PERMISSION,
+                Flag.FLAG_GRANT_WRITE_URI_PERMISSION,
+                Flag.FLAG_GRANT_READ_URI_PERMISSION
+              ],
+            );
+            intent.launch();
+          }
+        } on UnsupportedError {
+          print("It's the web!");
+        } catch (e) {
+          print(e);
+        }
       },
     );
   }

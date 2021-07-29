@@ -115,8 +115,7 @@ class CoverListView extends StatelessWidget {
           aspectRatio: 0.55,
           child: Cover(
             title: item.name,
-            subtitle: "",
-            // subtitle: (item.year ?? "").toString(),
+            subtitle: (item.year ?? "").toString(),
             image: item.imageUris?.primary,
             icon: showIcon
                 ? (item.isMovie ? FeatherIcons.film : FeatherIcons.tv)
@@ -151,7 +150,7 @@ class Cover extends StatefulWidget {
     Key? key,
     this.image,
     required this.title,
-    required this.subtitle,
+    this.subtitle,
     this.icon,
     required this.onTap,
     this.style = const RoundedCardStyle(),

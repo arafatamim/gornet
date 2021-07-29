@@ -5,8 +5,10 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:goribernetflix/Models/models.dart';
+import 'package:goribernetflix/Models/user.dart';
 import 'package:goribernetflix/Services/api.dart';
 import 'package:goribernetflix/Services/next_up.dart';
+import 'package:goribernetflix/Services/user.dart';
 import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:goribernetflix/Widgets/scrolling_text.dart';
 import 'package:goribernetflix/utils.dart';
@@ -283,19 +285,39 @@ class EpisodeDetails extends StatelessWidget {
 
   Widget _buildSourcesWidget() {
     return Builder(
-      builder: (context) => EpisodeSources(
-        episode.seriesId,
-        episode.seasonIndex,
-        episode.index,
-        onPlay: () => Provider.of<NextUpService>(
-          context,
-          listen: false,
-        ).createNextUp(
-          seriesId: episode.seriesId,
-          seasonIndex: episode.seasonIndex,
-          episodeIndex: episode.index,
-        ),
-      ),
+      builder: (context) => FutureBuilder<User?>(
+          future: Provider.of<UserService>(context).getCurrentUser(),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.done:
+                if (snapshot.hasError) {
+                  return buildErrorBox(snapshot.error);
+                }
+
+                final user = snapshot.data;
+                return EpisodeSources(
+                  episode.seriesId,
+                  episode.seasonIndex,
+                  episode.index,
+                  onPlay: () {
+                    if (user != null) {
+                      Provider.of<NextUpService>(
+                        context,
+                        listen: false,
+                      ).createNextUp(
+                        seriesId: episode.seriesId,
+                        seasonIndex: episode.seasonIndex,
+                        episodeIndex: episode.index,
+                        userId: user.id,
+                      );
+                    }
+                  },
+                );
+
+              default:
+                return const SizedBox.shrink();
+            }
+          }),
     );
   }
 

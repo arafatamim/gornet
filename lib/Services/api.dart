@@ -120,11 +120,10 @@ class FtpbdService {
     return MediaSource.fromJsonList(payload);
   }
 
-  Future<List<SearchResult>> getSimilar(String id, String mediaType) async {
-    assert(mediaType == "movie" || mediaType == "series");
-
+  Future<List<SearchResult>> getSimilar(String id, MediaType mediaType) async {
     final res = await dio
-        .get<Map<String, dynamic>>("/$mediaType/$id/similar")
+        .get<Map<String, dynamic>>(
+            "/${mediaType == MediaType.movie ? "movie" : "series"}/$id/similar")
         .catchError((e) => throw mapToServerError(e));
 
     final payload = res.data?['payload'] as List<Map<String, dynamic>>;

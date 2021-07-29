@@ -2,11 +2,13 @@ import 'package:duration/duration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:goribernetflix/Models/models.dart';
+import 'package:goribernetflix/Models/user.dart';
 import 'package:goribernetflix/Services/api.dart';
 import 'package:goribernetflix/Services/next_up.dart';
+import 'package:goribernetflix/Services/user.dart';
 import 'package:goribernetflix/Widgets/detail_shell.dart';
 import 'package:goribernetflix/Widgets/episodes.dart';
-import 'package:goribernetflix/Widgets/favorites.dart';
+import 'package:goribernetflix/Widgets/favorite_button.dart';
 import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:goribernetflix/Widgets/scrolling_text.dart';
 import 'package:goribernetflix/Widgets/season_tab.dart';
@@ -16,7 +18,10 @@ import 'package:provider/provider.dart';
 class SeriesDetails extends StatelessWidget {
   final Series series;
 
-  const SeriesDetails(this.series, {Key? key}) : super(key: key);
+  const SeriesDetails(
+    this.series, {
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +32,7 @@ class SeriesDetails extends StatelessWidget {
       synopsis: series.synopsis,
       imageUris: series.imageUris,
       actions: [
-        FavoriteIcon(id: series.id),
+        FavoriteButton(seriesId: series.id),
       ],
       continueWidget: _buildContinueWidget(context),
       child: _buildSeasons(context),
@@ -64,75 +69,95 @@ class SeriesDetails extends StatelessWidget {
     );
   }
 
-  FutureBuilder<StorageFormat?> _buildContinueWidget(BuildContext context) {
-    return FutureBuilder<StorageFormat?>(
-      // Check if there is next up data
-      future: Provider.of<NextUpService>(context).getNextUp(series.id),
+  Widget _buildContinueWidget(BuildContext context) {
+    Widget buildWidget(int userId) => FutureBuilder<StorageFormat?>(
+          // Check if there is next up data
+          future:
+              Provider.of<NextUpService>(context).getNextUp(series.id, userId),
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+                return const SizedBox.shrink();
+              case ConnectionState.done:
+                if (snapshot.data != null) {
+                  final item = snapshot.data!;
+                  return FutureBuilder<List<dynamic>>(
+                    future: Future.wait([
+                      Provider.of<FtpbdService>(context).getSeason(
+                        item.seriesId,
+                        item.seasonIndex,
+                      ),
+                      Provider.of<FtpbdService>(context).getEpisode(
+                        item.seriesId,
+                        item.seasonIndex,
+                        item.episodeIndex,
+                      ),
+                    ]),
+                    builder: (context, snapshot) {
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.waiting:
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        case ConnectionState.done:
+                          if (snapshot.data != null) {
+                            final Season season = snapshot.data![0] as Season;
+                            final Episode episode =
+                                snapshot.data![1] as Episode;
+
+                            const title = "Continue watching";
+                            final subtitle =
+                                "S${season.index.toString().padLeft(2, "0")}"
+                                        "E${episode.index.toString().padLeft(2, "0")}" +
+                                    (" - " + episode.name);
+                            onTap() {
+                              showModalBottomSheet(
+                                useRootNavigator: true,
+                                isDismissible: false,
+                                routeSettings:
+                                    const RouteSettings(name: "episode"),
+                                backgroundColor: Colors.transparent,
+                                context: context,
+                                builder: (context) {
+                                  return EpisodeSheet(
+                                    season: season,
+                                    episode: episode,
+                                  );
+                                },
+                              );
+                            }
+
+                            return RoundedCard(
+                              title: title,
+                              subtitle: subtitle,
+                              onTap: onTap,
+                              leading: const Icon(FeatherIcons.play),
+                            );
+                          } else {
+                            return const SizedBox.shrink();
+                          }
+                        default:
+                          return const SizedBox.shrink();
+                      }
+                    },
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              default:
+                return const SizedBox.shrink();
+            }
+          },
+        );
+
+    return FutureBuilder<User?>(
+      future: Provider.of<UserService>(context).getCurrentUser(),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            return const SizedBox.shrink();
           case ConnectionState.done:
-            if (snapshot.data != null) {
-              final item = snapshot.data!;
-              return FutureBuilder<List<dynamic>>(
-                future: Future.wait([
-                  Provider.of<FtpbdService>(context).getSeason(
-                    item.seriesId,
-                    item.seasonIndex,
-                  ),
-                  Provider.of<FtpbdService>(context).getEpisode(
-                    item.seriesId,
-                    item.seasonIndex,
-                    item.episodeIndex,
-                  ),
-                ]),
-                builder: (context, snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    case ConnectionState.done:
-                      if (snapshot.data != null) {
-                        final Season season = snapshot.data![0] as Season;
-                        final Episode episode = snapshot.data![1] as Episode;
-
-                        const title = "Continue watching";
-                        final subtitle =
-                            "S${season.index.toString().padLeft(2, "0")}"
-                                    "E${episode.index.toString().padLeft(2, "0")}" +
-                                (" - " + episode.name);
-                        onTap() {
-                          showModalBottomSheet(
-                            useRootNavigator: true,
-                            isDismissible: false,
-                            routeSettings: const RouteSettings(name: "episode"),
-                            backgroundColor: Colors.transparent,
-                            context: context,
-                            builder: (context) {
-                              return EpisodeSheet(
-                                season: season,
-                                episode: episode,
-                              );
-                            },
-                          );
-                        }
-
-                        return RoundedCard(
-                          title: title,
-                          subtitle: subtitle,
-                          onTap: onTap,
-                          leading: const Icon(FeatherIcons.play),
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    default:
-                      return const SizedBox.shrink();
-                  }
-                },
-              );
+            final user = snapshot.data;
+            if (user != null) {
+              return buildWidget(user.id);
             } else {
               return const SizedBox.shrink();
             }

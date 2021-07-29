@@ -1,5 +1,6 @@
 import 'package:goribernetflix/Models/models.dart';
 import 'package:goribernetflix/Services/api.dart';
+import 'package:goribernetflix/Widgets/detail_shell.dart';
 import 'package:goribernetflix/Widgets/details/movie_details.dart';
 import 'package:goribernetflix/Widgets/details/series_details.dart';
 import 'package:goribernetflix/utils.dart';
@@ -38,8 +39,9 @@ class DetailPage extends StatelessWidget {
             child: buildErrorBox(mediaSnapshot.error),
           );
         } else {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return DetailShell(
+            title: searchResult.name,
+            imageUris: searchResult.imageUris,
           );
         }
       },

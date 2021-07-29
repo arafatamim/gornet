@@ -5,7 +5,7 @@ enum MediaType { movie, series }
 class ServerError implements Exception {
   final String message;
   final int? status;
-  ServerError({this.status, required this.message});
+  const ServerError({this.status, required this.message});
   ServerError.fromJson(Map<String, dynamic> json)
       : message = json["error"] as String,
         status = json["status"] as int;
@@ -193,7 +193,7 @@ class Series extends Media {
           id: payload["id"] as String,
           ageRating: payload["ageRating"] as String?,
           title: payload["title"] as String,
-          year: payload["year"] as int,
+          year: payload["year"] as int?,
           genres: List.from(payload["genres"] as List<dynamic>),
           imageUris: ImageUris.fromJson(
             payload["imageUris"] as Map<String, dynamic>,
@@ -216,6 +216,7 @@ class SearchResult {
   final String id;
   final String name;
   final ImageUris? imageUris;
+  final int? year;
   final bool isMovie;
 
   const SearchResult({
@@ -223,11 +224,13 @@ class SearchResult {
     required this.name,
     required this.isMovie,
     this.imageUris,
+    this.year,
   });
 
   SearchResult.fromJson(dynamic json)
       : id = json["id"] as String,
         name = json["name"] as String,
+        year = json["year"] as int?,
         imageUris = ImageUris.fromJson(json["imageUris"]),
         isMovie = json["isMovie"] as bool;
 }
@@ -280,7 +283,8 @@ class Episode {
         runtime = json["runtime"] != null
             ? Duration(milliseconds: json['runtime'].toInt() as int)
             : null,
-        directors = json["directors"] != null
+        directors = (json["directors"] != null &&
+                (json["directors"] as List<dynamic>).isNotEmpty)
             ? ((json["directors"]) as List<dynamic>).cast<String>()
             : null,
         airDate = json["airDate"] != null

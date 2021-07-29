@@ -1,11 +1,15 @@
+import 'package:flutter/services.dart';
+import 'package:goribernetflix/Models/user.dart';
 import 'package:goribernetflix/Services/api.dart';
 import 'package:goribernetflix/Services/favorites.dart';
+import 'package:goribernetflix/Services/user.dart';
 import 'package:goribernetflix/Tabs/home_tab.dart';
 import 'package:goribernetflix/Tabs/items_tab.dart';
 import 'package:goribernetflix/Widgets/buttons/animated_icon_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:goribernetflix/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
@@ -55,53 +59,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final bool isWide = MediaQuery.of(context).size.width > 720;
+    isWide
+        ? SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive)
+        : SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
     return Scaffold(
-      appBar: isWide
-          ? null
-          : AppBar(
-              elevation: 7,
-              title: Text(
-                widget.title,
-                style: GoogleFonts.gloriaHallelujah(fontSize: 20.0),
-              ),
-              bottom: TabBar(
-                indicatorColor: Theme.of(context).colorScheme.secondary,
-                controller: _controller,
-                tabs: <Widget>[
-                  const Tab(
-                    icon: Icon(FeatherIcons.home),
-                    text: "Home",
-                  ),
-                  const Tab(
-                    icon: Icon(FeatherIcons.heart),
-                    text: "My list",
-                  ),
-                  const Tab(
-                    icon: Icon(FeatherIcons.film),
-                    text: "Movies",
-                  ),
-                  const Tab(
-                    icon: Icon(FeatherIcons.tv),
-                    text: "Shows",
-                  )
-                ],
-              ),
-              actions: [
-                IconButton(
-                  onPressed: () {
-                    setState(() {});
-                  },
-                  icon: const Icon(FeatherIcons.refreshCcw),
-                ),
-                IconButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, "/search");
-                  },
-                  icon: const Icon(FeatherIcons.search),
-                )
-              ],
-            ),
+      appBar: isWide ? null : _buildAppbar(context),
       body: FocusTraversalGroup(
         policy: OrderedTraversalPolicy(),
         child: Container(
@@ -133,11 +96,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     controller: _controller,
                     physics: const NeverScrollableScrollPhysics(),
                     children: <Widget>[
-                      const HomeTab(),
-                      ItemsTab(
-                        future: Provider.of<FavoritesService>(context)
-                            .getFavorites(),
-                        showIcon: true,
+                      HomeTab(key: UniqueKey()),
+                      FutureBuilder<User?>(
+                        future:
+                            Provider.of<UserService>(context).getCurrentUser(),
+                        builder: (context, snapshot) {
+                          final user = snapshot.data;
+                          if (user != null) {
+                            return ItemsTab(
+                              future: Provider.of<FavoritesService>(context)
+                                  .getFavorites(user.id),
+                              showIcon: true,
+                            );
+                          } else {
+                            return Center(
+                              child: buildErrorBox("You're not logged in!"),
+                            );
+                          }
+                        },
                       ),
                       ItemsTab(
                         future: Provider.of<FtpbdService>(context).search(
@@ -161,6 +137,63 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           ),
         ),
       ),
+    );
+  }
+
+  AppBar _buildAppbar(BuildContext context) {
+    return AppBar(
+      elevation: 7,
+      title: Text(
+        widget.title,
+        style: GoogleFonts.gloriaHallelujah(fontSize: 20.0),
+      ),
+      bottom: TabBar(
+        indicatorColor: Theme.of(context).colorScheme.secondary,
+        controller: _controller,
+        tabs: <Widget>[
+          const Tab(
+            icon: Icon(FeatherIcons.home),
+            text: "Home",
+          ),
+          const Tab(
+            icon: Icon(FeatherIcons.heart),
+            text: "My list",
+          ),
+          const Tab(
+            icon: Icon(FeatherIcons.film),
+            text: "Movies",
+          ),
+          const Tab(
+            icon: Icon(FeatherIcons.tv),
+            text: "Shows",
+          )
+        ],
+      ),
+      actions: [
+        IconButton(
+          onPressed: () {
+            Navigator.pushNamed(context, "/search");
+          },
+          icon: const Icon(FeatherIcons.search),
+        ),
+        PopupMenuButton<String>(
+          itemBuilder: (context) {
+            return {"Reload", "Settings"}
+                .map((e) => PopupMenuItem(value: e, child: Text(e)))
+                .toList();
+          },
+          onSelected: (value) {
+            switch (value) {
+              case "Reload":
+                setState(() {});
+                break;
+              case "Settings":
+                Navigator.pushNamed(context, "/settings");
+                break;
+            }
+          },
+        ),
+      ],
     );
   }
 
@@ -231,6 +264,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             ),
             onPressed: () {
               setState(() {});
+            },
+          ),
+          const SizedBox(width: 16),
+          AnimatedIconButton(
+            icon: const Icon(FeatherIcons.settings),
+            label: Text(
+              "Settings",
+              style: Theme.of(context).textTheme.bodyText1,
+            ),
+            onPressed: () {
+              Navigator.of(context).pushNamed("/settings");
             },
           ),
           const SizedBox(width: 16),
