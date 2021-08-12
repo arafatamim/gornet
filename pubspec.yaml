@@ -21,10 +21,10 @@ dependencies:
     sdk: flutter
   dio: ^4.0.0
   dio_cache_interceptor: ^3.0.1
-  cached_network_image: ^3.0.0
+  cached_network_image: ^3.1.0
   transparent_image: ^2.0.0
   provider: ^5.0.0
-  google_fonts: ^2.0.0
+  google_fonts: ^2.1.0
   android_intent_plus: ^1.0.2
   duration: ^3.0.6
   web_socket_channel: ^2.1.0
@@ -33,13 +33,13 @@ dependencies:
   google_nav_bar: ^5.0.5
   flutter_feather_icons: ^2.0.0+1
   fading_edge_scrollview: ^2.0.0
-  async: ^2.6.1
+  async: ^2.8.2
   shared_preferences: ^2.0.6
 
 dev_dependencies:
   lints: ^1.0.1
-  flutter_test:
-    sdk: flutter
+  # flutter_test:
+  #   sdk: flutter
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
