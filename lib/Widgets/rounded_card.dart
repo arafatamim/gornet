@@ -1,24 +1,27 @@
 import 'package:goribernetflix/Widgets/scrolling_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-class RoundedCardStyle {
+enum Borders { left, middle, right, all }
+
+class CustomTouchableStyle {
   final Color textColor;
   final Color focusTextColor;
   final Color mutedTextColor;
   final Color focusMutedTextColor;
   final Color primaryColor;
   final Color focusPrimaryColor;
+  final Borders? borders;
   final double? cardHeight;
-  const RoundedCardStyle({
+  const CustomTouchableStyle({
     this.textColor = Colors.white,
     this.focusTextColor = Colors.black,
     this.mutedTextColor = const Color(0xFFE0E0E0),
     this.focusMutedTextColor = const Color(0xFF757575),
     this.primaryColor = const Color(0x66000000),
     this.focusPrimaryColor = Colors.white,
-    this.cardHeight = 75,
+    this.cardHeight = 80,
+    this.borders = Borders.all,
   });
 }
 
@@ -30,7 +33,7 @@ class RoundedCard extends StatefulWidget {
     this.leading,
     this.scrollAxis = Axis.vertical,
     this.onTap,
-    this.style = const RoundedCardStyle(),
+    this.style = const CustomTouchableStyle(),
   }) : super(key: key);
 
   final String? title;
@@ -38,7 +41,7 @@ class RoundedCard extends StatefulWidget {
   final Widget? leading;
   final Axis scrollAxis;
   final void Function()? onTap;
-  final RoundedCardStyle style;
+  final CustomTouchableStyle style;
 
   @override
   _RoundedCardState createState() => _RoundedCardState();
@@ -124,11 +127,13 @@ class _RoundedCardState extends State<RoundedCard>
         maxLines: 1,
         softWrap: false,
         overflow: TextOverflow.fade,
-        style: GoogleFonts.sourceSansPro(
-          fontWeight: FontWeight.w400,
-          color: focused ? widget.style.focusTextColor : widget.style.textColor,
-          fontSize: 20,
-        ),
+        style: Theme.of(context).textTheme.bodyText2?.copyWith(
+              fontWeight: FontWeight.w400,
+              color: focused
+                  ? widget.style.focusTextColor
+                  : widget.style.textColor,
+              fontSize: 20,
+            ),
       ),
     );
     final buildSubtitle = Align(

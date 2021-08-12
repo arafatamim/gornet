@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class MiscKey extends StatelessWidget {
   const MiscKey({
@@ -31,10 +30,10 @@ class MiscKey extends StatelessWidget {
               child: Center(
                 child: Text(
                   text,
-                  style: GoogleFonts.sourceSansPro(
-                    color: Colors.grey.shade400,
-                    fontSize: 18.0,
-                  ),
+                  style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                        color: Colors.grey.shade400,
+                        fontSize: 18.0,
+                      ),
                 ),
               ),
             ),

@@ -104,7 +104,7 @@ class _ItemsTabState extends State<ItemsTab>
           subtitle: (item.year ?? "").toString(),
           image: item.imageUris?.primary,
           // showIcon: widget.showIcon,
-          style: RoundedCardStyle(
+          style: CustomTouchableStyle(
             primaryColor: Colors.transparent,
             textColor: Colors.grey.shade300,
             focusTextColor: Colors.white,

@@ -2,11 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:goribernetflix/Models/models.dart';
 import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class SeasonTab extends StatefulWidget {
   final Season season;
-  final RoundedCardStyle style;
+  final CustomTouchableStyle style;
   final bool active;
   final Function? onTap;
   final Function? onFocus;
@@ -16,7 +15,7 @@ class SeasonTab extends StatefulWidget {
     required this.season,
     this.onTap,
     this.onFocus,
-    this.style = const RoundedCardStyle(),
+    this.style = const CustomTouchableStyle(),
     this.active = false,
   }) : super(key: key);
 
@@ -93,12 +92,12 @@ class _SeasonTabState extends State<SeasonTab>
                   maxLines: 1,
                   overflow: TextOverflow.fade,
                   softWrap: false,
-                  style: GoogleFonts.sourceSansPro(
-                    color: (focused || widget.active)
-                        ? widget.style.focusTextColor
-                        : widget.style.textColor,
-                    fontSize: 20,
-                  ),
+                  style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                        color: (focused || widget.active)
+                            ? widget.style.focusTextColor
+                            : widget.style.textColor,
+                        fontSize: 20,
+                      ),
                 ),
               ),
             ],

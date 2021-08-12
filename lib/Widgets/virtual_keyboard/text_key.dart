@@ -8,7 +8,7 @@ class TextKey extends StatefulWidget {
     this.icon,
     this.onTap,
     this.flex = 1,
-    this.style = const RoundedCardStyle(textColor: Color(0xFFD6D6D6)),
+    this.style = const CustomTouchableStyle(textColor: Color(0xFFD6D6D6)),
   })  : assert(
           icon != null || text != null,
           "Either icon or text must be specified",
@@ -19,7 +19,7 @@ class TextKey extends StatefulWidget {
   final IconData? icon;
   final ValueSetter<String?>? onTap;
   final int flex;
-  final RoundedCardStyle style;
+  final CustomTouchableStyle style;
 
   @override
   _TextKeyState createState() => _TextKeyState();

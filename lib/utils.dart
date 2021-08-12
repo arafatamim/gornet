@@ -4,7 +4,6 @@ import 'package:goribernetflix/Services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 
 String formatBytes(int bytes, {int decimals = 1}) {
@@ -56,11 +55,12 @@ Widget buildLabel(
                 : null,
             child: Text(
               label,
-              style: GoogleFonts.sourceSansPro(
-                color:
-                    hasBackground ? Colors.grey.shade300 : Colors.grey.shade200,
-                fontSize: hasBackground ? 16 : 18,
-              ),
+              style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                    color: hasBackground
+                        ? Colors.grey.shade300
+                        : Colors.grey.shade200,
+                    fontSize: hasBackground ? 16 : 18,
+                  ),
             ),
           ),
           MediaQuery.of(context).size.width > 720

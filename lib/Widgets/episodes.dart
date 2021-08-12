@@ -16,7 +16,6 @@ import 'package:duration/duration.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class Episodes extends StatefulWidget {
@@ -88,16 +87,16 @@ class _EpisodesState extends State<Episodes>
           return RoundedCard(
             leading: Text(
               episodes[index].index.toString(),
-              style: GoogleFonts.sourceSansPro(
-                fontSize: 25,
-                color: Theme.of(context).colorScheme.secondary,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                    fontSize: 25,
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             title: episodes[index].name,
             subtitle: episodes[index].synopsis,
             scrollAxis: Axis.vertical,
-            style: const RoundedCardStyle(
+            style: const CustomTouchableStyle(
               cardHeight: 125,
             ),
             onTap: () {
@@ -251,15 +250,17 @@ class EpisodeDetails extends StatelessWidget {
     );
   }
 
-  Text _buildEpisodeNumber() {
-    return Text(
-      "S${season.index.toString().padLeft(2, "0")}"
-      "E${episode.index.toString().padLeft(2, '0')}",
-      style: GoogleFonts.sourceSansPro(
-        color: Colors.grey.shade300,
-        fontSize: 25,
-      ),
-    );
+  Widget _buildEpisodeNumber() {
+    return Builder(builder: (context) {
+      return Text(
+        "S${season.index.toString().padLeft(2, "0")}"
+        "E${episode.index.toString().padLeft(2, '0')}",
+        style: Theme.of(context).textTheme.bodyText2?.copyWith(
+              color: Colors.grey.shade300,
+              fontSize: 25,
+            ),
+      );
+    });
   }
 
   Row _buildMeta() {
@@ -321,14 +322,16 @@ class EpisodeDetails extends StatelessWidget {
     );
   }
 
-  Text _buildSynopsis() {
-    return Text(
-      episode.synopsis ?? "",
-      style: GoogleFonts.sourceSansPro(
-        color: Colors.grey.shade300,
-        fontSize: 16,
-      ),
-    );
+  Widget _buildSynopsis() {
+    return Builder(builder: (context) {
+      return Text(
+        episode.synopsis ?? "",
+        style: Theme.of(context).textTheme.bodyText2?.copyWith(
+              color: Colors.grey.shade300,
+              fontSize: 16,
+            ),
+      );
+    });
   }
 }
 
@@ -381,7 +384,7 @@ class EpisodeSources extends StatelessWidget {
     return RoundedCard(
       title: source.displayName + ", " + formatBytes(source.fileSize),
       subtitle: source.fileName,
-      style: const RoundedCardStyle(cardHeight: null),
+      style: const CustomTouchableStyle(cardHeight: null),
       scrollAxis: Axis.horizontal,
       onTap: () {
         try {

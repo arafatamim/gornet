@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 extension MetaStyles on TextTheme {
-  TextStyle get metaText => GoogleFonts.sourceSansPro(fontSize: 16);
+  TextStyle get metaText => GoogleFonts.titilliumWeb(fontSize: 16);
 }
 
 class ModernTheme {
@@ -19,29 +19,34 @@ class ModernTheme {
       visualDensity: VisualDensity.adaptivePlatformDensity,
       // scaffoldBackgroundColor: Color(0xFF361D32),
       scaffoldBackgroundColor: const Color(0xFF222222),
-      fontFamily: GoogleFonts.sourceSansPro().fontFamily,
+      fontFamily: GoogleFonts.titilliumWeb().fontFamily,
       textTheme: TextTheme(
-        headline1: GoogleFonts.poppins(
+        headline1: GoogleFonts.quicksand(
           fontSize: 50,
           height: 1.1,
           color: Colors.white,
         ),
-        headline2: GoogleFonts.poppins(
+        headline2: GoogleFonts.quicksand(
           fontSize: 36,
           height: 1.1,
           color: Colors.white,
         ),
-        headline3: GoogleFonts.poppins(
+        headline3: GoogleFonts.quicksand(
           fontSize: 30,
           height: 1.0,
           color: Colors.grey.shade300,
         ),
-        bodyText1: GoogleFonts.sourceSansPro(
+        headline5: GoogleFonts.quicksand(
+          fontSize: 24,
+          height: 1.0,
+          color: Colors.grey.shade300,
+        ),
+        bodyText1: GoogleFonts.titilliumWeb(
           color: const Color(0xFFEEEEEE),
           height: 1.5,
           fontSize: 18,
         ),
-        bodyText2: GoogleFonts.sourceSansPro(
+        bodyText2: GoogleFonts.titilliumWeb(
           color: const Color(0xFFEEEEEE),
         ),
       ),

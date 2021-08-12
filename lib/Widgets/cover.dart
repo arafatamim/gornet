@@ -6,7 +6,6 @@ import 'package:goribernetflix/Widgets/shimmers.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class CoverListViewBuilder extends StatelessWidget {
   final Future<List<SearchResult>> results;
@@ -120,7 +119,7 @@ class CoverListView extends StatelessWidget {
             icon: showIcon
                 ? (item.isMovie ? FeatherIcons.film : FeatherIcons.tv)
                 : null,
-            style: RoundedCardStyle(
+            style: CustomTouchableStyle(
               primaryColor: Colors.transparent,
               textColor: Colors.grey.shade300,
               focusTextColor: Colors.white,
@@ -142,7 +141,7 @@ class Cover extends StatefulWidget {
   final String title;
   final String? subtitle;
   final IconData? icon;
-  final RoundedCardStyle style;
+  final CustomTouchableStyle style;
   final Function onTap;
   final Function? onFocus;
 
@@ -153,7 +152,7 @@ class Cover extends StatefulWidget {
     this.subtitle,
     this.icon,
     required this.onTap,
-    this.style = const RoundedCardStyle(),
+    this.style = const CustomTouchableStyle(),
     this.onFocus,
   }) : super(key: key);
 
@@ -239,19 +238,21 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
                             maxLines: 1,
                             overflow: TextOverflow.fade,
                             softWrap: false,
-                            style: GoogleFonts.sourceSansPro(
-                              color: _textColor,
-                              fontSize: 20,
-                            ),
+                            style:
+                                Theme.of(context).textTheme.bodyText2?.copyWith(
+                                      color: _textColor,
+                                      fontSize: 20,
+                                    ),
                           ),
                         ),
                         if (widget.subtitle != null)
                           Text(
                             widget.subtitle!.toString(),
-                            style: GoogleFonts.sourceSansPro(
-                              color: _mutedTextColor,
-                              fontSize: 18,
-                            ),
+                            style:
+                                Theme.of(context).textTheme.bodyText2?.copyWith(
+                                      color: _mutedTextColor,
+                                      fontSize: 18,
+                                    ),
                           ),
                       ],
                     ),

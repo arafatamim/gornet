@@ -4,14 +4,14 @@ import 'dart:math';
 
 class AnimatedIconButton extends StatefulWidget {
   final VoidCallback? onPressed;
-  final RoundedCardStyle style;
+  final CustomTouchableStyle style;
   final Widget icon;
   final Widget label;
   final Duration duration;
   final bool autofocus;
   const AnimatedIconButton({
     this.onPressed,
-    this.style = const RoundedCardStyle(),
+    this.style = const CustomTouchableStyle(),
     required this.icon,
     required this.label,
     this.duration = const Duration(milliseconds: 150),
