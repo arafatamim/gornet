@@ -1,9 +1,12 @@
 import 'dart:math';
 
 import 'package:goribernetflix/Models/models.dart';
+import 'package:goribernetflix/Models/user.dart';
 import 'package:goribernetflix/Services/api.dart';
+import 'package:goribernetflix/Services/user.dart';
 import 'package:goribernetflix/Widgets/shimmers.dart';
 import 'package:goribernetflix/Widgets/spotlight.dart';
+import 'package:goribernetflix/future_adt.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -44,6 +47,26 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          FutureBuilder2<User?>(
+            future: Provider.of<UserService>(context).getCurrentUser(),
+            builder: (context, response) => response.where(
+              onSuccess: (user) {
+                if (user == null) {
+                  return const SizedBox.shrink();
+                }
+                return Column(
+                  children: [
+                    Text(
+                      "Welcome back, " + user.username,
+                      style: Theme.of(context).textTheme.headline5,
+                    ),
+                    const SizedBox(height: 10)
+                  ],
+                );
+              },
+              orElse: () => const SizedBox.shrink(),
+            ),
+          ),
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 400),
             child: Consumer<FtpbdService>(

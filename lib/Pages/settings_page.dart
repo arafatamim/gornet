@@ -4,6 +4,7 @@ import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:goribernetflix/Models/models.dart';
 import 'package:goribernetflix/Models/user.dart';
 import 'package:goribernetflix/Services/user.dart';
+import 'package:goribernetflix/future_adt.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -49,48 +50,32 @@ class _SettingsPageState extends State<SettingsPage> {
           children: ListTile.divideTiles(
             context: context,
             tiles: [
-              FutureBuilder<List<User>>(
+              FutureBuilder2<List<User>>(
                 future: Provider.of<UserService>(context).getUsers(),
-                builder: (context, snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.done:
-                      if (snapshot.hasData) {
-                        final users = snapshot.data!;
-                        if (userId != null) {
-                          final currentUser =
-                              users.firstWhere((u) => u.id == userId);
-
-                          return ListTile(
-                            title: const Text("Choose user"),
-                            subtitle: Text(currentUser.username),
-                            onTap: () => _showUsersDialog(context, users),
-                          );
-                        } else {
-                          return ListTile(
-                            title: const Text("Choose user"),
-                            subtitle: const Text("No user chosen"),
-                            onTap: () {
-                              _showUsersDialog(context, users);
-                            },
-                          );
-                        }
-                      } else {
-                        return buildErrorBox(snapshot.error);
-                      }
-                    default:
-                      return const LinearProgressIndicator();
-                  }
-                },
+                builder: (context, result) => result.where(
+                  onSuccess: (users) {
+                    if (userId != null) {
+                      final currentUser =
+                          users.firstWhere((u) => u.id == userId);
+                      return ListTile(
+                        title: const Text("Choose user"),
+                        subtitle: Text(currentUser.username),
+                        onTap: () => _showUsersDialog(context, users),
+                      );
+                    } else {
+                      return ListTile(
+                        title: const Text("Choose user"),
+                        subtitle: const Text("No user chosen"),
+                        onTap: () {
+                          _showUsersDialog(context, users);
+                        },
+                      );
+                    }
+                  },
+                  onError: (error, _stack) => buildErrorBox(error),
+                  orElse: () => const SizedBox.shrink(),
+                ),
               )
-              // ListTile(
-              //   title: const Text('Trakt'),
-              //   subtitle: const Text('Login to Trakt'),
-              //   onTap: () {},
-              // ),
-              // ListTile(
-              //     title: const Text('RD'),
-              //     subtitle: const Text('Login to RealDebrid'),
-              //     onTap: () {}),
             ],
           ).toList(),
         ),
@@ -156,7 +141,9 @@ class _SettingsPageState extends State<SettingsPage> {
                               ),
                             );
                           }
-                          Navigator.of(context)..pop()..pop();
+                          Navigator.of(context)
+                            ..pop()
+                            ..pop();
                           setState(() {});
                         },
                       ),

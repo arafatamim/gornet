@@ -10,6 +10,7 @@ import 'package:goribernetflix/Services/api.dart';
 import 'package:goribernetflix/Widgets/detail_shell.dart';
 import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:goribernetflix/Widgets/scrolling_text.dart';
+import 'package:goribernetflix/future_adt.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:provider/provider.dart';
 
@@ -29,29 +30,18 @@ class MovieDetails extends StatelessWidget {
       genres: movie.genres,
       synopsis: movie.synopsis,
       imageUris: movie.imageUris,
-      child: FutureBuilder<List<MediaSource>>(
+      child: FutureBuilder2<List<MediaSource>>(
         future: Provider.of<FtpbdService>(context).getSources(id: movie.id),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.waiting:
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            case ConnectionState.done:
-              if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                return _buildMovieSources(context, snapshot.data!);
-              } else {
-                return Center(
-                  child: buildErrorBox(
-                    snapshot.error ??
-                        "Error fetching sources. Contact your system administrator.",
-                  ),
-                );
-              }
-            default:
-              return Container();
-          }
-        },
+        builder: (context, result) => result.where(
+          onInProgress: () => const Center(
+            child: CircularProgressIndicator(),
+          ),
+          onSuccess: (data) => _buildMovieSources(context, data),
+          onError: (error, _) => Center(
+            child: buildErrorBox(error),
+          ),
+          orElse: () => const SizedBox.shrink(),
+        ),
       ),
     );
   }

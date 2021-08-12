@@ -5,29 +5,27 @@ import 'package:goribernetflix/Models/models.dart';
 import 'package:goribernetflix/Services/api.dart';
 import 'package:goribernetflix/Widgets/cover.dart';
 import 'package:goribernetflix/Widgets/virtual_keyboard/virtual_keyboard.dart';
-import 'package:goribernetflix/network_response.dart';
+import 'package:goribernetflix/deferred.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class SearchStore extends ChangeNotifier {
   // Give us ADTs!!
-  NetworkResponse<List<SearchResult>> response =
-      NetworkResponse.hasNotStartedYet();
+  Deferred<List<SearchResult>> response = Deferred.idle();
 
   void getItems(BuildContext context, String query) async {
     try {
-      response = NetworkResponse.loading();
+      response = Deferred.inProgress();
       notifyListeners();
       final results = await Provider.of<FtpbdService>(
         context,
         listen: false,
       ).multiSearch(query: query);
-      response = NetworkResponse.success(results);
-    } catch (e) {
-      response = NetworkResponse.error(e);
+      response = Deferred.success(results);
+    } catch (e, s) {
+      response = Deferred.error(e, s);
     } finally {
       notifyListeners();
     }
@@ -189,7 +187,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _buildSearchResults(BuildContext context, SearchStore store, _) {
-    return store.response.fold<Widget>(
+    return store.response.where<Widget>(
       onSuccess: (results) {
         if (results.isEmpty) {
           return Center(child: buildErrorBox("No results found"));
@@ -199,9 +197,9 @@ class _SearchPageState extends State<SearchPage> {
           showIcon: true,
         );
       },
-      onError: (error) => Center(child: buildErrorBox(error)),
-      onLoading: () => const Center(child: CircularProgressIndicator()),
-      onNotStartedYet: () => const SizedBox.shrink(),
+      onError: (error, _) => Center(child: buildErrorBox(error)),
+      onInProgress: () => const Center(child: CircularProgressIndicator()),
+      onIdle: () => const SizedBox.shrink(),
     );
   }
 }
@@ -229,10 +227,10 @@ class SearchWidget extends StatelessWidget {
       controller: controller,
       textInputAction: TextInputAction.go,
       textAlign: TextAlign.center,
-      style: GoogleFonts.sourceSansPro(
-        color: Colors.white,
-        fontSize: 30.0,
-      ),
+      style: Theme.of(context).textTheme.bodyText2?.copyWith(
+            color: Colors.white,
+            fontSize: 32.0,
+          ),
       onSubmitted: onSubmitted,
       decoration: InputDecoration(
         fillColor: Colors.transparent,
@@ -243,9 +241,10 @@ class SearchWidget extends StatelessWidget {
         ),
         border: InputBorder.none,
         hintText: "Search...",
-        hintStyle: GoogleFonts.sourceSansPro(
-          color: Colors.grey,
-        ),
+        hintStyle: Theme.of(context).textTheme.bodyText1?.copyWith(
+              fontSize: 32,
+              color: Colors.grey,
+            ),
       ),
     );
   }
