@@ -40,6 +40,7 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final isWide = MediaQuery.of(context).size.width > 720;
 
     return SingleChildScrollView(
       clipBehavior: Clip.none,
@@ -47,26 +48,28 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          FutureBuilder2<User?>(
-            future: Provider.of<UserService>(context).getCurrentUser(),
-            builder: (context, response) => response.where(
-              onSuccess: (user) {
-                if (user == null) {
-                  return const SizedBox.shrink();
-                }
-                return Column(
-                  children: [
-                    Text(
-                      "Welcome back, " + user.username,
-                      style: Theme.of(context).textTheme.headline5,
-                    ),
-                    const SizedBox(height: 10)
-                  ],
-                );
-              },
-              orElse: () => const SizedBox.shrink(),
-            ),
-          ),
+          isWide
+              ? FutureBuilder2<User?>(
+                  future: Provider.of<UserService>(context).getCurrentUser(),
+                  builder: (context, response) => response.where(
+                    onSuccess: (user) {
+                      if (user == null) {
+                        return const SizedBox.shrink();
+                      }
+                      return Column(
+                        children: [
+                          Text(
+                            "Welcome back, " + user.username,
+                            style: Theme.of(context).textTheme.headline5,
+                          ),
+                          const SizedBox(height: 10)
+                        ],
+                      );
+                    },
+                    orElse: () => const SizedBox.shrink(),
+                  ),
+                )
+              : const SizedBox.shrink(),
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 400),
             child: Consumer<FtpbdService>(
