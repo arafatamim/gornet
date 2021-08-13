@@ -1,4 +1,6 @@
 import 'dart:math' as math;
+import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:goribernetflix/Models/models.dart';
 import 'package:goribernetflix/Services/api.dart';
 import 'package:dio/dio.dart';
@@ -49,7 +51,7 @@ Widget buildLabel(
                 : null,
             decoration: hasBackground
                 ? BoxDecoration(
-                    color: Colors.grey.shade900.withAlpha(200),
+                    color: Colors.grey.shade300.withAlpha(200),
                     borderRadius: BorderRadius.circular(6),
                   )
                 : null,
@@ -57,8 +59,10 @@ Widget buildLabel(
               label,
               style: Theme.of(context).textTheme.bodyText2?.copyWith(
                     color: hasBackground
-                        ? Colors.grey.shade300
+                        ? Colors.grey.shade900
                         : Colors.grey.shade200,
+                    fontWeight:
+                        hasBackground ? FontWeight.bold : FontWeight.normal,
                     fontSize: hasBackground ? 16 : 18,
                   ),
             ),
