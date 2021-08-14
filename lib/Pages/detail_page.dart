@@ -3,8 +3,9 @@ import 'package:goribernetflix/Services/api.dart';
 import 'package:goribernetflix/Widgets/detail_shell.dart';
 import 'package:goribernetflix/Widgets/details/movie_details.dart';
 import 'package:goribernetflix/Widgets/details/series_details.dart';
-import 'package:goribernetflix/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:goribernetflix/Widgets/error.dart';
+import 'package:goribernetflix/future_adt.dart';
 import 'package:provider/provider.dart';
 
 class DetailPage extends StatelessWidget {
@@ -24,26 +25,25 @@ class DetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Media>(
+    return FutureBuilder2<Media>(
       future: _getMedia(context),
-      builder: (context, mediaSnapshot) {
-        if (mediaSnapshot.hasData) {
-          if (mediaSnapshot.data! is Movie) {
-            return MovieDetails(mediaSnapshot.data! as Movie);
-          } else {
-            return SeriesDetails(mediaSnapshot.data! as Series);
-          }
-        } else if (mediaSnapshot.hasError) {
-          print(mediaSnapshot.error);
-          return Center(
-            child: buildErrorBox(mediaSnapshot.error),
-          );
-        } else {
-          return DetailShell(
+      builder: (context, result) {
+        return result.where(
+          onSuccess: (media) {
+            if (media is Movie) {
+              return MovieDetails(media);
+            } else {
+              return SeriesDetails(media as Series);
+            }
+          },
+          onError: (error, stackTrace) => Center(
+            child: ErrorMessage(error),
+          ),
+          orElse: () => DetailShell(
             title: searchResult.name,
             imageUris: searchResult.imageUris,
-          );
-        }
+          ),
+        );
       },
     );
   }

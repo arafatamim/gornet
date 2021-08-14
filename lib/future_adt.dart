@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:goribernetflix/deferred.dart';
 
 typedef ResponseWidgetBuilder<T> = Widget Function(
-    BuildContext context, Deferred<T> response);
+    BuildContext context, Deferred<T> state);
 
 class FutureBuilder2<T> extends StatefulWidget {
   /// Creates a widget that builds itself based on the latest snapshot of

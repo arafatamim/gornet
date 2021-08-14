@@ -1,11 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:goribernetflix/Models/models.dart';
+import 'package:goribernetflix/Widgets/error.dart';
 import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:goribernetflix/Widgets/scrolling_text.dart';
 import 'package:goribernetflix/Widgets/shimmers.dart';
-import 'package:goribernetflix/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:goribernetflix/future_adt.dart';
 
 class CoverListViewBuilder extends StatelessWidget {
   final Future<List<SearchResult>> results;
@@ -22,67 +23,22 @@ class CoverListViewBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<SearchResult>>(
+    return FutureBuilder2<List<SearchResult>>(
       future: results,
-      builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            return const ShimmerList(
-              itemCount: 6,
-            );
-          case ConnectionState.done:
-            if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-              final items = snapshot.data!;
-              return CoverListView(
-                items,
-                controller: controller,
-                separator: separator,
-              );
-              /*
-              return OrientationBuilder(builder: (context, orientation) {
-                int itemCount = orientation == Orientation.landscape ? 3 : 5;
-                return GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: itemCount,
-                    childAspectRatio: 0.5,
-                  ),
-                  itemCount: itemCount,
-                  shrinkWrap: true,
-                  itemBuilder: (BuildContext context, int index) {
-                    SearchResult item = items[index];
-                    return Cover(
-                      title: item.name,
-                      subtitle: (item.year ?? "").toString(),
-                      image: item.imageUris?.primary ??
-                          item.imageUris?.thumb ??
-                          item.imageUris?.backdrop,
-                      style: RoundedCardStyle(
-                        primaryColor: Colors.transparent,
-                        textColor: Colors.grey.shade300,
-                        focusTextColor: Colors.white,
-                        mutedTextColor: Colors.grey.shade400,
-                        focusMutedTextColor: Colors.grey.shade300,
-                      ),
-                      onTap: () {
-                        Navigator.pushNamed(
-                          context,
-                          "/detail",
-                          arguments: item,
-                        );
-                      },
-                    );
-                  },
-                );
-              });*/
-            } else {
-              return Center(
-                child: buildErrorBox(snapshot.error),
-              );
-            }
-          default:
-            return Container();
-        }
-      },
+      builder: (context, result) => result.where(
+        onInProgress: () => const ShimmerList(
+          itemCount: 6,
+        ),
+        onSuccess: (items) {
+          return CoverListView(
+            items,
+            controller: controller,
+            separator: separator,
+          );
+        },
+        onError: (error, stackTrace) => Center(child: ErrorMessage(error)),
+        orElse: () => const SizedBox.shrink(),
+      ),
     );
   }
 }

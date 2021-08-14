@@ -1,10 +1,11 @@
 import 'package:goribernetflix/Models/models.dart';
+import 'package:goribernetflix/Widgets/error.dart';
 import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:goribernetflix/Widgets/shimmers.dart';
-import 'package:goribernetflix/utils.dart';
 import 'package:flutter/material.dart';
 
 import 'package:goribernetflix/Widgets/cover.dart';
+import 'package:goribernetflix/future_adt.dart';
 
 class ItemsTab extends StatefulWidget {
   final Future<List<SearchResult>> future;
@@ -66,25 +67,13 @@ class _ItemsTabState extends State<ItemsTab>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return FutureBuilder<List<SearchResult>>(
+    return FutureBuilder2<List<SearchResult>>(
       future: widget.future,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-            return _buildGridView(context, snapshot.data!);
-          } else if (snapshot.hasError) {
-            return Center(
-              child: buildErrorBox(snapshot.error),
-            );
-          } else {
-            return Center(
-              child: buildErrorBox("No favorites found"),
-            );
-          }
-        } else {
-          return ShimmerList(itemCount: itemCount);
-        }
-      },
+      builder: (context, state) => state.where(
+        onSuccess: (items) => _buildGridView(context, items),
+        onError: (error, stackTrace) => Center(child: ErrorMessage(error)),
+        orElse: () => ShimmerList(itemCount: itemCount),
+      ),
     );
   }
 

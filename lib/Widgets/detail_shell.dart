@@ -6,7 +6,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:goribernetflix/Models/models.dart';
 import 'package:goribernetflix/Widgets/scrolling_text.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:goribernetflix/utils.dart';
 
 class DetailShell extends StatelessWidget {
@@ -32,8 +31,7 @@ class DetailShell extends StatelessWidget {
 
   bool isWide(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
-    final isWide = deviceSize.width > 720;
-    return isWide;
+    return deviceSize.width > 720;
   }
 
   @override
@@ -132,13 +130,15 @@ class DetailShell extends StatelessWidget {
   Align _buildGenres() {
     return Align(
       alignment: Alignment.topLeft,
-      child: Text(
-        genres!.join(", "),
-        style: GoogleFonts.sourceSansPro(
-          color: Colors.grey.shade400,
-          fontSize: 20,
-        ),
-      ),
+      child: Builder(builder: (context) {
+        return Text(
+          genres!.join(", "),
+          style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                color: Colors.grey.shade400,
+                fontSize: 20,
+              ),
+        );
+      }),
     );
   }
 
@@ -183,8 +183,7 @@ class DetailShell extends StatelessWidget {
                         ],
                         if (synopsis != null) ...[
                           const SizedBox(height: 20),
-                          SizedBox(
-                            height: 150,
+                          Expanded(
                             child: ScrollingText(
                               scrollDirection: Axis.vertical,
                               child: _buildSynopsisText(),
@@ -200,7 +199,7 @@ class DetailShell extends StatelessWidget {
                   Flexible(
                     flex: 5,
                     child: child ?? const SizedBox.shrink(),
-                  ),
+                  )
                 ],
               ),
             )

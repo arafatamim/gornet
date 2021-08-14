@@ -8,6 +8,8 @@ import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:goribernetflix/Models/models.dart';
 import 'package:goribernetflix/Services/api.dart';
 import 'package:goribernetflix/Widgets/detail_shell.dart';
+import 'package:goribernetflix/Widgets/error.dart';
+import 'package:goribernetflix/Widgets/label.dart';
 import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:goribernetflix/Widgets/scrolling_text.dart';
 import 'package:goribernetflix/future_adt.dart';
@@ -38,7 +40,7 @@ class MovieDetails extends StatelessWidget {
           ),
           onSuccess: (data) => _buildMovieSources(context, data),
           onError: (error, _) => Center(
-            child: buildErrorBox(error),
+            child: ErrorMessage(error),
           ),
           orElse: () => const SizedBox.shrink(),
         ),
@@ -106,33 +108,34 @@ class MovieDetails extends StatelessWidget {
 
   List<List<Widget>> _buildMeta(BuildContext context) => [
         <Widget>[
-          buildLabel(movie.year.toString()),
+          MetaLabel(movie.year.toString()),
           if (movie.criticRatings?.tmdb != null)
-            buildLabel(movie.criticRatings!.tmdb!.toString(), icon: Icons.star),
-          buildLabel(
+            MetaLabel(movie.criticRatings!.tmdb!.toString(),
+                leading: const Icon(Icons.star)),
+          MetaLabel(
             prettyDuration(
               movie.runtime,
               tersity: DurationTersity.minute,
               abbreviated: true,
               delimiter: " ",
             ),
-            icon: FeatherIcons.clock,
+            leading: const Icon(FeatherIcons.clock),
           ),
           if (movie.ageRating != null)
-            buildLabel(movie.ageRating!, hasBackground: true),
+            MetaLabel(movie.ageRating!, hasBackground: true),
         ],
         <Widget>[
           if (movie.directors != null && movie.directors!.isNotEmpty)
-            buildLabel("Directed by " + movie.directors![0]),
+            MetaLabel("Directed by " + movie.directors![0]),
         ],
         [
           if (movie.studios != null && movie.studios!.isNotEmpty)
-            buildLabel("Production: " + movie.studios![0]),
+            MetaLabel("Production: " + movie.studios![0]),
           if (movie.cast != null)
             Expanded(
               child: ScrollingText(
                 scrollDirection: Axis.horizontal,
-                child: buildLabel(
+                child: MetaLabel(
                   "Cast: " + movie.cast!.take(10).map((i) => i.name).join(", "),
                 ),
               ),

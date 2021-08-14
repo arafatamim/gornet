@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:goribernetflix/Widgets/buttons/animated_icon_button.dart';
+import 'package:goribernetflix/Widgets/label.dart';
 import 'package:goribernetflix/Widgets/scrolling_text.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:duration/duration.dart';
@@ -221,25 +222,25 @@ class _SpotlightState extends State<Spotlight> {
     List<String>? genres,
   }) {
     return <Widget>[
-      if (genres != null) buildLabel(genres.join(", ")),
+      if (genres != null) MetaLabel(genres.join(", ")),
       if (rating != null)
-        buildLabel(
+        MetaLabel(
           rating.toStringAsFixed(2),
-          icon: FeatherIcons.star,
+          leading: const Icon(FeatherIcons.star),
         ),
       if (runtime != null)
-        buildLabel(
+        MetaLabel(
           prettyDuration(
             runtime,
             tersity: DurationTersity.minute,
             abbreviated: true,
             delimiter: " ",
           ),
-          icon: FeatherIcons.clock,
+          leading: const Icon(FeatherIcons.clock),
         ),
-      if (ageRating != null) buildLabel(ageRating, hasBackground: true),
+      if (ageRating != null) MetaLabel(ageRating, hasBackground: true),
       if (year != null)
-        buildLabel(
+        MetaLabel(
           year.toString() +
               (hasEnded != null
                   ? (hasEnded

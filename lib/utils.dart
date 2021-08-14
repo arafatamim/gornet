@@ -1,11 +1,7 @@
 import 'dart:math' as math;
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:goribernetflix/Models/models.dart';
 import 'package:goribernetflix/Services/api.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 
 String formatBytes(int bytes, {int decimals = 1}) {
@@ -17,127 +13,6 @@ String formatBytes(int bytes, {int decimals = 1}) {
   final finalSize =
       (bytes / math.pow(k, i)).toStringAsFixed(decimals.abs()); // 830.0
   return finalSize + " " + sizes[i];
-}
-
-Widget buildLabel(
-  String label, {
-  IconData? icon,
-  String? imageAsset,
-  bool hasBackground = false,
-}) {
-  return Builder(
-    builder: (context) => Container(
-      child: Row(
-        children: [
-          if (icon != null) ...[
-            Icon(
-              icon,
-              color: Colors.grey.shade300,
-              size: 25,
-            ),
-            const SizedBox(width: 10),
-          ],
-          if (imageAsset != null) ...[
-            Image.asset(
-              imageAsset,
-              width: 30,
-              height: 30,
-            ),
-            const SizedBox(width: 10),
-          ],
-          Container(
-            padding: hasBackground
-                ? const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
-                : null,
-            decoration: hasBackground
-                ? BoxDecoration(
-                    color: Colors.grey.shade300.withAlpha(200),
-                    borderRadius: BorderRadius.circular(6),
-                  )
-                : null,
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                    color: hasBackground
-                        ? Colors.grey.shade900
-                        : Colors.grey.shade200,
-                    fontWeight:
-                        hasBackground ? FontWeight.bold : FontWeight.normal,
-                    fontSize: hasBackground ? 16 : 18,
-                  ),
-            ),
-          ),
-          MediaQuery.of(context).size.width > 720
-              ? const SizedBox(width: 30)
-              : const SizedBox(width: 15),
-        ],
-      ),
-    ),
-  );
-}
-
-// Widget buildError(String message, {VoidCallback? onRefresh}) {
-//   return Column(
-//     mainAxisAlignment: MainAxisAlignment.center,
-//     children: [
-//       Text(
-//         message,
-//         style: GoogleFonts.sourceSansPro(fontSize: 16),
-//       ),
-//       if (onRefresh != null)
-//         TextButton.icon(
-//           onPressed: onRefresh,
-//           icon: Icon(FeatherIcons.refreshCcw),
-//           label: Text("Refresh"),
-//           style: ButtonStyle(
-//             textStyle: MaterialStateProperty.all(
-//               GoogleFonts.sourceSansPro(fontSize: 20),
-//             ),
-//           ),
-//         )
-//     ],
-//   );
-// }
-
-Widget buildErrorBox(Object? error) {
-  return Builder(
-    builder: (context) => ConstrainedBox(
-      constraints: const BoxConstraints.tightFor(height: 110),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                FeatherIcons.frown,
-                size: 28,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                error is DioError
-                    ? error.message
-                    : error is ServerError
-                        ? error.message
-                        : error is String
-                            ? error
-                            : "Unhandled error. Contact system administrator.",
-                textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyText1
-                    ?.copyWith(height: 1.1),
-              )
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
 }
 
 T coalesceException<T>(T Function() func, T defaultValue) {

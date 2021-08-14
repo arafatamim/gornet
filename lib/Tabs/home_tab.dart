@@ -4,10 +4,10 @@ import 'package:goribernetflix/Models/models.dart';
 import 'package:goribernetflix/Models/user.dart';
 import 'package:goribernetflix/Services/api.dart';
 import 'package:goribernetflix/Services/user.dart';
+import 'package:goribernetflix/Widgets/error.dart';
 import 'package:goribernetflix/Widgets/shimmers.dart';
 import 'package:goribernetflix/Widgets/spotlight.dart';
 import 'package:goribernetflix/future_adt.dart';
-import 'package:goribernetflix/utils.dart';
 import 'package:flutter/material.dart';
 
 import 'package:goribernetflix/Widgets/cover.dart';
@@ -72,76 +72,63 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
               : const SizedBox.shrink(),
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 400),
-            child: Consumer<FtpbdService>(
-                child: const ShimmerItem(child: SpotlightShimmer()),
-                builder: (context, service, shimmer) {
-                  final seriesList = [
-                    /* Expanse */ "63639",
-                    /* B99 */ "48891",
-                    /* Angie Tribeca */ "61969",
-                    /* Good Place */ "66573",
-                    /* Ted Lasso */ "97546",
-                    /* Space Force */ "85922",
-                    /* PnR */ "8592",
-                    /* Mandalorian */ "82856",
-                    /* Snowpiercer */ "79680",
-                  ];
-                  // final seriesList = [
-                  //   /* Expanse */ "361912",
-                  //   /* B99 */ "362461",
-                  //   /* Angie Tribeca */ "361693",
-                  //   /* Good Place */ "361264",
-                  //   /* Ted Lasso */ "362077",
-                  //   /* Space Force */ "361049",
-                  // ];
-                  final random = Random();
-                  // final series = value.getSeries("361693");
-                  final series = service
-                      .getSeries(seriesList[random.nextInt(seriesList.length)]);
-                  return FutureBuilder<Series>(
-                    future: series,
-                    builder: (context, snapshot) {
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.waiting:
-                          return shimmer!;
-                        case ConnectionState.done:
-                          if (snapshot.hasData) {
-                            final item = snapshot.data!;
-                            return Spotlight(
-                                title: item.title ?? "Unknown Title",
-                                backdrop: item.imageUris?.thumb ??
-                                    item.imageUris?.backdrop,
-                                logo: item.imageUris?.logo,
-                                genres: item.genres,
-                                synopsis: item.synopsis,
-                                id: item.id,
-                                year: item.year,
-                                ageRating: item.ageRating,
-                                endDate: item.lastAired,
-                                hasEnded: item.hasEnded,
-                                rating: item.criticRatings?.community,
-                                runtime: item.averageRuntime,
-                                onTapDetails: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    "/detail",
-                                    arguments: SearchResult(
-                                      id: item.id,
-                                      name: item.title ?? "",
-                                      isMovie: false,
-                                      imageUris: item.imageUris,
-                                    ),
-                                  );
-                                });
-                          } else {
-                            return buildErrorBox(snapshot.error);
-                          }
-                        default:
-                          return Container();
-                      }
+            child: Builder(
+              builder: (context) {
+                final seriesList = [
+                  /* Expanse */ "63639",
+                  /* B99 */ "48891",
+                  /* Angie Tribeca */ "61969",
+                  /* Good Place */ "66573",
+                  /* Ted Lasso */ "97546",
+                  /* Space Force */ "85922",
+                  /* PnR */ "8592",
+                  /* Mandalorian */ "82856",
+                  /* Snowpiercer */ "79680",
+                ];
+                final random = Random();
+                return FutureBuilder2<Series>(
+                  future: Provider.of<FtpbdService>(context).getSeries(
+                    seriesList[random.nextInt(seriesList.length)],
+                  ),
+                  builder: (context, result) => result.where(
+                    onInProgress: () => const ShimmerItem(
+                      child: SpotlightShimmer(),
+                    ),
+                    onSuccess: (item) {
+                      return Spotlight(
+                        title: item.title ?? "Unknown Title",
+                        backdrop:
+                            item.imageUris?.thumb ?? item.imageUris?.backdrop,
+                        logo: item.imageUris?.logo,
+                        genres: item.genres,
+                        synopsis: item.synopsis,
+                        id: item.id,
+                        year: item.year,
+                        ageRating: item.ageRating,
+                        endDate: item.lastAired,
+                        hasEnded: item.hasEnded,
+                        rating: item.criticRatings?.community,
+                        runtime: item.averageRuntime,
+                        onTapDetails: () {
+                          Navigator.pushNamed(
+                            context,
+                            "/detail",
+                            arguments: SearchResult(
+                              id: item.id,
+                              name: item.title ?? "",
+                              isMovie: false,
+                              imageUris: item.imageUris,
+                            ),
+                          );
+                        },
+                      );
                     },
-                  );
-                }),
+                    onError: (error, stackTrace) => ErrorMessage(error),
+                    orElse: () => const SizedBox.shrink(),
+                  ),
+                );
+              },
+            ),
           ),
           const SizedBox(height: 40),
           _buildSectionTitle("Trending this week"),

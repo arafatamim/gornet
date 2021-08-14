@@ -9,8 +9,11 @@ import 'package:goribernetflix/Models/user.dart';
 import 'package:goribernetflix/Services/api.dart';
 import 'package:goribernetflix/Services/next_up.dart';
 import 'package:goribernetflix/Services/user.dart';
+import 'package:goribernetflix/Widgets/error.dart';
+import 'package:goribernetflix/Widgets/label.dart';
 import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:goribernetflix/Widgets/scrolling_text.dart';
+import 'package:goribernetflix/future_adt.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:duration/duration.dart';
 import 'package:flutter/foundation.dart';
@@ -34,30 +37,23 @@ class _EpisodesState extends State<Episodes>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return FutureBuilder<List<Episode>>(
+    return FutureBuilder2<List<Episode>>(
       future: Provider.of<FtpbdService>(context)
           .getEpisodes(widget.season.seriesId, widget.season.index),
-      builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            return const Center(child: CircularProgressIndicator());
-          case ConnectionState.done:
-            if (snapshot.hasData) {
-              final episodes = snapshot.data!;
-              final deviceSize = MediaQuery.of(context).size;
+      builder: (context, result) => result.where(
+        onInProgress: () => const Center(child: CircularProgressIndicator()),
+        onSuccess: (episodes) {
+          final deviceSize = MediaQuery.of(context).size;
 
-              if (deviceSize.width > 720) {
-                return _buildWideEpisodesList(episodes);
-              } else {
-                return _buildMobileEpisodesList(episodes);
-              }
-            } else {
-              return Center(child: Text(snapshot.error.toString()));
-            }
-          default:
-            return Container();
-        }
-      },
+          if (deviceSize.width > 720) {
+            return _buildWideEpisodesList(episodes);
+          } else {
+            return _buildMobileEpisodesList(episodes);
+          }
+        },
+        onError: (error, stackTrace) => ErrorMessage(error),
+        orElse: () => const SizedBox.shrink(),
+      ),
     );
   }
 
@@ -267,17 +263,17 @@ class EpisodeDetails extends StatelessWidget {
     return Row(
       children: [
         if (episode.runtime != null)
-          buildLabel(
+          MetaLabel(
             prettyDuration(
               episode.runtime!,
               tersity: DurationTersity.minute,
               abbreviated: true,
               delimiter: " ",
             ),
-            icon: FeatherIcons.clock,
+            leading: const Icon(FeatherIcons.clock),
           ),
         if (episode.airDate != null)
-          buildLabel(
+          MetaLabel(
             "Aired on ${episode.airDate!.longMonth.capitalizeFirst} ${episode.airDate!.day}, ${episode.airDate!.year}",
           ),
       ],
@@ -286,39 +282,33 @@ class EpisodeDetails extends StatelessWidget {
 
   Widget _buildSourcesWidget() {
     return Builder(
-      builder: (context) => FutureBuilder<User?>(
-          future: Provider.of<UserService>(context).getCurrentUser(),
-          builder: (context, snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.done:
-                if (snapshot.hasError) {
-                  return buildErrorBox(snapshot.error);
+      builder: (context) => FutureBuilder2<User?>(
+        future: Provider.of<UserService>(context).getCurrentUser(),
+        builder: (context, result) => result.where(
+          onSuccess: (user) {
+            return EpisodeSources(
+              episode.seriesId,
+              episode.seasonIndex,
+              episode.index,
+              onPlay: () {
+                if (user != null) {
+                  Provider.of<NextUpService>(
+                    context,
+                    listen: false,
+                  ).createNextUp(
+                    seriesId: episode.seriesId,
+                    seasonIndex: episode.seasonIndex,
+                    episodeIndex: episode.index,
+                    userId: user.id,
+                  );
                 }
-
-                final user = snapshot.data;
-                return EpisodeSources(
-                  episode.seriesId,
-                  episode.seasonIndex,
-                  episode.index,
-                  onPlay: () {
-                    if (user != null) {
-                      Provider.of<NextUpService>(
-                        context,
-                        listen: false,
-                      ).createNextUp(
-                        seriesId: episode.seriesId,
-                        seasonIndex: episode.seasonIndex,
-                        episodeIndex: episode.index,
-                        userId: user.id,
-                      );
-                    }
-                  },
-                );
-
-              default:
-                return const SizedBox.shrink();
-            }
-          }),
+              },
+            );
+          },
+          onError: (err, stack) => ErrorMessage(err),
+          orElse: () => const SizedBox.shrink(),
+        ),
+      ),
     );
   }
 
@@ -350,32 +340,27 @@ class EpisodeSources extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<MediaSource>>(
+    return FutureBuilder2<List<MediaSource>>(
       future: Provider.of<FtpbdService>(context).getSources(
         id: seriesId,
         seasonIndex: seasonIndex,
         episodeIndex: episodeIndex,
       ),
-      builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            return const Center(child: CircularProgressIndicator());
-          case ConnectionState.done:
-            if (snapshot.hasData) {
-              final mediaSources = snapshot.data!;
-              final deviceSize = MediaQuery.of(context).size;
+      builder: (context, result) {
+        return result.where(
+          onInProgress: () => const Center(child: CircularProgressIndicator()),
+          onSuccess: (mediaSources) {
+            final deviceSize = MediaQuery.of(context).size;
 
-              if (deviceSize.width > 720) {
-                return _buildWideLayout(mediaSources);
-              } else {
-                return _buildMobileLayout(mediaSources);
-              }
+            if (deviceSize.width > 720) {
+              return _buildWideLayout(mediaSources);
             } else {
-              return buildErrorBox(snapshot.error);
+              return _buildMobileLayout(mediaSources);
             }
-          default:
-            return const SizedBox.shrink();
-        }
+          },
+          onError: (err, stack) => ErrorMessage(err),
+          onIdle: () => const SizedBox.shrink(),
+        );
       },
     );
   }

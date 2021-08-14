@@ -9,7 +9,8 @@ import 'package:goribernetflix/Widgets/buttons/animated_icon_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:goribernetflix/utils.dart';
+import 'package:goribernetflix/Widgets/error.dart';
+import 'package:goribernetflix/future_adt.dart';
 import 'package:provider/provider.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
@@ -97,23 +98,26 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     physics: const NeverScrollableScrollPhysics(),
                     children: <Widget>[
                       HomeTab(key: UniqueKey()),
-                      FutureBuilder<User?>(
+                      FutureBuilder2<User?>(
                         future:
                             Provider.of<UserService>(context).getCurrentUser(),
-                        builder: (context, snapshot) {
-                          final user = snapshot.data;
-                          if (user != null) {
-                            return ItemsTab(
-                              future: Provider.of<FavoritesService>(context)
-                                  .getFavorites(user.id),
-                              showIcon: true,
-                            );
-                          } else {
-                            return Center(
-                              child: buildErrorBox("You're not logged in!"),
-                            );
-                          }
-                        },
+                        builder: (context, result) => result.where(
+                          onSuccess: (user) {
+                            if (user != null) {
+                              return ItemsTab(
+                                future: Provider.of<FavoritesService>(context)
+                                    .getFavorites(user.id),
+                                showIcon: true,
+                              );
+                            } else {
+                              return const Center(
+                                child: ErrorMessage("You're not logged in!"),
+                              );
+                            }
+                          },
+                          onError: (error, stackTrace) => ErrorMessage(error),
+                          orElse: () => const SizedBox.shrink(),
+                        ),
                       ),
                       ItemsTab(
                         future: Provider.of<FtpbdService>(context).search(

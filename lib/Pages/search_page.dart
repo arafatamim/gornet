@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:goribernetflix/Models/models.dart';
 import 'package:goribernetflix/Services/api.dart';
 import 'package:goribernetflix/Widgets/cover.dart';
+import 'package:goribernetflix/Widgets/error.dart';
 import 'package:goribernetflix/Widgets/virtual_keyboard/virtual_keyboard.dart';
 import 'package:goribernetflix/deferred.dart';
 import 'package:goribernetflix/utils.dart';
@@ -190,14 +191,14 @@ class _SearchPageState extends State<SearchPage> {
     return store.response.where<Widget>(
       onSuccess: (results) {
         if (results.isEmpty) {
-          return Center(child: buildErrorBox("No results found"));
+          return const Center(child: ErrorMessage("No results found"));
         }
         return CoverListView(
           results,
           showIcon: true,
         );
       },
-      onError: (error, _) => Center(child: buildErrorBox(error)),
+      onError: (error, _) => Center(child: ErrorMessage(error)),
       onInProgress: () => const Center(child: CircularProgressIndicator()),
       onIdle: () => const SizedBox.shrink(),
     );

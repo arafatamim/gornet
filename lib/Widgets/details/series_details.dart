@@ -8,11 +8,13 @@ import 'package:goribernetflix/Services/next_up.dart';
 import 'package:goribernetflix/Services/user.dart';
 import 'package:goribernetflix/Widgets/detail_shell.dart';
 import 'package:goribernetflix/Widgets/episodes.dart';
+import 'package:goribernetflix/Widgets/error.dart';
 import 'package:goribernetflix/Widgets/favorite_button.dart';
+import 'package:goribernetflix/Widgets/label.dart';
+import 'package:goribernetflix/Widgets/responsive_button.dart';
 import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:goribernetflix/Widgets/scrolling_text.dart';
-import 'package:goribernetflix/Widgets/season_tab.dart';
-import 'package:goribernetflix/utils.dart';
+import 'package:goribernetflix/future_adt.dart';
 import 'package:provider/provider.dart';
 
 class SeriesDetails extends StatelessWidget {
@@ -39,139 +41,118 @@ class SeriesDetails extends StatelessWidget {
     );
   }
 
-  FutureBuilder<List<Season>> _buildSeasons(BuildContext context) {
-    return FutureBuilder<List<Season>>(
+  Widget _buildSeasons(BuildContext context) {
+    return FutureBuilder2<List<Season>>(
       future: Provider.of<FtpbdService>(context).getSeasons(series.id),
-      builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            return const Center(child: CircularProgressIndicator());
-          case ConnectionState.done:
-            if (snapshot.hasData) {
-              final seasons = snapshot.data!;
-              final deviceSize = MediaQuery.of(context).size;
+      builder: (context, result) => result.where(
+        onInProgress: () => const Center(child: CircularProgressIndicator()),
+        onIdle: () => const SizedBox.shrink(),
+        onError: (error, _) => Center(child: ErrorMessage(error)),
+        onSuccess: (data) {
+          final seasons = data;
+          final deviceSize = MediaQuery.of(context).size;
 
-              return DefaultTabController(
-                length: seasons.length,
-                child: deviceSize.width > 720
-                    ? _buildWideSeasons(seasons)
-                    : _buildMobileSeasons(context, seasons),
-              );
-            } else {
-              return Center(
-                child: Text(snapshot.error.toString()),
-              );
-            }
-          default:
-            return const SizedBox.shrink();
-        }
-      },
+          return DefaultTabController(
+            length: seasons.length,
+            child: deviceSize.width > 720
+                ? _buildWideSeasons(seasons)
+                : _buildMobileSeasons(context, seasons),
+          );
+        },
+      ),
     );
   }
 
   Widget _buildContinueWidget(BuildContext context) {
-    Widget buildWidget(int userId) => FutureBuilder<StorageFormat?>(
+    Widget buildWidget(int userId) => FutureBuilder2<StorageFormat?>(
           // Check if there is next up data
-          future:
-              Provider.of<NextUpService>(context).getNextUp(series.id, userId),
-          builder: (context, snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.waiting:
-                return const SizedBox.shrink();
-              case ConnectionState.done:
-                if (snapshot.data != null) {
-                  final item = snapshot.data!;
-                  return FutureBuilder<List<dynamic>>(
-                    future: Future.wait([
-                      Provider.of<FtpbdService>(context).getSeason(
-                        item.seriesId,
-                        item.seasonIndex,
-                      ),
-                      Provider.of<FtpbdService>(context).getEpisode(
-                        item.seriesId,
-                        item.seasonIndex,
-                        item.episodeIndex,
-                      ),
-                    ]),
-                    builder: (context, snapshot) {
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.waiting:
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        case ConnectionState.done:
-                          if (snapshot.data != null) {
-                            final Season season = snapshot.data![0] as Season;
-                            final Episode episode =
-                                snapshot.data![1] as Episode;
+          future: Provider.of<NextUpService>(context).getNextUp(
+            series.id,
+            userId,
+          ),
+          builder: (context, result) => result.where(
+            onSuccess: (item) {
+              if (item != null) {
+                return FutureBuilder2<List<dynamic>>(
+                  future: Future.wait([
+                    Provider.of<FtpbdService>(context).getSeason(
+                      item.seriesId,
+                      item.seasonIndex,
+                    ),
+                    Provider.of<FtpbdService>(context).getEpisode(
+                      item.seriesId,
+                      item.seasonIndex,
+                      item.episodeIndex,
+                    ),
+                  ]),
+                  builder: (context, result) {
+                    return result.where<Widget>(
+                      onSuccess: (data) {
+                        final Season season = data[0] as Season;
+                        final Episode episode = data[1] as Episode;
 
-                            const title = "Continue watching";
-                            final subtitle =
-                                "S${season.index.toString().padLeft(2, "0")}"
-                                        "E${episode.index.toString().padLeft(2, "0")}" +
-                                    (" - " + episode.name);
-                            onTap() {
-                              showModalBottomSheet(
-                                useRootNavigator: true,
-                                isDismissible: false,
-                                routeSettings:
-                                    const RouteSettings(name: "episode"),
-                                backgroundColor: Colors.transparent,
-                                context: context,
-                                builder: (context) {
-                                  return EpisodeSheet(
-                                    season: season,
-                                    episode: episode,
-                                  );
-                                },
-                              );
-                            }
-
-                            return RoundedCard(
-                              title: title,
-                              subtitle: subtitle,
-                              onTap: onTap,
-                              leading: const Icon(FeatherIcons.play),
+                        const title = "Continue watching";
+                        final subtitle =
+                            "S${season.index.toString().padLeft(2, "0")}"
+                                    "E${episode.index.toString().padLeft(2, "0")}" +
+                                (" - " + episode.name);
+                        void onTap() => showModalBottomSheet(
+                              useRootNavigator: true,
+                              isDismissible: false,
+                              routeSettings:
+                                  const RouteSettings(name: "episode"),
+                              backgroundColor: Colors.transparent,
+                              context: context,
+                              builder: (context) {
+                                return EpisodeSheet(
+                                  season: season,
+                                  episode: episode,
+                                );
+                              },
                             );
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        default:
-                          return const SizedBox.shrink();
-                      }
-                    },
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
-              default:
+
+                        return RoundedCard(
+                          title: title,
+                          subtitle: subtitle,
+                          onTap: onTap,
+                          leading: const Icon(FeatherIcons.play),
+                        );
+                      },
+                      onInProgress: () => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                      orElse: () => const SizedBox.shrink(),
+                    );
+                  },
+                );
+              } else {
                 return const SizedBox.shrink();
-            }
-          },
+              }
+            },
+            onError: (e, _) => ErrorMessage(e),
+            orElse: () => const SizedBox.shrink(),
+          ),
         );
 
-    return FutureBuilder<User?>(
+    return FutureBuilder2<User?>(
       future: Provider.of<UserService>(context).getCurrentUser(),
-      builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.done:
-            final user = snapshot.data;
-            if (user != null) {
-              return buildWidget(user.id);
-            } else {
-              return const SizedBox.shrink();
-            }
-          default:
+      builder: (context, result) => result.where<Widget>(
+        onSuccess: (user) {
+          if (user != null) {
+            return buildWidget(user.id);
+          } else {
             return const SizedBox.shrink();
-        }
-      },
+          }
+        },
+        orElse: () => const SizedBox.shrink(),
+      ),
     );
   }
 
   List<List<Widget>> _buildMeta(BuildContext context) => [
         <Widget>[
           if (series.year != null)
-            buildLabel(
+            MetaLabel(
               series.year.toString() +
                   (series.hasEnded != null
                       ? (series.hasEnded!
@@ -184,29 +165,29 @@ class SeriesDetails extends StatelessWidget {
                       : ""),
             ),
           if (series.criticRatings?.community != null)
-            buildLabel(
+            MetaLabel(
               series.criticRatings!.community!.toStringAsFixed(2),
-              icon: FeatherIcons.star,
+              leading: const Icon(FeatherIcons.star),
             ),
           if (series.averageRuntime != null)
-            buildLabel(
+            MetaLabel(
               prettyDuration(
                 series.averageRuntime!,
                 tersity: DurationTersity.minute,
                 abbreviated: true,
                 delimiter: " ",
               ),
-              icon: FeatherIcons.clock,
+              leading: const Icon(FeatherIcons.clock),
             ),
           if (series.ageRating != null)
-            buildLabel(series.ageRating!, hasBackground: true),
+            MetaLabel(series.ageRating!, hasBackground: true),
         ],
         [
           if (series.cast != null && series.cast!.isNotEmpty)
             Expanded(
               child: ScrollingText(
                 scrollDirection: Axis.horizontal,
-                child: buildLabel(
+                child: MetaLabel(
                   "Cast: " +
                       series.cast!.take(10).map((i) => i.name).join(", "),
                 ),
@@ -223,18 +204,34 @@ class SeriesDetails extends StatelessWidget {
           child: Align(
             alignment: Alignment.topLeft,
             child: SizedBox(
-              height: 210,
-              child: ListView.builder(
-                itemCount: seasons.length,
-                itemBuilder: (context, index) {
-                  return SeasonTab(
-                    season: seasons[index],
-                    onTap: () {
-                      DefaultTabController.of(context)?.index = index;
+              height: 51,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: FocusTraversalGroup(
+                  policy: WidgetOrderTraversalPolicy(),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: seasons.length,
+                    itemBuilder: (context, index) {
+                      return ResponsiveButton(
+                        style: CustomTouchableStyle(
+                          borders: seasons.length == 1
+                              ? Borders.all
+                              : index == 0
+                                  ? Borders.left
+                                  : index == (seasons.length - 1)
+                                      ? Borders.right
+                                      : Borders.middle,
+                        ),
+                        label: "SEASON ${index + 1}",
+                        onPressed: () {
+                          DefaultTabController.of(context)?.index = index;
+                        },
+                      );
                     },
-                  );
-                },
-                scrollDirection: Axis.horizontal,
+                    scrollDirection: Axis.horizontal,
+                  ),
+                ),
               ),
             ),
           ),
@@ -256,7 +253,9 @@ class SeriesDetails extends StatelessWidget {
             indicatorColor: Theme.of(context).colorScheme.secondary,
             isScrollable: true,
             tabs: [
-              for (final season in seasons) Tab(text: "Season ${season.index}")
+              for (final season in seasons) ...[
+                Tab(text: "Season ${season.index}"),
+              ]
             ],
           ),
         ),
