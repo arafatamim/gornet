@@ -5,8 +5,8 @@ import 'package:goribernetflix/Widgets/details/movie_details.dart';
 import 'package:goribernetflix/Widgets/details/series_details.dart';
 import 'package:flutter/material.dart';
 import 'package:goribernetflix/Widgets/error.dart';
-import 'package:goribernetflix/future_adt.dart';
 import 'package:provider/provider.dart';
+import 'package:deferred_type/deferred_type.dart';
 
 class DetailPage extends StatelessWidget {
   final SearchResult searchResult;

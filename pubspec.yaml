@@ -1,5 +1,6 @@
 name: goribernetflix
 description: A new Flutter project.
+publish_to: none
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -35,6 +36,10 @@ dependencies:
   fading_edge_scrollview: ^2.0.0
   async: ^2.8.2
   shared_preferences: ^2.0.6
+  deferred_type:
+    git:
+      url: git://github.com/arafatamim/deferred_type.git
+      ref: main
 
 dev_dependencies:
   lints: ^1.0.1

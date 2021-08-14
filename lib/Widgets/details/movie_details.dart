@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
+import 'package:deferred_type/deferred_type.dart';
 import 'package:duration/duration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
@@ -12,7 +13,6 @@ import 'package:goribernetflix/Widgets/error.dart';
 import 'package:goribernetflix/Widgets/label.dart';
 import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:goribernetflix/Widgets/scrolling_text.dart';
-import 'package:goribernetflix/future_adt.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:provider/provider.dart';
 

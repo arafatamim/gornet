@@ -10,8 +10,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:goribernetflix/Widgets/error.dart';
-import 'package:goribernetflix/future_adt.dart';
 import 'package:provider/provider.dart';
+import 'package:deferred_type/deferred_type.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
 

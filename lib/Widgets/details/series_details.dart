@@ -1,3 +1,4 @@
+import 'package:deferred_type/deferred_type.dart';
 import 'package:duration/duration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
@@ -14,7 +15,6 @@ import 'package:goribernetflix/Widgets/label.dart';
 import 'package:goribernetflix/Widgets/responsive_button.dart';
 import 'package:goribernetflix/Widgets/rounded_card.dart';
 import 'package:goribernetflix/Widgets/scrolling_text.dart';
-import 'package:goribernetflix/future_adt.dart';
 import 'package:provider/provider.dart';
 
 class SeriesDetails extends StatelessWidget {

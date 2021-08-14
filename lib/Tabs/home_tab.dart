@@ -5,9 +5,9 @@ import 'package:goribernetflix/Models/user.dart';
 import 'package:goribernetflix/Services/api.dart';
 import 'package:goribernetflix/Services/user.dart';
 import 'package:goribernetflix/Widgets/error.dart';
+import 'package:deferred_type/deferred_type.dart';
 import 'package:goribernetflix/Widgets/shimmers.dart';
 import 'package:goribernetflix/Widgets/spotlight.dart';
-import 'package:goribernetflix/future_adt.dart';
 import 'package:flutter/material.dart';
 
 import 'package:goribernetflix/Widgets/cover.dart';

@@ -5,8 +5,8 @@ import 'package:goribernetflix/Models/models.dart';
 import 'package:goribernetflix/Models/user.dart';
 import 'package:goribernetflix/Services/user.dart';
 import 'package:goribernetflix/Widgets/error.dart';
-import 'package:goribernetflix/future_adt.dart';
 import 'package:provider/provider.dart';
+import 'package:deferred_type/deferred_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
