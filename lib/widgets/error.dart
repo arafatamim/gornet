@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:goribernetflix/Models/models.dart';
+import 'package:goribernetflix/models/models.dart';
 
 class ErrorMessage extends StatelessWidget {
   final Object? error;

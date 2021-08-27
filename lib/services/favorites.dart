@@ -1,4 +1,4 @@
-import 'package:goribernetflix/Models/models.dart';
+import 'package:goribernetflix/models/models.dart';
 import 'package:dio/dio.dart';
 import 'package:goribernetflix/utils.dart';
 

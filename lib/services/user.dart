@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:goribernetflix/Models/user.dart';
+import 'package:goribernetflix/models/trakt_token.dart';
+import 'package:goribernetflix/models/user.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -36,9 +37,23 @@ class UserService {
   }
 
   Future<void> createUser(String username) async {
-    dio.post("/users/create", data: {
+    await dio.post("/users/create", data: {
       "username": username,
       "admin": false
     }).catchError((e) => throw mapToServerError(e));
+  }
+
+  Future<void> saveTraktToken(int userId, TraktToken token) async {
+    await dio
+        .post("/users/$userId/trakt/activate", data: token.toJson())
+        .catchError((e) => throw mapToServerError(e));
+  }
+
+  Future<bool> isTraktActivated(int userId) async {
+    final res = await dio
+        .get<Map<String, dynamic>>("/users/$userId/trakt/details")
+        .catchError((e) => throw mapToServerError(e));
+
+    return res.data!["payload"]["activated"] as bool;
   }
 }

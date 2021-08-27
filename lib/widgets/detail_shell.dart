@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:goribernetflix/Models/models.dart';
+import 'package:goribernetflix/models/models.dart';
 import 'package:flutter/material.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:ticker_text/ticker_text.dart';

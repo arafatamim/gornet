@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:goribernetflix/Models/models.dart';
-import 'package:goribernetflix/Services/api.dart';
-import 'package:goribernetflix/Widgets/cover.dart';
-import 'package:goribernetflix/Widgets/error.dart';
-import 'package:goribernetflix/Widgets/virtual_keyboard/virtual_keyboard.dart';
+import 'package:goribernetflix/models/models.dart';
+import 'package:goribernetflix/services/api.dart';
+import 'package:goribernetflix/widgets/cover.dart';
+import 'package:goribernetflix/widgets/error.dart';
+import 'package:goribernetflix/widgets/virtual_keyboard/virtual_keyboard.dart';
 import 'package:deferred_type/deferred_type.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:flutter/material.dart';

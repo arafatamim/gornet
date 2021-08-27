@@ -1,6 +1,6 @@
 import 'dart:math' as math;
-import 'package:goribernetflix/Models/models.dart';
-import 'package:goribernetflix/Services/api.dart';
+import 'package:goribernetflix/models/models.dart';
+import 'package:goribernetflix/services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 

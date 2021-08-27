@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:goribernetflix/Models/models.dart';
-import 'package:goribernetflix/Widgets/rounded_card.dart';
+import 'package:goribernetflix/models/models.dart';
+import 'package:goribernetflix/widgets/rounded_card.dart';
 import 'package:flutter/material.dart';
 
 class SeasonTab extends StatefulWidget {

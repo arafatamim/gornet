@@ -28,7 +28,6 @@ dependencies:
   google_fonts: ^2.1.0
   android_intent_plus: ^1.0.2
   duration: ^3.0.6
-  web_socket_channel: ^2.1.0
   shimmer: ^2.0.0
   flutter_svg: ^0.22.0
   google_nav_bar: ^5.0.5

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:goribernetflix/Models/models.dart';
-import 'package:goribernetflix/Models/user.dart';
-import 'package:goribernetflix/Services/user.dart';
-import 'package:goribernetflix/Widgets/error.dart';
+import 'package:goribernetflix/models/models.dart';
+import 'package:goribernetflix/models/user.dart';
+import 'package:goribernetflix/services/user.dart';
+import 'package:goribernetflix/widgets/error.dart';
 import 'package:provider/provider.dart';
 import 'package:deferred_type/deferred_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';

@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:goribernetflix/Widgets/buttons/animated_icon_button.dart';
-import 'package:goribernetflix/Widgets/label.dart';
+import 'package:goribernetflix/widgets/buttons/animated_icon_button.dart';
+import 'package:goribernetflix/widgets/label.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:duration/duration.dart';
 import 'package:flutter/material.dart';

@@ -1,4 +1,4 @@
-import 'package:goribernetflix/Widgets/rounded_card.dart';
+import 'package:goribernetflix/widgets/rounded_card.dart';
 import 'package:flutter/material.dart';
 
 abstract class CustomTouchableStateProperty<T> {

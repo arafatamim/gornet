@@ -1,10 +1,10 @@
-import 'package:goribernetflix/Models/models.dart';
-import 'package:goribernetflix/Services/api.dart';
-import 'package:goribernetflix/Widgets/detail_shell.dart';
-import 'package:goribernetflix/Widgets/details/movie_details.dart';
-import 'package:goribernetflix/Widgets/details/series_details.dart';
+import 'package:goribernetflix/models/models.dart';
+import 'package:goribernetflix/services/api.dart';
+import 'package:goribernetflix/widgets/detail_shell.dart';
+import 'package:goribernetflix/widgets/details/movie_details.dart';
+import 'package:goribernetflix/widgets/details/series_details.dart';
 import 'package:flutter/material.dart';
-import 'package:goribernetflix/Widgets/error.dart';
+import 'package:goribernetflix/widgets/error.dart';
 import 'package:provider/provider.dart';
 import 'package:deferred_type/deferred_type.dart';
 

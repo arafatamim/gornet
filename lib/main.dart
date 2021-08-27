@@ -1,10 +1,12 @@
-import 'package:goribernetflix/Models/models.dart';
-import 'package:goribernetflix/Pages/detail_page.dart';
-import 'package:goribernetflix/Pages/search_page.dart';
-import 'package:goribernetflix/Pages/settings_page.dart';
-import 'package:goribernetflix/Services/favorites.dart';
-import 'package:goribernetflix/Services/next_up.dart';
-import 'package:goribernetflix/Services/user.dart';
+import 'package:goribernetflix/models/models.dart';
+import 'package:goribernetflix/pages/home_page.dart';
+import 'package:goribernetflix/pages/detail_page.dart';
+import 'package:goribernetflix/pages/search_page.dart';
+import 'package:goribernetflix/pages/settings_page.dart';
+import 'package:goribernetflix/services/favorites.dart';
+import 'package:goribernetflix/services/next_up.dart';
+import 'package:goribernetflix/services/user.dart';
+import 'package:goribernetflix/services/api.dart';
 import 'package:goribernetflix/theme/modern.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:dio/dio.dart';
@@ -12,16 +14,6 @@ import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-
-import 'package:goribernetflix/Pages/home_page.dart';
-import 'package:goribernetflix/Services/api.dart';
-
-// extension Precision on double {
-//   double toPrecision(int fractionDigits) {
-//     double mod = pow(10, fractionDigits.toDouble());
-//     return ((this * mod).round().toDouble() / mod);
-//   }
-// }
 
 void main() {
   runApp(MyApp());

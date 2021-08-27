@@ -1,4 +1,4 @@
-import 'package:goribernetflix/Widgets/virtual_keyboard/text_key.dart';
+import 'package:goribernetflix/widgets/virtual_keyboard/text_key.dart';
 import 'package:flutter/material.dart';
 
 typedef CustomKey = TextKey Function(void Function() defaultHandler);

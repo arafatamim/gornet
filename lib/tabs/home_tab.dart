@@ -1,16 +1,16 @@
 import 'dart:math';
 
-import 'package:goribernetflix/Models/models.dart';
-import 'package:goribernetflix/Models/user.dart';
-import 'package:goribernetflix/Services/api.dart';
-import 'package:goribernetflix/Services/user.dart';
-import 'package:goribernetflix/Widgets/error.dart';
+import 'package:goribernetflix/models/models.dart';
+import 'package:goribernetflix/models/user.dart';
+import 'package:goribernetflix/services/api.dart';
+import 'package:goribernetflix/services/user.dart';
+import 'package:goribernetflix/widgets/error.dart';
 import 'package:deferred_type/deferred_type.dart';
-import 'package:goribernetflix/Widgets/shimmers.dart';
-import 'package:goribernetflix/Widgets/spotlight.dart';
+import 'package:goribernetflix/widgets/shimmers.dart';
+import 'package:goribernetflix/widgets/spotlight.dart';
 import 'package:flutter/material.dart';
 
-import 'package:goribernetflix/Widgets/cover.dart';
+import 'package:goribernetflix/widgets/cover.dart';
 import 'package:provider/provider.dart';
 
 class HomeTab extends StatefulWidget {

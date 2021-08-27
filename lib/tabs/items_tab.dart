@@ -1,10 +1,10 @@
-import 'package:goribernetflix/Models/models.dart';
-import 'package:goribernetflix/Widgets/error.dart';
-import 'package:goribernetflix/Widgets/rounded_card.dart';
-import 'package:goribernetflix/Widgets/shimmers.dart';
+import 'package:goribernetflix/models/models.dart';
+import 'package:goribernetflix/widgets/error.dart';
+import 'package:goribernetflix/widgets/rounded_card.dart';
+import 'package:goribernetflix/widgets/shimmers.dart';
 import 'package:flutter/material.dart';
 import 'package:deferred_type/deferred_type.dart';
-import 'package:goribernetflix/Widgets/cover.dart';
+import 'package:goribernetflix/widgets/cover.dart';
 
 class ItemsTab extends StatefulWidget {
   final Future<List<SearchResult>> future;
