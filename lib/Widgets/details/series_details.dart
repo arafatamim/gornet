@@ -14,8 +14,8 @@ import 'package:goribernetflix/Widgets/favorite_button.dart';
 import 'package:goribernetflix/Widgets/label.dart';
 import 'package:goribernetflix/Widgets/responsive_button.dart';
 import 'package:goribernetflix/Widgets/rounded_card.dart';
-import 'package:goribernetflix/Widgets/scrolling_text.dart';
 import 'package:provider/provider.dart';
+import 'package:ticker_text/ticker_text.dart';
 
 class SeriesDetails extends StatelessWidget {
   final Series series;
@@ -185,7 +185,7 @@ class SeriesDetails extends StatelessWidget {
         [
           if (series.cast != null && series.cast!.isNotEmpty)
             Expanded(
-              child: ScrollingText(
+              child: TickerText(
                 scrollDirection: Axis.horizontal,
                 child: MetaLabel(
                   "Cast: " +

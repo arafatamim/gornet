@@ -4,9 +4,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:goribernetflix/Models/models.dart';
-import 'package:goribernetflix/Widgets/scrolling_text.dart';
 import 'package:flutter/material.dart';
 import 'package:goribernetflix/utils.dart';
+import 'package:ticker_text/ticker_text.dart';
 
 class DetailShell extends StatelessWidget {
   final String title;
@@ -184,7 +184,7 @@ class DetailShell extends StatelessWidget {
                         if (synopsis != null) ...[
                           const SizedBox(height: 20),
                           Expanded(
-                            child: ScrollingText(
+                            child: TickerText(
                               scrollDirection: Axis.vertical,
                               child: _buildSynopsisText(),
                             ),

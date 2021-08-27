@@ -81,7 +81,7 @@ class _ItemsTabState extends State<ItemsTab>
       // controller: _scrollController,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: itemCount,
-        childAspectRatio: 0.56,
+        childAspectRatio: 0.53,
       ),
       itemCount: values.length,
 

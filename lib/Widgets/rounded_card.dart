@@ -1,6 +1,6 @@
-import 'package:goribernetflix/Widgets/scrolling_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:ticker_text/ticker_text.dart';
 
 enum Borders { left, middle, right, all }
 
@@ -51,7 +51,7 @@ class _RoundedCardState extends State<RoundedCard>
     with SingleTickerProviderStateMixin {
   late final FocusNode _node;
   late final AnimationController _controller;
-  late final AutoScrollController _autoScrollController;
+  late final TickerTextController _tickerTextController;
   late final CurvedAnimation _animation;
 
   bool get focused => _node.hasFocus;
@@ -69,7 +69,7 @@ class _RoundedCardState extends State<RoundedCard>
     );
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
 
-    _autoScrollController = AutoScrollController();
+    _tickerTextController = TickerTextController();
 
     super.initState();
   }
@@ -77,11 +77,11 @@ class _RoundedCardState extends State<RoundedCard>
   void _onFocusChange() {
     if (_node.hasFocus) {
       _controller.forward();
-      _autoScrollController.startScroll();
+      _tickerTextController.startScroll();
       setState(() {});
     } else {
       _controller.reverse();
-      _autoScrollController.stopScroll();
+      _tickerTextController.stopScroll();
       setState(() {});
     }
   }
@@ -95,7 +95,7 @@ class _RoundedCardState extends State<RoundedCard>
   void dispose() {
     _controller.dispose();
     _node.dispose();
-    _autoScrollController.dispose();
+    _tickerTextController.dispose();
     super.dispose();
   }
 
@@ -138,10 +138,10 @@ class _RoundedCardState extends State<RoundedCard>
     );
     final buildSubtitle = Align(
       alignment: Alignment.topLeft,
-      child: ScrollingText(
+      child: TickerText(
         speed: 16,
         scrollDirection: widget.scrollAxis,
-        controller: _autoScrollController,
+        controller: _tickerTextController,
         startPauseDuration: const Duration(seconds: 2),
         endPauseDuration: const Duration(seconds: 4),
         child: Text(

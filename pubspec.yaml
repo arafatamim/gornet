@@ -33,13 +33,13 @@ dependencies:
   flutter_svg: ^0.22.0
   google_nav_bar: ^5.0.5
   flutter_feather_icons: ^2.0.0+1
-  fading_edge_scrollview: ^2.0.0
   async: ^2.8.2
   shared_preferences: ^2.0.6
   deferred_type:
     git:
       url: git://github.com/arafatamim/deferred_type.git
       ref: main
+  ticker_text: ^1.0.0
 
 dev_dependencies:
   lints: ^1.0.1

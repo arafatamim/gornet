@@ -12,7 +12,7 @@ import 'package:goribernetflix/Widgets/detail_shell.dart';
 import 'package:goribernetflix/Widgets/error.dart';
 import 'package:goribernetflix/Widgets/label.dart';
 import 'package:goribernetflix/Widgets/rounded_card.dart';
-import 'package:goribernetflix/Widgets/scrolling_text.dart';
+import 'package:ticker_text/ticker_text.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:provider/provider.dart';
 
@@ -133,7 +133,7 @@ class MovieDetails extends StatelessWidget {
             MetaLabel("Production: " + movie.studios![0]),
           if (movie.cast != null)
             Expanded(
-              child: ScrollingText(
+              child: TickerText(
                 scrollDirection: Axis.horizontal,
                 child: MetaLabel(
                   "Cast: " + movie.cast!.take(10).map((i) => i.name).join(", "),

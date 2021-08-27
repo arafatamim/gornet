@@ -13,13 +13,13 @@ import 'package:goribernetflix/Services/user.dart';
 import 'package:goribernetflix/Widgets/error.dart';
 import 'package:goribernetflix/Widgets/label.dart';
 import 'package:goribernetflix/Widgets/rounded_card.dart';
-import 'package:goribernetflix/Widgets/scrolling_text.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:duration/duration.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:provider/provider.dart';
+import 'package:ticker_text/ticker_text.dart';
 
 class Episodes extends StatefulWidget {
   final Season season;
@@ -216,7 +216,7 @@ class EpisodeDetails extends StatelessWidget {
               _buildMeta(),
               const SizedBox(height: 15),
               Expanded(
-                child: ScrollingText(
+                child: TickerText(
                   startPauseDuration: const Duration(seconds: 10),
                   endPauseDuration: const Duration(seconds: 10),
                   scrollDirection: Axis.vertical,

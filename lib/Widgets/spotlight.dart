@@ -1,12 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:goribernetflix/Widgets/buttons/animated_icon_button.dart';
 import 'package:goribernetflix/Widgets/label.dart';
-import 'package:goribernetflix/Widgets/scrolling_text.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:duration/duration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:ticker_text/ticker_text.dart';
 
 class Spotlight extends StatefulWidget {
   final String? id;
@@ -174,7 +174,7 @@ class _SpotlightState extends State<Spotlight> {
                       ConstrainedBox(
                         constraints:
                             const BoxConstraints(maxHeight: 250, maxWidth: 550),
-                        child: ScrollingText(
+                        child: TickerText(
                           speed: 12,
                           child: Text(
                             widget.synopsis!,

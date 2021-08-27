@@ -3,10 +3,10 @@ import 'package:deferred_type/deferred_type.dart';
 import 'package:goribernetflix/Models/models.dart';
 import 'package:goribernetflix/Widgets/error.dart';
 import 'package:goribernetflix/Widgets/rounded_card.dart';
-import 'package:goribernetflix/Widgets/scrolling_text.dart';
 import 'package:goribernetflix/Widgets/shimmers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:ticker_text/ticker_text.dart';
 
 class CoverListViewBuilder extends StatelessWidget {
   final Future<List<SearchResult>> results;
@@ -119,7 +119,7 @@ class Cover extends StatefulWidget {
 class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
   late FocusNode _node;
   late AnimationController _animationController;
-  late AutoScrollController _autoScrollController;
+  late TickerTextController _autoScrollController;
   late Animation<double> _animation;
   late Color _primaryColor;
   late Color _textColor;
@@ -183,7 +183,7 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        ScrollingText(
+                        TickerText(
                           scrollDirection: Axis.horizontal,
                           speed: 20,
                           startPauseDuration: const Duration(milliseconds: 500),
@@ -319,7 +319,7 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
     _animation =
         CurvedAnimation(parent: _animationController, curve: Curves.easeIn);
 
-    _autoScrollController = AutoScrollController();
+    _autoScrollController = TickerTextController();
 
     super.initState();
   }
