@@ -2,7 +2,7 @@ import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:goribernetflix/models/user.dart';
 import 'package:goribernetflix/services/favorites.dart';
 import 'package:goribernetflix/services/user.dart';
-import 'package:goribernetflix/widgets/responsive_button.dart';
+import 'package:goribernetflix/widgets/buttons/responsive_button.dart';
 import 'package:flutter/material.dart';
 import 'package:deferred_type/deferred_type.dart';
 import 'package:provider/provider.dart';

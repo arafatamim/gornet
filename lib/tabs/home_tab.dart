@@ -84,6 +84,7 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
                   /* PnR */ "8592",
                   /* Mandalorian */ "82856",
                   /* Snowpiercer */ "79680",
+                  /* For All Mankind */ "87917",
                 ];
                 final random = Random();
                 return FutureBuilder2<Series>(

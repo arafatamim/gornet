@@ -1,11 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:goribernetflix/models/models.dart';
-import 'package:goribernetflix/widgets/rounded_card.dart';
 import 'package:flutter/material.dart';
+
+import 'package:goribernetflix/models/models.dart';
 
 class SeasonTab extends StatefulWidget {
   final Season season;
-  final CustomTouchableStyle style;
+  final MaterialStateProperty<Color>? color;
+  final MaterialStateProperty<Color>? foregroundColor;
   final bool active;
   final Function? onTap;
   final Function? onFocus;
@@ -13,10 +14,11 @@ class SeasonTab extends StatefulWidget {
   const SeasonTab({
     Key? key,
     required this.season,
+    this.color,
+    this.foregroundColor,
+    this.active = false,
     this.onTap,
     this.onFocus,
-    this.style = const CustomTouchableStyle(),
-    this.active = false,
   }) : super(key: key);
 
   @override
@@ -30,6 +32,10 @@ class _SeasonTabState extends State<SeasonTab>
   late Animation<double> _animation;
 
   bool get focused => _node.hasFocus;
+  MaterialStateProperty<Color> get primaryColor =>
+      widget.color ?? MaterialStateProperty.all(Colors.white);
+  MaterialStateProperty<Color> get foregroundColor =>
+      widget.foregroundColor ?? MaterialStateProperty.all(Colors.black);
 
   @override
   Widget build(BuildContext context) {
@@ -64,8 +70,8 @@ class _SeasonTabState extends State<SeasonTab>
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
             color: (focused || widget.active)
-                ? widget.style.focusPrimaryColor
-                : widget.style.primaryColor,
+                ? primaryColor.resolve({MaterialState.focused})
+                : primaryColor.resolve({}),
           ),
           child: Column(
             children: <Widget>[
@@ -94,8 +100,8 @@ class _SeasonTabState extends State<SeasonTab>
                   softWrap: false,
                   style: Theme.of(context).textTheme.bodyText2?.copyWith(
                         color: (focused || widget.active)
-                            ? widget.style.focusTextColor
-                            : widget.style.textColor,
+                            ? foregroundColor.resolve({MaterialState.focused})
+                            : foregroundColor.resolve({}),
                         fontSize: 20,
                       ),
                 ),

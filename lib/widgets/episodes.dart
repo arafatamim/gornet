@@ -12,7 +12,7 @@ import 'package:goribernetflix/services/next_up.dart';
 import 'package:goribernetflix/services/user.dart';
 import 'package:goribernetflix/widgets/error.dart';
 import 'package:goribernetflix/widgets/label.dart';
-import 'package:goribernetflix/widgets/rounded_card.dart';
+import 'package:goribernetflix/widgets/wide_tile.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:duration/duration.dart';
 import 'package:flutter/foundation.dart';
@@ -92,9 +92,7 @@ class _EpisodesState extends State<Episodes>
             title: episodes[index].name,
             subtitle: episodes[index].synopsis,
             scrollAxis: Axis.vertical,
-            style: const CustomTouchableStyle(
-              cardHeight: 125,
-            ),
+            height: 125,
             onTap: () {
               _displaySheet(context, episodes, index);
             },
@@ -369,7 +367,7 @@ class EpisodeSources extends StatelessWidget {
     return RoundedCard(
       title: source.displayName + ", " + formatBytes(source.fileSize),
       subtitle: source.fileName,
-      style: const CustomTouchableStyle(cardHeight: null),
+      height: null,
       scrollAxis: Axis.horizontal,
       onTap: () {
         try {

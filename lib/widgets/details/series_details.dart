@@ -10,10 +10,10 @@ import 'package:goribernetflix/services/user.dart';
 import 'package:goribernetflix/widgets/detail_shell.dart';
 import 'package:goribernetflix/widgets/episodes.dart';
 import 'package:goribernetflix/widgets/error.dart';
-import 'package:goribernetflix/widgets/favorite_button.dart';
+import 'package:goribernetflix/widgets/buttons/favorite_button.dart';
 import 'package:goribernetflix/widgets/label.dart';
-import 'package:goribernetflix/widgets/responsive_button.dart';
-import 'package:goribernetflix/widgets/rounded_card.dart';
+import 'package:goribernetflix/widgets/buttons/responsive_button.dart';
+import 'package:goribernetflix/widgets/wide_tile.dart';
 import 'package:provider/provider.dart';
 import 'package:ticker_text/ticker_text.dart';
 
@@ -214,15 +214,13 @@ class SeriesDetails extends StatelessWidget {
                     itemCount: seasons.length,
                     itemBuilder: (context, index) {
                       return ResponsiveButton(
-                        style: CustomTouchableStyle(
-                          borders: seasons.length == 1
-                              ? Borders.all
-                              : index == 0
-                                  ? Borders.left
-                                  : index == (seasons.length - 1)
-                                      ? Borders.right
-                                      : Borders.middle,
-                        ),
+                        borders: seasons.length == 1
+                            ? Borders.all
+                            : index == 0
+                                ? Borders.left
+                                : index == (seasons.length - 1)
+                                    ? Borders.right
+                                    : Borders.middle,
                         label: "SEASON ${index + 1}",
                         onPressed: () {
                           DefaultTabController.of(context)?.index = index;

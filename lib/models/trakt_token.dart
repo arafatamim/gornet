@@ -15,7 +15,7 @@ class TraktToken {
     required this.createdAt,
   });
 
-  factory TraktToken.fromJson(Map<String, dynamic> json) => TraktToken(
+  factory TraktToken.fromJson(dynamic json) => TraktToken(
         accessToken: json['access_token'] as String,
         tokenType: json['token_type'] as String,
         expiresIn: json['expires_in'] as int,

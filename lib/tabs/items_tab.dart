@@ -1,6 +1,5 @@
 import 'package:goribernetflix/models/models.dart';
 import 'package:goribernetflix/widgets/error.dart';
-import 'package:goribernetflix/widgets/rounded_card.dart';
 import 'package:goribernetflix/widgets/shimmers.dart';
 import 'package:flutter/material.dart';
 import 'package:deferred_type/deferred_type.dart';
@@ -69,7 +68,14 @@ class _ItemsTabState extends State<ItemsTab>
     return FutureBuilder2<List<SearchResult>>(
       future: widget.future,
       builder: (context, state) => state.where(
-        onSuccess: (items) => _buildGridView(context, items),
+        onSuccess: (items) {
+          if (items.isEmpty) {
+            return const Center(
+              child: ErrorMessage("Watchlist is empty!"),
+            );
+          }
+          return _buildGridView(context, items);
+        },
         onError: (error, stackTrace) => Center(child: ErrorMessage(error)),
         orElse: () => ShimmerList(itemCount: itemCount),
       ),
@@ -91,14 +97,29 @@ class _ItemsTabState extends State<ItemsTab>
           title: item.name,
           subtitle: (item.year ?? "").toString(),
           image: item.imageUris?.primary,
-          // showIcon: widget.showIcon,
-          style: CustomTouchableStyle(
-            primaryColor: Colors.transparent,
-            textColor: Colors.grey.shade300,
-            focusTextColor: Colors.white,
-            mutedTextColor: Colors.grey.shade400,
-            focusMutedTextColor: Colors.grey.shade300,
+
+          color: MaterialStateColor.resolveWith(
+            (states) => states.contains(MaterialState.focused)
+                ? Colors.white
+                : Colors.transparent,
           ),
+          foregroundColor: MaterialStateColor.resolveWith(
+            (states) => states.contains(MaterialState.focused)
+                ? Colors.white
+                : Colors.grey.shade300,
+          ),
+          mutedForegroundColor: MaterialStateColor.resolveWith(
+            (states) => states.contains(MaterialState.focused)
+                ? Colors.grey.shade300
+                : Colors.grey.shade400,
+          ),
+          // style: CustomTouchableStyle(
+          //   primaryColor: Colors.transparent,
+          //   textColor: Colors.grey.shade300,
+          //   focusTextColor: Colors.white,
+          //   mutedTextColor: Colors.grey.shade400,
+          //   focusMutedTextColor: Colors.grey.shade300,
+          // ),
           onTap: () {
             Navigator.pushNamed(context, "/detail", arguments: item);
           },

@@ -1,12 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:deferred_type/deferred_type.dart';
-import 'package:goribernetflix/models/models.dart';
-import 'package:goribernetflix/widgets/error.dart';
-import 'package:goribernetflix/widgets/rounded_card.dart';
-import 'package:goribernetflix/widgets/shimmers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:ticker_text/ticker_text.dart';
+
+import 'package:goribernetflix/models/models.dart';
+import 'package:goribernetflix/widgets/error.dart';
+import 'package:goribernetflix/widgets/shimmers.dart';
 
 class CoverListViewBuilder extends StatelessWidget {
   final Future<List<SearchResult>> results;
@@ -75,12 +75,20 @@ class CoverListView extends StatelessWidget {
             icon: showIcon
                 ? (item.isMovie ? FeatherIcons.film : FeatherIcons.tv)
                 : null,
-            style: CustomTouchableStyle(
-              primaryColor: Colors.transparent,
-              textColor: Colors.grey.shade300,
-              focusTextColor: Colors.white,
-              mutedTextColor: Colors.grey.shade400,
-              focusMutedTextColor: Colors.grey.shade300,
+            color: MaterialStateColor.resolveWith(
+              (states) => states.contains(MaterialState.focused)
+                  ? Colors.white
+                  : Colors.transparent,
+            ),
+            foregroundColor: MaterialStateColor.resolveWith(
+              (states) => states.contains(MaterialState.focused)
+                  ? Colors.white
+                  : Colors.grey.shade300,
+            ),
+            mutedForegroundColor: MaterialStateColor.resolveWith(
+              (states) => states.contains(MaterialState.focused)
+                  ? Colors.grey.shade300
+                  : Colors.grey.shade400,
             ),
             onTap: () {
               Navigator.pushNamed(context, "/detail", arguments: item);
@@ -97,7 +105,9 @@ class Cover extends StatefulWidget {
   final String title;
   final String? subtitle;
   final IconData? icon;
-  final CustomTouchableStyle style;
+  final MaterialStateProperty<Color>? color;
+  final MaterialStateProperty<Color>? foregroundColor;
+  final MaterialStateProperty<Color>? mutedForegroundColor;
   final Function onTap;
   final Function? onFocus;
 
@@ -107,8 +117,10 @@ class Cover extends StatefulWidget {
     required this.title,
     this.subtitle,
     this.icon,
+    this.color,
+    this.foregroundColor,
+    this.mutedForegroundColor,
     required this.onTap,
-    this.style = const CustomTouchableStyle(),
     this.onFocus,
   }) : super(key: key);
 
@@ -124,6 +136,13 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
   late Color _primaryColor;
   late Color _textColor;
   late Color _mutedTextColor;
+
+  MaterialStateProperty<Color> get color =>
+      widget.color ?? MaterialStateProperty.all(Colors.white);
+  MaterialStateProperty<Color> get foregroundColor =>
+      widget.foregroundColor ?? MaterialStateProperty.all(Colors.black);
+  MaterialStateProperty<Color> get mutedForegroundColor =>
+      widget.mutedForegroundColor ?? MaterialStateProperty.all(Colors.grey);
 
   @override
   Widget build(BuildContext context) {
@@ -305,9 +324,9 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
-    _primaryColor = widget.style.primaryColor;
-    _textColor = widget.style.textColor;
-    _mutedTextColor = widget.style.mutedTextColor;
+    _primaryColor = color.resolve({});
+    _textColor = foregroundColor.resolve({});
+    _mutedTextColor = mutedForegroundColor.resolve({});
     _node = FocusNode();
     _node.addListener(_onFocusChange);
     _animationController = AnimationController(
@@ -337,9 +356,9 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
       _animationController.forward();
       _autoScrollController.startScroll();
       setState(() {
-        _primaryColor = widget.style.focusPrimaryColor;
-        _textColor = widget.style.focusTextColor;
-        _mutedTextColor = widget.style.focusMutedTextColor;
+        _primaryColor = color.resolve({MaterialState.focused});
+        _textColor = foregroundColor.resolve({MaterialState.focused});
+        _mutedTextColor = mutedForegroundColor.resolve({MaterialState.focused});
       });
       if (widget.onFocus != null) {
         widget.onFocus!();
@@ -348,9 +367,9 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
       _animationController.reverse();
       _autoScrollController.stopScroll();
       setState(() {
-        _primaryColor = widget.style.primaryColor;
-        _textColor = widget.style.textColor;
-        _mutedTextColor = widget.style.mutedTextColor;
+        _primaryColor = color.resolve({});
+        _textColor = foregroundColor.resolve({});
+        _mutedTextColor = mutedForegroundColor.resolve({});
       });
     }
   }

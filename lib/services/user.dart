@@ -20,7 +20,7 @@ class UserService {
     return results;
   }
 
-  Future<User> getUser(int id) async {
+  Future<User> getUserDetails(int id) async {
     final res = await dio
         .get<Map<String, dynamic>>("/users/$id")
         .catchError((e) => throw mapToServerError(e));
@@ -32,8 +32,18 @@ class UserService {
     final instance = await SharedPreferences.getInstance();
     final userId = instance.getInt("userId");
     if (userId != null) {
-      return getUser(userId);
+      return getUserDetails(userId);
     }
+  }
+
+  Future<void> setUser(int id) async {
+    final instance = await SharedPreferences.getInstance();
+    instance.setInt("userId", id);
+  }
+
+  Future<void> clearUser(int id) async {
+    final instance = await SharedPreferences.getInstance();
+    instance.remove("userId");
   }
 
   Future<void> createUser(String username) async {
@@ -46,6 +56,12 @@ class UserService {
   Future<void> saveTraktToken(int userId, TraktToken token) async {
     await dio
         .post("/users/$userId/trakt/activate", data: token.toJson())
+        .catchError((e) => throw mapToServerError(e));
+  }
+
+  Future<void> deleteTraktToken(int userId) async {
+    await dio
+        .get("/users/$userId/trakt/deactivate")
         .catchError((e) => throw mapToServerError(e));
   }
 

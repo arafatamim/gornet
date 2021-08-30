@@ -2,29 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:ticker_text/ticker_text.dart';
 
-enum Borders { left, middle, right, all }
-
-class CustomTouchableStyle {
-  final Color textColor;
-  final Color focusTextColor;
-  final Color mutedTextColor;
-  final Color focusMutedTextColor;
-  final Color primaryColor;
-  final Color focusPrimaryColor;
-  final Borders? borders;
-  final double? cardHeight;
-  const CustomTouchableStyle({
-    this.textColor = Colors.white,
-    this.focusTextColor = Colors.black,
-    this.mutedTextColor = const Color(0xFFE0E0E0),
-    this.focusMutedTextColor = const Color(0xFF757575),
-    this.primaryColor = const Color(0x66000000),
-    this.focusPrimaryColor = Colors.white,
-    this.cardHeight = 80,
-    this.borders = Borders.all,
-  });
-}
-
 class RoundedCard extends StatefulWidget {
   const RoundedCard({
     Key? key,
@@ -33,7 +10,10 @@ class RoundedCard extends StatefulWidget {
     this.leading,
     this.scrollAxis = Axis.vertical,
     this.onTap,
-    this.style = const CustomTouchableStyle(),
+    this.color,
+    this.height = 80,
+    this.foregroundColor,
+    this.mutedForegroundColor,
   }) : super(key: key);
 
   final String? title;
@@ -41,7 +21,10 @@ class RoundedCard extends StatefulWidget {
   final Widget? leading;
   final Axis scrollAxis;
   final void Function()? onTap;
-  final CustomTouchableStyle style;
+  final MaterialStateProperty<Color>? color;
+  final MaterialStateProperty<Color>? foregroundColor;
+  final MaterialStateProperty<Color>? mutedForegroundColor;
+  final double? height;
 
   @override
   _RoundedCardState createState() => _RoundedCardState();
@@ -55,6 +38,27 @@ class _RoundedCardState extends State<RoundedCard>
   late final CurvedAnimation _animation;
 
   bool get focused => _node.hasFocus;
+  MaterialStateProperty<Color> get color =>
+      widget.color ??
+      MaterialStateProperty.resolveWith(
+        (states) => states.contains(MaterialState.focused)
+            ? Colors.white.withAlpha(250)
+            : Colors.black.withAlpha(150),
+      );
+  MaterialStateProperty<Color> get foregroundColor =>
+      widget.foregroundColor ??
+      MaterialStateProperty.resolveWith(
+        (states) => states.contains(MaterialState.focused)
+            ? Colors.black
+            : Colors.white.withAlpha(200),
+      );
+  MaterialStateProperty<Color> get mutedForegroundColor =>
+      widget.mutedForegroundColor ??
+      MaterialStateProperty.resolveWith(
+        (states) => states.contains(MaterialState.focused)
+            ? Colors.grey.shade600
+            : Colors.grey.shade500,
+      );
 
   @override
   void initState() {
@@ -130,8 +134,8 @@ class _RoundedCardState extends State<RoundedCard>
         style: Theme.of(context).textTheme.bodyText2?.copyWith(
               fontWeight: FontWeight.w400,
               color: focused
-                  ? widget.style.focusTextColor
-                  : widget.style.textColor,
+                  ? foregroundColor.resolve({MaterialState.focused})
+                  : foregroundColor.resolve({}),
               fontSize: 20,
             ),
       ),
@@ -151,8 +155,8 @@ class _RoundedCardState extends State<RoundedCard>
           overflow: TextOverflow.clip,
           style: Theme.of(context).textTheme.bodyText2?.copyWith(
                 color: focused
-                    ? widget.style.focusMutedTextColor
-                    : widget.style.mutedTextColor,
+                    ? mutedForegroundColor.resolve({MaterialState.focused})
+                    : mutedForegroundColor.resolve({}),
                 fontSize: 16,
               ),
         ),
@@ -171,8 +175,8 @@ class _RoundedCardState extends State<RoundedCard>
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
             color: focused
-                ? widget.style.focusPrimaryColor
-                : widget.style.primaryColor,
+                ? color.resolve({MaterialState.focused})
+                : color.resolve({}),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withAlpha(150),
@@ -181,7 +185,7 @@ class _RoundedCardState extends State<RoundedCard>
               )
             ],
           ),
-          height: widget.style.cardHeight,
+          height: widget.height,
           margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -193,12 +197,10 @@ class _RoundedCardState extends State<RoundedCard>
                 child: Center(
                   child: widget.leading != null
                       ? widget.leading!
-                      : Icon(
-                          FeatherIcons.playCircle,
+                      : Icon(FeatherIcons.playCircle,
                           color: focused
-                              ? widget.style.focusTextColor
-                              : widget.style.textColor,
-                        ),
+                              ? foregroundColor.resolve({MaterialState.focused})
+                              : foregroundColor.resolve({})),
                 ),
               ),
               Expanded(

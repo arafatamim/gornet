@@ -11,7 +11,7 @@ import 'package:goribernetflix/services/api.dart';
 import 'package:goribernetflix/widgets/detail_shell.dart';
 import 'package:goribernetflix/widgets/error.dart';
 import 'package:goribernetflix/widgets/label.dart';
-import 'package:goribernetflix/widgets/rounded_card.dart';
+import 'package:goribernetflix/widgets/wide_tile.dart';
 import 'package:ticker_text/ticker_text.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:provider/provider.dart';

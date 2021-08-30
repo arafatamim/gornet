@@ -1,52 +1,21 @@
-import 'package:goribernetflix/widgets/rounded_card.dart';
 import 'package:flutter/material.dart';
 
-abstract class CustomTouchableStateProperty<T> {
-  T resolve(Set<MaterialState> states);
-
-  static T resolveAs<T>(T value, Set<MaterialState> states) {
-    if (value is CustomTouchableStateProperty<T>) {
-      final CustomTouchableStateProperty<T> property = value;
-      return property.resolve(states);
-    }
-    return value;
-  }
-
-  static CustomTouchableStateProperty<T> resolveWith<T>(
-          MaterialPropertyResolver<T> callback) =>
-      _CustomTouchableStatePropertyWith<T>(callback);
-
-  static CustomTouchableStateProperty<T> all<T>(T value) =>
-      _MaterialStatePropertyAll<T>(value);
-}
-
-class _CustomTouchableStatePropertyWith<T>
-    implements CustomTouchableStateProperty<T> {
-  _CustomTouchableStatePropertyWith(this._resolve);
-
-  final MaterialPropertyResolver<T> _resolve;
-
-  @override
-  T resolve(Set<MaterialState> states) => _resolve(states);
-}
-
-class _MaterialStatePropertyAll<T> implements CustomTouchableStateProperty<T> {
-  _MaterialStatePropertyAll(this.value);
-
-  final T value;
-
-  @override
-  T resolve(Set<MaterialState> states) => value;
-}
+enum Borders { left, middle, right, all }
 
 class ResponsiveButton extends StatefulWidget {
-  final CustomTouchableStyle style;
+  final MaterialStateProperty<Color>? color;
+  final MaterialStateProperty<Color>? foregroundColor;
+  final Borders? borders;
   final String label;
+  final String? tooltip;
   final IconData? icon;
   final VoidCallback onPressed;
 
   const ResponsiveButton({
-    this.style = const CustomTouchableStyle(),
+    this.color,
+    this.foregroundColor,
+    this.tooltip,
+    this.borders,
     required this.label,
     required this.onPressed,
     this.icon,
@@ -58,16 +27,32 @@ class ResponsiveButton extends StatefulWidget {
 
 class ResponsiveButtonState<T extends ResponsiveButton>
     extends State<ResponsiveButton> {
+  MaterialStateProperty<Color> get color =>
+      widget.color ??
+      MaterialStateProperty.resolveWith(
+        (states) => states.contains(MaterialState.focused)
+            ? Colors.white
+            : Colors.black.withAlpha(150),
+      );
+  MaterialStateProperty<Color> get foregroundColor =>
+      widget.foregroundColor ??
+      MaterialStateProperty.resolveWith(
+        (states) => states.contains(MaterialState.focused)
+            ? Colors.black
+            : Colors.white.withAlpha(200),
+      );
+
   late Color primaryColor;
   late Color textColor;
+
   final FocusNode _focusNode = FocusNode();
   final _borderRadius = 6.0;
 
   @override
   void initState() {
     _focusNode.addListener(_onFocusChange);
-    primaryColor = widget.style.primaryColor;
-    textColor = widget.style.textColor;
+    primaryColor = color.resolve({});
+    textColor = foregroundColor.resolve({});
     super.initState();
   }
 
@@ -80,13 +65,13 @@ class ResponsiveButtonState<T extends ResponsiveButton>
   void _onFocusChange() {
     if (_focusNode.hasFocus) {
       setState(() {
-        primaryColor = widget.style.focusPrimaryColor;
-        textColor = widget.style.focusTextColor;
+        primaryColor = color.resolve({MaterialState.focused});
+        textColor = foregroundColor.resolve({MaterialState.focused});
       });
     } else {
       setState(() {
-        primaryColor = widget.style.primaryColor;
-        textColor = widget.style.textColor;
+        primaryColor = color.resolve({});
+        textColor = foregroundColor.resolve({});
       });
     }
   }
@@ -108,16 +93,16 @@ class ResponsiveButtonState<T extends ResponsiveButton>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          borderRadius: widget.style.borders == Borders.right
+          borderRadius: widget.borders == Borders.right
               ? BorderRadius.only(
                   topRight: Radius.circular(_borderRadius),
                   bottomRight: Radius.circular(_borderRadius),
                 )
-              : widget.style.borders == Borders.left
+              : widget.borders == Borders.left
                   ? BorderRadius.only(
                       topLeft: Radius.circular(_borderRadius),
                       bottomLeft: Radius.circular(_borderRadius))
-                  : widget.style.borders == Borders.middle
+                  : widget.borders == Borders.middle
                       ? const BorderRadius.only()
                       : BorderRadius.circular(_borderRadius),
           color: primaryColor,
@@ -151,7 +136,7 @@ class ResponsiveButtonState<T extends ResponsiveButton>
       return IconButton(
         onPressed: widget.onPressed,
         icon: Icon(widget.icon!),
-        tooltip: "Add to list",
+        tooltip: widget.tooltip ?? widget.label,
       );
     } else {
       return TextButton(onPressed: widget.onPressed, child: Text(widget.label));

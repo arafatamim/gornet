@@ -1,4 +1,3 @@
-import 'package:goribernetflix/widgets/rounded_card.dart';
 import 'package:flutter/material.dart';
 
 class TextKey extends StatefulWidget {
@@ -8,7 +7,8 @@ class TextKey extends StatefulWidget {
     this.icon,
     this.onTap,
     this.flex = 1,
-    this.style = const CustomTouchableStyle(textColor: Color(0xFFD6D6D6)),
+    this.color,
+    this.foregroundColor,
   })  : assert(
           icon != null || text != null,
           "Either icon or text must be specified",
@@ -19,7 +19,8 @@ class TextKey extends StatefulWidget {
   final IconData? icon;
   final ValueSetter<String?>? onTap;
   final int flex;
-  final CustomTouchableStyle style;
+  final MaterialStateColor? color;
+  final MaterialStateColor? foregroundColor;
 
   @override
   _TextKeyState createState() => _TextKeyState();
@@ -29,13 +30,26 @@ class _TextKeyState extends State<TextKey> with TickerProviderStateMixin {
   late FocusNode _node;
   late Color _primaryColor;
   late Color _textColor;
-  // late Color _mutedTextColor;
+
+  MaterialStateColor get color =>
+      widget.color ??
+      MaterialStateColor.resolveWith(
+        (states) => states.contains(MaterialState.focused)
+            ? Colors.white
+            : Colors.black.withAlpha(100),
+      );
+  MaterialStateColor get foregroundColor =>
+      widget.foregroundColor ??
+      MaterialStateColor.resolveWith(
+        (states) => states.contains(MaterialState.focused)
+            ? Colors.black
+            : Colors.white,
+      );
 
   @override
   void initState() {
-    _primaryColor = widget.style.primaryColor;
-    _textColor = widget.style.textColor;
-    // _mutedTextColor = widget.style.mutedTextColor;
+    _primaryColor = color.resolve({});
+    _textColor = foregroundColor.resolve({});
 
     _node = FocusNode();
     _node.addListener(_onFocusChange);
@@ -46,15 +60,13 @@ class _TextKeyState extends State<TextKey> with TickerProviderStateMixin {
   void _onFocusChange() {
     if (_node.hasFocus) {
       setState(() {
-        _primaryColor = widget.style.focusPrimaryColor;
-        _textColor = widget.style.focusTextColor;
-        // _mutedTextColor = widget.style.focusMutedTextColor;
+        _primaryColor = color.resolve({MaterialState.focused});
+        _textColor = foregroundColor.resolve({MaterialState.focused});
       });
     } else {
       setState(() {
-        _primaryColor = widget.style.primaryColor;
-        _textColor = widget.style.textColor;
-        // _mutedTextColor = widget.style.mutedTextColor;
+        _primaryColor = color.resolve({});
+        _textColor = foregroundColor.resolve({});
       });
     }
   }

@@ -1,17 +1,14 @@
-import 'package:goribernetflix/widgets/rounded_card.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
 class AnimatedIconButton extends StatefulWidget {
   final VoidCallback? onPressed;
-  final CustomTouchableStyle style;
   final Widget icon;
   final Widget label;
   final Duration duration;
   final bool autofocus;
   const AnimatedIconButton({
     this.onPressed,
-    this.style = const CustomTouchableStyle(),
     required this.icon,
     required this.label,
     this.duration = const Duration(milliseconds: 150),

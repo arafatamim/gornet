@@ -5,6 +5,7 @@ import 'package:goribernetflix/pages/search_page.dart';
 import 'package:goribernetflix/pages/settings_page.dart';
 import 'package:goribernetflix/services/favorites.dart';
 import 'package:goribernetflix/services/next_up.dart';
+import 'package:goribernetflix/services/trakt.dart';
 import 'package:goribernetflix/services/user.dart';
 import 'package:goribernetflix/services/api.dart';
 import 'package:goribernetflix/theme/modern.dart';
@@ -52,6 +53,17 @@ class MyApp extends StatelessWidget {
         ),
         Provider<UserService>(
           create: (_) => UserService(dioClient: dio),
+        ),
+        Provider<TraktService>(
+          create: (_) => TraktService(
+            dioClient: Dio(
+              BaseOptions(
+                baseUrl: "https://api.trakt.tv",
+                responseType: ResponseType.json,
+                receiveDataWhenStatusError: true,
+              ),
+            ),
+          ),
         )
       ],
       child: Shortcuts(
