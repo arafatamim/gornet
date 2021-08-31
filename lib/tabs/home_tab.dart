@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:goribernetflix/result_endpoint.dart';
 import 'package:goribernetflix/models/models.dart';
 import 'package:goribernetflix/models/user.dart';
 import 'package:goribernetflix/services/api.dart';
@@ -137,9 +138,7 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
             maxHeight: 450,
             child: CoverListViewBuilder(
               results: Provider.of<FtpbdService>(context).search(
-                "movie",
-                "latest",
-                limit: 10,
+                ResultEndpoint.popular(MediaType.movie),
               ),
               separator: false,
               controller: _controller,
@@ -151,9 +150,7 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
             maxHeight: 450,
             child: CoverListViewBuilder(
               results: Provider.of<FtpbdService>(context).search(
-                "series",
-                "latest",
-                limit: 10,
+                ResultEndpoint.popular(MediaType.series),
               ),
               separator: false,
             ),

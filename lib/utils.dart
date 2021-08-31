@@ -99,7 +99,7 @@ Future<SearchResult> mapIdToSearchResult(
 ServerError mapToServerError(dynamic e) {
   if (e is DioError) {
     if (e.response?.data != null) {
-      return ServerError.fromJson(e.response!.data! as Map<String, dynamic>);
+      return ServerError.fromMap(e.response!.data! as Map<String, dynamic>);
     } else {
       return ServerError(message: e.message);
     }

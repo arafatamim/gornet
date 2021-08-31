@@ -1,36 +1,32 @@
 import 'package:goribernetflix/models/models.dart';
 import 'package:dio/dio.dart';
 import 'package:goribernetflix/utils.dart';
+import 'package:goribernetflix/result_endpoint.dart';
 
 class FtpbdService {
   final Dio dio;
 
   FtpbdService({required Dio dioClient}) : dio = dioClient;
 
-  /// [mediaType] must be `movie` or `series`
-  Future<List<SearchResult>> search(
-    String mediaType,
-    String endpoint, {
-    int limit = 6,
-    String? query,
-  }) async {
-    assert(mediaType == "movie" || mediaType == "series");
-    assert(endpoint == "search" || endpoint == "latest");
-    assert(endpoint == "search" ? query != null : true);
+  Future<List<SearchResult>> search(ResultEndpoint endpoint) async {
+    final client = endpoint.where(
+      search: (query, mediaType, [limit]) {
+        return dio.get(
+          "/${mediaType.value}/search",
+          queryParameters: {
+            'limit': limit.toString(),
+            'query': query,
+          },
+        );
+      },
+      popular: (mediaType) {
+        return dio.get("/${mediaType.value}/popular");
+      },
+    ).catchError((e) => throw mapToServerError(e));
 
-    String pathname;
-    if (query != null) {
-      pathname = "/$mediaType/$endpoint";
-    } else {
-      pathname = "/$mediaType/$endpoint";
-    }
-
-    final res = await dio.get<Map<String, dynamic>>(pathname, queryParameters: {
-      'limit': limit.toString(),
-      'query': query,
-    }).catchError((e) => throw mapToServerError(e));
+    final res = await client;
     final payload = res.data?['payload'] as List<dynamic>;
-    final results = payload.map((e) => SearchResult.fromJson(e)).toList();
+    final results = payload.map((e) => SearchResult.fromMap(e)).toList();
     return results;
   }
 
@@ -42,7 +38,7 @@ class FtpbdService {
     }).catchError((e) => throw mapToServerError(e));
 
     final payload = res.data?['payload'] as List<dynamic>;
-    final results = payload.map((e) => SearchResult.fromJson(e)).toList();
+    final results = payload.map((e) => SearchResult.fromMap(e)).toList();
     return results;
   }
 
@@ -52,7 +48,7 @@ class FtpbdService {
         .catchError((e) => throw mapToServerError(e));
 
     Map<String, dynamic> payload = res.data?['payload'] as Map<String, dynamic>;
-    return Movie.fromJson(payload);
+    return Movie.fromMap(payload);
   }
 
   Future<Series> getSeries(String id) async {
@@ -61,7 +57,7 @@ class FtpbdService {
         .catchError((e) => throw mapToServerError(e));
 
     Map<String, dynamic> payload = res.data?['payload'] as Map<String, dynamic>;
-    return Series.fromJson(payload);
+    return Series.fromMap(payload);
   }
 
   Future<List<Season>> getSeasons(String id) async {
@@ -70,7 +66,7 @@ class FtpbdService {
         .catchError((e) => throw mapToServerError(e));
 
     final payload = res.data?['payload'] as List<dynamic>;
-    return payload.map((e) => Season.fromJson(e)).toList();
+    return payload.map((e) => Season.fromMap(e)).toList();
   }
 
   Future<Season> getSeason(String seriesId, int seasonIndex) async {
@@ -78,7 +74,7 @@ class FtpbdService {
         .get<Map<String, dynamic>>("/series/$seriesId/seasons/$seasonIndex")
         .catchError((e) => throw mapToServerError(e));
 
-    return Season.fromJson(res.data?["payload"] as Map<String, dynamic>);
+    return Season.fromMap(res.data?["payload"] as Map<String, dynamic>);
   }
 
   Future<Episode> getEpisode(
@@ -91,7 +87,7 @@ class FtpbdService {
             "/series/$seriesId/seasons/$seasonIndex/episodes/$episodeIndex")
         .catchError((e) => throw mapToServerError(e));
 
-    return Episode.fromJson(res.data?["payload"] as Map<String, dynamic>);
+    return Episode.fromMap(res.data?["payload"] as Map<String, dynamic>);
   }
 
   Future<List<Episode>> getEpisodes(String seriesId, int seasonIndex) async {
@@ -101,7 +97,7 @@ class FtpbdService {
         .catchError((e) => throw mapToServerError(e));
 
     final payload = res.data?['payload'] as List<dynamic>;
-    return payload.map((e) => Episode.fromJson(e)).toList();
+    return payload.map((e) => Episode.fromMap(e)).toList();
   }
 
   Future<List<MediaSource>> getSources({
@@ -117,7 +113,7 @@ class FtpbdService {
         .catchError((e) => throw mapToServerError(e));
 
     final payload = res.data?['payload'] as List<dynamic>;
-    return MediaSource.fromJsonList(payload);
+    return MediaSource.fromMapList(payload);
   }
 
   Future<List<SearchResult>> getSimilar(String id, MediaType mediaType) async {
@@ -127,7 +123,7 @@ class FtpbdService {
         .catchError((e) => throw mapToServerError(e));
 
     final payload = res.data?['payload'] as List<Map<String, dynamic>>;
-    final results = payload.map((e) => SearchResult.fromJson(e)).toList();
+    final results = payload.map((e) => SearchResult.fromMap(e)).toList();
     return results;
   }
 }
@@ -135,7 +131,7 @@ class FtpbdService {
 class SearchModel {
   final String type;
   final String payload;
-  SearchModel.fromJson(Map<String, dynamic> json)
+  SearchModel.fromMap(Map<String, dynamic> json)
       : type = json["type"] as String,
         payload = json["payload"] as String;
 }
@@ -144,7 +140,7 @@ class SearchModel {
 //   late final WebSocketChannel _channel;
 
 //   Stream<SearchModel> get searchStream =>
-//       _channel.stream.map((event) => SearchModel.fromJson(event));
+//       _channel.stream.map((event) => SearchModel.fromMap(event));
 //   WebSocketSink get searchSink => _channel.sink;
 
 //   SearchService() {

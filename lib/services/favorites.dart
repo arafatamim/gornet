@@ -12,7 +12,7 @@ class FavoritesService {
         .get<Map<String, dynamic>>("/users/$userId/favorites")
         .catchError((e) => throw mapToServerError(e));
     return (res.data?["payload"] as List<dynamic>)
-        .map((e) => SearchResult.fromJson(e))
+        .map((e) => SearchResult.fromMap(e))
         .toList();
   }
 

@@ -1,4 +1,6 @@
 import 'package:flutter/services.dart';
+import 'package:goribernetflix/result_endpoint.dart';
+import 'package:goribernetflix/models/models.dart';
 import 'package:goribernetflix/models/user.dart';
 import 'package:goribernetflix/services/api.dart';
 import 'package:goribernetflix/services/favorites.dart';
@@ -121,16 +123,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                       ItemsTab(
                         future: Provider.of<FtpbdService>(context).search(
-                          "movie",
-                          "latest",
-                          limit: 24,
+                          ResultEndpoint.popular(MediaType.movie),
                         ),
                       ),
                       ItemsTab(
                         future: Provider.of<FtpbdService>(context).search(
-                          "series",
-                          "latest",
-                          limit: 24,
+                          ResultEndpoint.popular(MediaType.series),
                         ),
                       ),
                     ],
