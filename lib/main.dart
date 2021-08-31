@@ -1,42 +1,45 @@
-import 'package:goribernetflix/models/models.dart';
-import 'package:goribernetflix/pages/home_page.dart';
-import 'package:goribernetflix/pages/detail_page.dart';
-import 'package:goribernetflix/pages/search_page.dart';
-import 'package:goribernetflix/pages/settings_page.dart';
-import 'package:goribernetflix/services/favorites.dart';
-import 'package:goribernetflix/services/next_up.dart';
-import 'package:goribernetflix/services/trakt.dart';
-import 'package:goribernetflix/services/user.dart';
-import 'package:goribernetflix/services/api.dart';
-import 'package:goribernetflix/theme/modern.dart';
-import 'package:goribernetflix/utils.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-void main() {
-  runApp(MyApp());
-}
+import 'package:goribernetflix/models/models.dart';
+import 'package:goribernetflix/pages/detail_page.dart';
+import 'package:goribernetflix/pages/home_page.dart';
+import 'package:goribernetflix/pages/search_page.dart';
+import 'package:goribernetflix/pages/settings_page.dart';
+import 'package:goribernetflix/services/api.dart';
+import 'package:goribernetflix/services/favorites.dart';
+import 'package:goribernetflix/services/next_up.dart';
+import 'package:goribernetflix/services/trakt.dart';
+import 'package:goribernetflix/services/user.dart';
+import 'package:goribernetflix/theme/modern.dart';
+import 'package:goribernetflix/utils.dart';
 
-class MyApp extends StatelessWidget {
-  final Dio dio = Dio(
+void main() async {
+  final dio = Dio(
     BaseOptions(
       baseUrl: "http://192.168.0.100:6767/api",
       responseType: ResponseType.json,
       receiveDataWhenStatusError: true,
     ),
   )..interceptors.addAll([
-      // InterceptorsWrapper(
-      //   onError: (DioError e, _handler) {
-      //     throw ServerError.fromJson(e.response?.data ?? "Woooooaahh");
-      //     // print(e.message);
-      //     // return _handler.next(e);
-      //   },
-      // ),
-      DioCacheInterceptor(options: cacheOptions)
+      DioCacheInterceptor(
+        options: await cacheOptions(),
+      ),
     ]);
+
+  runApp(MyApp(dio: dio));
+}
+
+class MyApp extends StatelessWidget {
+  final Dio dio;
+
+  const MyApp({
+    Key? key,
+    required this.dio,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

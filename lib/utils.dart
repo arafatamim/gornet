@@ -3,6 +3,7 @@ import 'package:goribernetflix/models/models.dart';
 import 'package:goribernetflix/services/api.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
+import 'package:path_provider/path_provider.dart';
 
 String formatBytes(int bytes, {int decimals = 1}) {
   if (bytes == 0) return "0 Bytes";
@@ -50,23 +51,23 @@ extension CapExtension on String {
       split(" ").map((str) => str.capitalizeFirst).join(" ");
 }
 
-final cacheOptions = CacheOptions(
-  store: MemCacheStore(), // TODO replace it
-  policy: CachePolicy.request,
-  // Optional. Returns a cached response on error but for statuses 401 & 403.
-  hitCacheOnErrorExcept: [401, 403],
-  // Optional. Overrides any HTTP directive to delete entry past this duration.
-  maxStale: const Duration(days: 7),
-  // Default. Allows 3 cache sets and ease cleanup.
-  priority: CachePriority.normal,
-  // Default. Body and headers encryption with your own algorithm.
-  cipher: null,
-  // Default. Key builder to retrieve requests.
-  keyBuilder: CacheOptions.defaultCacheKeyBuilder,
-  // Default. Allows to cache POST requests.
-  // Overriding [keyBuilder] is strongly recommended.
-  allowPostMethod: false,
-);
+Future<CacheOptions> cacheOptions() async => CacheOptions(
+      store: FileCacheStore((await getTemporaryDirectory()).path),
+      policy: CachePolicy.request,
+      // Optional. Returns a cached response on error but for statuses 401 & 403.
+      hitCacheOnErrorExcept: [401, 403],
+      // Optional. Overrides any HTTP directive to delete entry past this duration.
+      maxStale: const Duration(days: 7),
+      // Default. Allows 3 cache sets and ease cleanup.
+      priority: CachePriority.normal,
+      // Default. Body and headers encryption with your own algorithm.
+      cipher: null,
+      // Default. Key builder to retrieve requests.
+      keyBuilder: CacheOptions.defaultCacheKeyBuilder,
+      // Default. Allows to cache POST requests.
+      // Overriding [keyBuilder] is strongly recommended.
+      allowPostMethod: false,
+    );
 
 Future<SearchResult> mapIdToSearchResult(
   MediaType mediaType,
