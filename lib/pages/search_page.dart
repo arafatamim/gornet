@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:goribernetflix/models/models.dart';
+import 'package:goribernetflix/result_endpoint.dart';
 import 'package:goribernetflix/services/api.dart';
 import 'package:goribernetflix/widgets/cover.dart';
 import 'package:goribernetflix/widgets/error.dart';
@@ -23,7 +24,7 @@ class SearchStore extends ChangeNotifier {
       final results = await Provider.of<FtpbdService>(
         context,
         listen: false,
-      ).multiSearch(query: query);
+      ).search(ResultEndpoint.multiSearch(query));
       response = Deferred.success(results);
     } catch (e, s) {
       response = Deferred.error(e, s);

@@ -9,34 +9,29 @@ class FtpbdService {
   FtpbdService({required Dio dioClient}) : dio = dioClient;
 
   Future<List<SearchResult>> search(ResultEndpoint endpoint) async {
-    final client = endpoint.where(
-      search: (query, mediaType, [limit]) {
-        return dio.get(
-          "/${mediaType.value}/search",
-          queryParameters: {
-            'limit': limit.toString(),
-            'query': query,
-          },
-        );
-      },
-      popular: (mediaType) {
-        return dio.get("/${mediaType.value}/popular");
-      },
-    ).catchError((e) => throw mapToServerError(e));
+    final client = endpoint
+        .where(
+          search: (query, mediaType, [limit]) => dio.get(
+            "/${mediaType.value}/search",
+            queryParameters: {
+              'limit': limit.toString(),
+              'query': query,
+            },
+          ),
+          popular: (mediaType) => dio.get(
+            "/${mediaType.value}/popular",
+          ),
+          multiSearch: (query) => dio.get<Map<String, dynamic>>(
+            "/search/multi",
+            queryParameters: {'query': query},
+          ),
+          similar: (id, mediaType) => dio.get<Map<String, dynamic>>(
+            "/${mediaType.value}/$id/similar",
+          ),
+        )
+        .catchError((e) => throw mapToServerError(e));
 
     final res = await client;
-    final payload = res.data?['payload'] as List<dynamic>;
-    final results = payload.map((e) => SearchResult.fromMap(e)).toList();
-    return results;
-  }
-
-  /// [mediaType] must be `movie` or `series`
-  Future<List<SearchResult>> multiSearch({required String query}) async {
-    final res =
-        await dio.get<Map<String, dynamic>>("/search/multi", queryParameters: {
-      'query': query,
-    }).catchError((e) => throw mapToServerError(e));
-
     final payload = res.data?['payload'] as List<dynamic>;
     final results = payload.map((e) => SearchResult.fromMap(e)).toList();
     return results;
@@ -114,17 +109,6 @@ class FtpbdService {
 
     final payload = res.data?['payload'] as List<dynamic>;
     return MediaSource.fromMapList(payload);
-  }
-
-  Future<List<SearchResult>> getSimilar(String id, MediaType mediaType) async {
-    final res = await dio
-        .get<Map<String, dynamic>>(
-            "/${mediaType == MediaType.movie ? "movie" : "series"}/$id/similar")
-        .catchError((e) => throw mapToServerError(e));
-
-    final payload = res.data?['payload'] as List<Map<String, dynamic>>;
-    final results = payload.map((e) => SearchResult.fromMap(e)).toList();
-    return results;
   }
 }
 
