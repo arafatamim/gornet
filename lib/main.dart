@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:goribernetflix/scale_page_transition.dart';
 import 'package:provider/provider.dart';
 
 import 'package:goribernetflix/models/models.dart';
@@ -80,22 +81,21 @@ class MyApp extends StatelessWidget {
           home: const HomePage(title: 'Goriber Netflix'),
           onGenerateRoute: (settings) {
             if (settings.name == "/detail") {
-              return MaterialPageRoute(
+              return ScaleRoute(
                 settings: const RouteSettings(name: "detail"),
-                builder: (context) =>
-                    DetailPage(settings.arguments as SearchResult),
+                page: DetailPage(settings.arguments as SearchResult),
               );
             }
             if (settings.name == "/search") {
-              return MaterialPageRoute(
+              return ScaleRoute(
                 settings: const RouteSettings(name: "search"),
-                builder: (context) => SearchPage(),
+                page: SearchPage(),
               );
             }
             if (settings.name == "/settings") {
-              return MaterialPageRoute(
+              return ScaleRoute(
                 settings: const RouteSettings(name: "settings"),
-                builder: (context) => SettingsPage(),
+                page: SettingsPage(),
               );
             }
           },
