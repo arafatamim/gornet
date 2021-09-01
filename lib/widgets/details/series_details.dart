@@ -179,6 +179,8 @@ class SeriesDetails extends StatelessWidget {
               ),
               leading: const Icon(FeatherIcons.clock),
             ),
+          if (series.networks != null && series.networks!.isNotEmpty)
+            MetaLabel(series.networks![0].name),
           if (series.ageRating != null)
             MetaLabel(series.ageRating!, hasBackground: true),
         ],
