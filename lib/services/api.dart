@@ -10,16 +10,25 @@ class FtpbdService {
 
   Future<List<SearchResult>> search(ResultEndpoint endpoint) async {
     final client = endpoint
-        .where(
-          search: (query, mediaType, [limit]) => dio.get(
+        .where<Future<Response<Map<String, dynamic>>>>(
+          search: (query, mediaType, [limit]) => dio.get<Map<String, dynamic>>(
             "/${mediaType.value}/search",
             queryParameters: {
               'limit': limit.toString(),
               'query': query,
             },
           ),
-          popular: (mediaType) => dio.get(
-            "/${mediaType.value}/popular",
+          // popular: (mediaType) => dio.get(
+          //   "/${mediaType.value}/popular",
+          // ),
+          discover: (mediaType, {genres, networks, people}) =>
+              dio.get<Map<String, dynamic>>(
+            "/${mediaType.value}/discover",
+            queryParameters: {
+              'networks': networks?.join(","),
+              'genres': genres?.join(","),
+              'people': people?.join(",")
+            },
           ),
           multiSearch: (query) => dio.get<Map<String, dynamic>>(
             "/search/multi",

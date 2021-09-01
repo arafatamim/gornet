@@ -123,12 +123,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                       ItemsTab(
                         future: Provider.of<FtpbdService>(context).search(
-                          ResultEndpoint.popular(MediaType.movie),
+                          ResultEndpoint.discover(MediaType.movie),
                         ),
                       ),
                       ItemsTab(
                         future: Provider.of<FtpbdService>(context).search(
-                          ResultEndpoint.popular(MediaType.series),
+                          ResultEndpoint.discover(MediaType.series),
                         ),
                       ),
                     ],

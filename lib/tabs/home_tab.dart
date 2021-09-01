@@ -1,18 +1,18 @@
 import 'dart:math';
 
-import 'package:goribernetflix/result_endpoint.dart';
+import 'package:deferred_type/deferred_type.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'package:goribernetflix/models/models.dart';
 import 'package:goribernetflix/models/user.dart';
+import 'package:goribernetflix/result_endpoint.dart';
 import 'package:goribernetflix/services/api.dart';
 import 'package:goribernetflix/services/user.dart';
+import 'package:goribernetflix/widgets/cover.dart';
 import 'package:goribernetflix/widgets/error.dart';
-import 'package:deferred_type/deferred_type.dart';
 import 'package:goribernetflix/widgets/shimmers.dart';
 import 'package:goribernetflix/widgets/spotlight.dart';
-import 'package:flutter/material.dart';
-
-import 'package:goribernetflix/widgets/cover.dart';
-import 'package:provider/provider.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({Key? key}) : super(key: key);
@@ -133,25 +133,51 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
             ),
           ),
           const SizedBox(height: 40),
-          _buildSectionTitle("Trending this week"),
-          LimitedBox(
-            maxHeight: 450,
-            child: CoverListViewBuilder(
-              results: Provider.of<FtpbdService>(context).search(
-                ResultEndpoint.popular(MediaType.movie),
-              ),
-              separator: false,
-              controller: _controller,
+          Section(
+            title: "Trending this week",
+            fetcher: Provider.of<FtpbdService>(context).search(
+              ResultEndpoint.discover(MediaType.movie),
             ),
           ),
           const SizedBox(height: 40),
-          _buildSectionTitle("Popular on TV"),
+          Section(
+            title: "Airing on Disney+",
+            fetcher: Provider.of<FtpbdService>(context).search(
+                ResultEndpoint.discover(MediaType.series, networks: ["2739"])),
+          ),
+          const SizedBox(height: 40),
+          Section(
+            title: "Apple TV+ Originals",
+            fetcher: Provider.of<FtpbdService>(context).search(
+              ResultEndpoint.discover(MediaType.series, networks: ["2552"]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class Section extends StatelessWidget {
+  final String title;
+  final Future<List<SearchResult>> fetcher;
+
+  const Section({
+    Key? key,
+    required this.title,
+    required this.fetcher,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: <Widget>[
+          _buildSectionTitle(title),
           LimitedBox(
             maxHeight: 450,
             child: CoverListViewBuilder(
-              results: Provider.of<FtpbdService>(context).search(
-                ResultEndpoint.popular(MediaType.series),
-              ),
+              results: fetcher,
               separator: false,
             ),
           ),
@@ -160,16 +186,18 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
     );
   }
 
-  Container _buildSectionTitle(String title) {
-    return Container(
-      margin: const EdgeInsets.only(left: 16),
-      child: Text(
-        title.toUpperCase(),
-        style: Theme.of(context)
-            .textTheme
-            .headline2
-            ?.apply(fontSizeFactor: 0.6, color: Colors.grey.shade300),
-      ),
-    );
+  Widget _buildSectionTitle(String title) {
+    return Builder(builder: (context) {
+      return Container(
+        margin: const EdgeInsets.only(left: 16),
+        child: Text(
+          title.toUpperCase(),
+          style: Theme.of(context)
+              .textTheme
+              .headline2
+              ?.apply(fontSizeFactor: 0.6, color: Colors.grey.shade300),
+        ),
+      );
+    });
   }
 }

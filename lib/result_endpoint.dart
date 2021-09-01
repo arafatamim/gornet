@@ -4,15 +4,26 @@ abstract class ResultEndpoint {
   const ResultEndpoint();
   factory ResultEndpoint.search(String query, MediaType mediaType,
       [int? limit]) = _Search;
-  factory ResultEndpoint.popular(MediaType mediaType) = _Popular;
   factory ResultEndpoint.similar(String id, MediaType mediaType) = _Similar;
   factory ResultEndpoint.multiSearch(String query) = _MultiSearch;
+  factory ResultEndpoint.discover(
+    MediaType mediaType, {
+    List<String>? networks,
+    List<String>? genres,
+    List<String>? people,
+  }) = _Discover;
 
   R where<R>({
     required R Function(String query, MediaType mediaType, [int? limit]) search,
-    required R Function(MediaType mediaType) popular,
     required R Function(String id, MediaType mediaType) similar,
     required R Function(String query) multiSearch,
+    required R Function(
+      MediaType mediaType, {
+      List<String>? networks,
+      List<String>? genres,
+      List<String>? people,
+    })
+        discover,
   }) {
     if (this is _Search) {
       final s = this as _Search;
@@ -21,15 +32,20 @@ abstract class ResultEndpoint {
         s.mediaType,
         s.limit,
       );
-    } else if (this is _Popular) {
-      final p = this as _Popular;
-      return popular(p.mediaType);
     } else if (this is _Similar) {
       final s = this as _Similar;
       return similar(s.id, s.mediaType);
-    } else {
+    } else if (this is _MultiSearch) {
       final m = this as _MultiSearch;
       return multiSearch(m.query);
+    } else {
+      final d = this as _Discover;
+      return discover(
+        d.mediaType,
+        genres: d.genres,
+        networks: d.networks,
+        people: d.people,
+      );
     }
   }
 }
@@ -46,13 +62,21 @@ class _MultiSearch extends ResultEndpoint {
   const _MultiSearch(this.query);
 }
 
-class _Popular extends ResultEndpoint {
-  final MediaType mediaType;
-  const _Popular(this.mediaType);
-}
-
 class _Similar extends ResultEndpoint {
   final String id;
   final MediaType mediaType;
   const _Similar(this.id, this.mediaType);
+}
+
+class _Discover extends ResultEndpoint {
+  final MediaType mediaType;
+  final List<String>? networks;
+  final List<String>? genres;
+  final List<String>? people;
+  const _Discover(
+    this.mediaType, {
+    this.networks,
+    this.genres,
+    this.people,
+  });
 }
