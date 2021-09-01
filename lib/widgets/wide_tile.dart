@@ -43,7 +43,7 @@ class _RoundedCardState extends State<RoundedCard>
       MaterialStateProperty.resolveWith(
         (states) => states.contains(MaterialState.focused)
             ? Colors.white.withAlpha(250)
-            : Colors.black.withAlpha(150),
+            : Colors.black.withAlpha(200),
       );
   MaterialStateProperty<Color> get foregroundColor =>
       widget.foregroundColor ??
@@ -178,11 +178,12 @@ class _RoundedCardState extends State<RoundedCard>
                 ? color.resolve({MaterialState.focused})
                 : color.resolve({}),
             boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(150),
-                blurRadius: 7,
-                offset: const Offset(1, 5),
-              )
+              if (focused)
+                BoxShadow(
+                  color: Colors.black.withAlpha(150),
+                  blurRadius: 7,
+                  offset: const Offset(1, 5),
+                )
             ],
           ),
           height: widget.height,
