@@ -58,14 +58,14 @@ class UserSelector extends StatelessWidget {
               title: Row(children: [
                 const Icon(FeatherIcons.plusCircle),
                 const SizedBox(width: 10),
-                const Text("Add new user")
+                const Text("Add new profile")
               ]),
               onTap: () {
                 showDialog(
                   context: context,
                   builder: (context) {
                     return AlertDialog(
-                      title: const Text("Create user"),
+                      title: const Text("Create profile"),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.of(context).pop(),
@@ -108,7 +108,7 @@ class UserSelector extends StatelessWidget {
             ),
             const ListTile(
               title: Text(
-                "To remove a user, contact administrator.",
+                "To remove a profile, contact administrator.",
                 style: TextStyle(color: Colors.grey),
               ),
             )
