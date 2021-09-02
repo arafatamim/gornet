@@ -26,7 +26,7 @@ class UserSelector extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              currentUser?.username ?? "Select a user",
+              currentUser?.username ?? "Select a profile",
               style: Theme.of(context).textTheme.headline2,
             ),
             const SizedBox(width: 10),
@@ -95,9 +95,7 @@ class UserSelector extends StatelessWidget {
                               ),
                             );
                           }
-                          Navigator.of(context)
-                            ..pop()
-                            ..pop();
+                          Navigator.of(context)..pop()..pop();
                           onChange();
                         },
                       ),

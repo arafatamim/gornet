@@ -19,6 +19,7 @@ import 'package:goribernetflix/theme/modern.dart';
 import 'package:goribernetflix/utils.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   final dio = Dio(
     BaseOptions(
       baseUrl: "http://192.168.0.100:6767/api",
