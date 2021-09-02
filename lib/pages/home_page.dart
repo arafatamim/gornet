@@ -63,8 +63,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final bool isWide = MediaQuery.of(context).size.width > 720;
     isWide
-        ? SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive)
-        : SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+        ? SystemChrome.setEnabledSystemUIOverlays([])
+        : SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
 
     return Scaffold(
       appBar: isWide ? null : _buildAppbar(context),
@@ -269,15 +269,40 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             },
           ),
           const SizedBox(width: 16),
-          AnimatedIconButton(
-            icon: const Icon(FeatherIcons.settings),
-            label: Text(
-              "Settings",
-              style: Theme.of(context).textTheme.bodyText1,
+          FutureBuilder2<User?>(
+            future: Provider.of<UserService>(context).getCurrentUser(),
+            builder: (context, response) => response.where(
+              // add a child to fuurebuilder
+              onSuccess: (user) {
+                if (user == null) {
+                  return AnimatedIconButton(
+                    icon: const Icon(FeatherIcons.settings),
+                    label: Text(
+                      "Settings",
+                      style: Theme.of(context).textTheme.bodyText1,
+                    ),
+                    onPressed: () =>
+                        Navigator.of(context).pushNamed("/settings"),
+                  );
+                }
+                return AnimatedIconButton(
+                  icon: const Icon(FeatherIcons.user),
+                  label: Text(
+                    user.username,
+                    style: Theme.of(context).textTheme.bodyText1,
+                  ),
+                  onPressed: () => Navigator.of(context).pushNamed("/settings"),
+                );
+              },
+              orElse: () => AnimatedIconButton(
+                icon: const Icon(FeatherIcons.userX),
+                label: Text(
+                  "Settings",
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
+                onPressed: () => Navigator.of(context).pushNamed("/settings"),
+              ),
             ),
-            onPressed: () {
-              Navigator.of(context).pushNamed("/settings");
-            },
           ),
           const SizedBox(width: 16),
           Text(

@@ -49,28 +49,6 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          isWide
-              ? FutureBuilder2<User?>(
-                  future: Provider.of<UserService>(context).getCurrentUser(),
-                  builder: (context, response) => response.where(
-                    onSuccess: (user) {
-                      if (user == null) {
-                        return const SizedBox.shrink();
-                      }
-                      return Column(
-                        children: [
-                          Text(
-                            "Welcome back, " + user.username,
-                            style: Theme.of(context).textTheme.headline5,
-                          ),
-                          const SizedBox(height: 10)
-                        ],
-                      );
-                    },
-                    orElse: () => const SizedBox.shrink(),
-                  ),
-                )
-              : const SizedBox.shrink(),
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 400),
             child: Builder(
