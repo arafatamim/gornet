@@ -68,7 +68,7 @@ class _RoundedCardState extends State<RoundedCard>
     _controller = AnimationController(
       duration: const Duration(milliseconds: 100),
       vsync: this,
-      lowerBound: 0.95,
+      lowerBound: 0.98,
       upperBound: 1,
     );
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
