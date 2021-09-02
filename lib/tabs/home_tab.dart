@@ -5,10 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:goribernetflix/models/models.dart';
-import 'package:goribernetflix/models/user.dart';
 import 'package:goribernetflix/result_endpoint.dart';
 import 'package:goribernetflix/services/api.dart';
-import 'package:goribernetflix/services/user.dart';
 import 'package:goribernetflix/widgets/cover.dart';
 import 'package:goribernetflix/widgets/error.dart';
 import 'package:goribernetflix/widgets/shimmers.dart';
@@ -41,7 +39,6 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final isWide = MediaQuery.of(context).size.width > 720;
 
     return SingleChildScrollView(
       clipBehavior: Clip.none,
