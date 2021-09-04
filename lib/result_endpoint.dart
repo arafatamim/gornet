@@ -12,6 +12,7 @@ abstract class ResultEndpoint {
     List<String>? genres,
     List<String>? people,
   }) = _Discover;
+  factory ResultEndpoint.personCredits(String personId) = _PersonCredits;
 
   R where<R>({
     required R Function(String query, MediaType mediaType, [int? limit]) search,
@@ -24,6 +25,7 @@ abstract class ResultEndpoint {
       List<String>? people,
     })
         discover,
+    required R Function(String personId) personCredits,
   }) {
     if (this is _Search) {
       final s = this as _Search;
@@ -38,7 +40,7 @@ abstract class ResultEndpoint {
     } else if (this is _MultiSearch) {
       final m = this as _MultiSearch;
       return multiSearch(m.query);
-    } else {
+    } else if (this is _Discover) {
       final d = this as _Discover;
       return discover(
         d.mediaType,
@@ -46,6 +48,11 @@ abstract class ResultEndpoint {
         networks: d.networks,
         people: d.people,
       );
+    } else if (this is _PersonCredits) {
+      final p = this as _PersonCredits;
+      return personCredits(p.personId);
+    } else {
+      throw Exception("ResultEndpoint case out of bounds!");
     }
   }
 }
@@ -79,4 +86,9 @@ class _Discover extends ResultEndpoint {
     this.genres,
     this.people,
   });
+}
+
+class _PersonCredits extends ResultEndpoint {
+  final String personId;
+  const _PersonCredits(this.personId);
 }

@@ -1,5 +1,6 @@
 import 'package:goribernetflix/models/models.dart';
 import 'package:dio/dio.dart';
+import 'package:goribernetflix/models/person.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:goribernetflix/result_endpoint.dart';
 
@@ -34,6 +35,8 @@ class FtpbdService {
           similar: (id, mediaType) => dio.get<Map<String, dynamic>>(
             "/${mediaType.value}/$id/similar",
           ),
+          personCredits: (personId) =>
+              dio.get<Map<String, dynamic>>("/person/$personId/credits"),
         )
         .catchError((e) => throw mapToServerError(e));
 
@@ -41,6 +44,26 @@ class FtpbdService {
     final payload = res.data?['payload'] as List<dynamic>;
     final results = payload.map((e) => SearchResult.fromMap(e)).toList();
     return results;
+  }
+
+  Future<List<PersonResult>> searchPerson(String query) async {
+    final res = await dio.get<Map<String, dynamic>>(
+      "/person/search",
+      queryParameters: {
+        'query': query,
+      },
+    ).catchError((e) => throw mapToServerError(e));
+
+    final payload = res.data?["payload"] as List<dynamic>;
+    final results = payload.map((e) => PersonResult.fromMap(e)).toList();
+    return results;
+  }
+
+  Future<Person> getPerson(String personId) async {
+    final res =
+        await dio.get<Map<String, dynamic>>("/person/$personId/credits");
+    final payload = res.data?["payload"] as dynamic;
+    return Person.fromMap(payload);
   }
 
   Future<Movie> getMovie(String id) async {
