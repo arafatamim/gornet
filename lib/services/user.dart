@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:goribernetflix/models/models.dart';
 import 'package:goribernetflix/models/trakt_token.dart';
 import 'package:goribernetflix/models/user.dart';
 import 'package:goribernetflix/utils.dart';
@@ -71,5 +72,15 @@ class UserService {
         .catchError((e) => throw mapToServerError(e));
 
     return res.data!["payload"]["activated"] as bool;
+  }
+
+  Future<List<SearchResult>> getTraktWatchlist(int userId) async {
+    final res = await dio
+        .get<Map<String, dynamic>>("/users/$userId/trakt/watchlist")
+        .catchError((e) => throw mapToServerError(e));
+
+    final payload = res.data!["payload"] as List<dynamic>;
+
+    return SearchResult.fromList(payload);
   }
 }

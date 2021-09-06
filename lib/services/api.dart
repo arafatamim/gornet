@@ -1,8 +1,8 @@
+import 'package:goribernetflix/freezed/result_endpoint.dart';
 import 'package:goribernetflix/models/models.dart';
 import 'package:dio/dio.dart';
 import 'package:goribernetflix/models/person.dart';
 import 'package:goribernetflix/utils.dart';
-import 'package:goribernetflix/result_endpoint.dart';
 
 class FtpbdService {
   final Dio dio;
@@ -11,15 +11,16 @@ class FtpbdService {
 
   Future<List<SearchResult>> search(ResultEndpoint endpoint) async {
     final client = endpoint
-        .where<Future<Response<Map<String, dynamic>>>>(
-          search: (query, mediaType, [limit]) => dio.get<Map<String, dynamic>>(
+        .when<Future<Response<Map<String, dynamic>>>>(
+          search: (String query, MediaType mediaType, int? limit) =>
+              dio.get<Map<String, dynamic>>(
             "/${mediaType.value}/search",
             queryParameters: {
               'limit': limit.toString(),
               'query': query,
             },
           ),
-          discover: (mediaType, {genres, networks, people}) =>
+          discover: (mediaType, genres, networks, people) =>
               dio.get<Map<String, dynamic>>(
             "/discover/${mediaType.value}",
             queryParameters: {
@@ -60,8 +61,7 @@ class FtpbdService {
   }
 
   Future<Person> getPerson(String personId) async {
-    final res =
-        await dio.get<Map<String, dynamic>>("/person/$personId/credits");
+    final res = await dio.get<Map<String, dynamic>>("/person/$personId");
     final payload = res.data?["payload"] as dynamic;
     return Person.fromMap(payload);
   }

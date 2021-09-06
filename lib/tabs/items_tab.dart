@@ -1,3 +1,4 @@
+import 'package:goribernetflix/freezed/detail_arguments.dart';
 import 'package:goribernetflix/models/models.dart';
 import 'package:goribernetflix/widgets/error.dart';
 import 'package:goribernetflix/widgets/shimmers.dart';
@@ -121,7 +122,8 @@ class _ItemsTabState extends State<ItemsTab>
           //   focusMutedTextColor: Colors.grey.shade300,
           // ),
           onTap: () {
-            Navigator.pushNamed(context, "/detail", arguments: item);
+            Navigator.pushNamed(context, "/detail",
+                arguments: DetailArgs.media(item));
           },
           // onFocus: () {_toEnd(index, 4);}
         );

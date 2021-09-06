@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:deferred_type/deferred_type.dart';
 import 'package:flutter/material.dart';
+import 'package:goribernetflix/freezed/detail_arguments.dart';
+import 'package:goribernetflix/freezed/result_endpoint.dart';
 import 'package:provider/provider.dart';
-
 import 'package:goribernetflix/models/models.dart';
-import 'package:goribernetflix/result_endpoint.dart';
 import 'package:goribernetflix/services/api.dart';
 import 'package:goribernetflix/widgets/cover.dart';
 import 'package:goribernetflix/widgets/error.dart';
@@ -90,11 +90,13 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
                           Navigator.pushNamed(
                             context,
                             "/detail",
-                            arguments: SearchResult(
-                              id: item.id,
-                              name: item.title ?? "",
-                              isMovie: false,
-                              imageUris: item.imageUris,
+                            arguments: DetailArgs.media(
+                              SearchResult(
+                                id: item.id,
+                                name: item.title ?? "",
+                                isMovie: false,
+                                imageUris: item.imageUris,
+                              ),
                             ),
                           );
                         },
@@ -151,9 +153,32 @@ class Section extends StatelessWidget {
           _buildSectionTitle(title),
           LimitedBox(
             maxHeight: 450,
-            child: CoverListViewBuilder(
-              results: fetcher,
-              separator: false,
+            child: FutureBuilder2<List<SearchResult>>(
+              future: fetcher,
+              builder: (context, result) => result.where(
+                onInProgress: () => const ShimmerList(
+                  itemCount: 6,
+                ),
+                onSuccess: (items) {
+                  return CoverListView(
+                    [
+                      for (final item in items)
+                        Cover(
+                            title: item.name,
+                            subtitle: item.year?.toString(),
+                            image: item.imageUris?.primary,
+                            key: ValueKey(item.id),
+                            onTap: () {
+                              Navigator.of(context).pushNamed("/detail",
+                                  arguments: DetailArgs.media(item));
+                            })
+                    ],
+                  );
+                },
+                onError: (error, stackTrace) =>
+                    Center(child: ErrorMessage(error)),
+                orElse: () => const SizedBox.shrink(),
+              ),
             ),
           ),
         ],

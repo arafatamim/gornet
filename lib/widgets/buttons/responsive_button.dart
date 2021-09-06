@@ -9,7 +9,7 @@ class ResponsiveButton extends StatefulWidget {
   final String label;
   final String? tooltip;
   final IconData? icon;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   const ResponsiveButton({
     this.color,
@@ -17,7 +17,7 @@ class ResponsiveButton extends StatefulWidget {
     this.tooltip,
     this.borders,
     required this.label,
-    required this.onPressed,
+    this.onPressed,
     this.icon,
   });
 
@@ -90,6 +90,7 @@ class ResponsiveButtonState<T extends ResponsiveButton>
     return RawMaterialButton(
       focusNode: _focusNode,
       onPressed: widget.onPressed,
+      splashColor: Colors.transparent,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(

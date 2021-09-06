@@ -2,10 +2,9 @@ import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:goribernetflix/freezed/detail_arguments.dart';
 import 'package:goribernetflix/scale_page_transition.dart';
 import 'package:provider/provider.dart';
-
-import 'package:goribernetflix/models/models.dart';
 import 'package:goribernetflix/pages/detail_page.dart';
 import 'package:goribernetflix/pages/home_page.dart';
 import 'package:goribernetflix/pages/search_page.dart';
@@ -84,7 +83,7 @@ class MyApp extends StatelessWidget {
             if (settings.name == "/detail") {
               return ScaleRoute(
                 settings: const RouteSettings(name: "detail"),
-                page: DetailPage(settings.arguments as SearchResult),
+                page: DetailPage(settings.arguments as DetailArgs),
               );
             }
             if (settings.name == "/search") {

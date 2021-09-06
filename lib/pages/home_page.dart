@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:goribernetflix/result_endpoint.dart';
+import 'package:goribernetflix/freezed/result_endpoint.dart';
 import 'package:goribernetflix/models/models.dart';
 import 'package:goribernetflix/models/user.dart';
 import 'package:goribernetflix/services/api.dart';
@@ -8,7 +8,6 @@ import 'package:goribernetflix/services/user.dart';
 import 'package:goribernetflix/tabs/home_tab.dart';
 import 'package:goribernetflix/tabs/items_tab.dart';
 import 'package:goribernetflix/widgets/buttons/animated_icon_button.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:goribernetflix/widgets/error.dart';

@@ -29,8 +29,8 @@ class MovieDetails extends StatelessWidget {
     return DetailShell(
       title: movie.title ?? "Untitled Movie",
       meta: _buildMeta(context),
-      genres: movie.genres,
-      synopsis: movie.synopsis,
+      subtitle: movie.genres?.join(", "),
+      description: movie.synopsis,
       imageUris: movie.imageUris,
       child: FutureBuilder2<List<MediaSource>>(
         future: Provider.of<FtpbdService>(context).getSources(id: movie.id),
@@ -112,15 +112,16 @@ class MovieDetails extends StatelessWidget {
           if (movie.criticRatings?.tmdb != null)
             MetaLabel(movie.criticRatings!.tmdb!.toString(),
                 leading: const Icon(Icons.star)),
-          MetaLabel(
-            prettyDuration(
-              movie.runtime,
-              tersity: DurationTersity.minute,
-              abbreviated: true,
-              delimiter: " ",
+          if (movie.runtime != null)
+            MetaLabel(
+              prettyDuration(
+                movie.runtime!,
+                tersity: DurationTersity.minute,
+                abbreviated: true,
+                delimiter: " ",
+              ),
+              leading: const Icon(FeatherIcons.clock),
             ),
-            leading: const Icon(FeatherIcons.clock),
-          ),
           if (movie.ageRating != null)
             MetaLabel(movie.ageRating!, hasBackground: true),
         ],

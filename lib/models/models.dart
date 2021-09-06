@@ -196,7 +196,7 @@ class Media {
 @immutable
 class Movie extends Media {
   final List<String>? directors;
-  final Duration runtime;
+  final Duration? runtime;
   final List<String>? studios;
   final CriticRatings? criticRatings;
 
@@ -208,7 +208,9 @@ class Movie extends Media {
   // }
 
   Movie.fromMap(Map<String, dynamic> payload)
-      : runtime = Duration(minutes: payload["runtime"].toInt() as int),
+      : runtime = payload["runtime"] != null
+            ? Duration(minutes: payload["runtime"].toInt() as int)
+            : null,
         directors = payload["directors"] != null
             ? ((payload["directors"]) as List<dynamic>).cast<String>()
             : null,
@@ -295,6 +297,10 @@ class SearchResult {
         year = json["year"] as int?,
         imageUris = ImageUris.fromMap(json["imageUris"]),
         isMovie = json["isMovie"] as bool;
+
+  static List<SearchResult> fromList(List<dynamic> data) {
+    return data.map((e) => SearchResult.fromMap(e)).toList();
+  }
 }
 
 @immutable

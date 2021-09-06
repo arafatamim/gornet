@@ -30,13 +30,13 @@ class SeriesDetails extends StatelessWidget {
     return DetailShell(
       title: series.title ?? "Untitled Series",
       meta: _buildMeta(context),
-      genres: series.genres,
-      synopsis: series.synopsis,
+      subtitle: series.genres?.join(", "),
+      description: series.synopsis,
       imageUris: series.imageUris,
       actions: [
         FavoriteButton(seriesId: series.id),
       ],
-      continueWidget: _buildContinueWidget(context),
+      bottomWidget: _buildContinueWidget(context),
       child: _buildSeasons(context),
     );
   }

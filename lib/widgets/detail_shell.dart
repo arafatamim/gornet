@@ -10,11 +10,11 @@ import 'package:ticker_text/ticker_text.dart';
 
 class DetailShell extends StatelessWidget {
   final String title;
-  final List<String>? genres;
-  final String? synopsis;
+  final String? subtitle;
+  final String? description;
   final List<List<Widget>>? meta;
   final Widget? child;
-  final Widget? continueWidget;
+  final Widget? bottomWidget;
   final List<Widget>? actions;
   final ImageUris? imageUris;
 
@@ -23,9 +23,9 @@ class DetailShell extends StatelessWidget {
     this.meta,
     this.child,
     this.imageUris,
-    this.genres,
-    this.synopsis,
-    this.continueWidget,
+    this.subtitle,
+    this.description,
+    this.bottomWidget,
     this.actions,
   });
 
@@ -86,15 +86,15 @@ class DetailShell extends StatelessWidget {
                       Row(children: row),
                       const SizedBox(height: 10)
                     ],
-                  if (genres != null && genres!.isNotEmpty) ...[
+                  if (subtitle != null && subtitle!.isNotEmpty) ...[
                     _buildGenres(),
                     const SizedBox(height: 10),
                   ],
-                  if (continueWidget != null) ...[
-                    continueWidget!,
+                  if (bottomWidget != null) ...[
+                    bottomWidget!,
                     const SizedBox(height: 10),
                   ],
-                  if (synopsis != null) ...[
+                  if (description != null) ...[
                     ExpansionTile(
                       title: const Text("Synopsis"),
                       maintainState: true,
@@ -120,7 +120,7 @@ class DetailShell extends StatelessWidget {
   Widget _buildSynopsisText() {
     return Builder(
       builder: (context) => Text(
-        synopsis.toString(),
+        description.toString(),
         softWrap: true,
         style: Theme.of(context).textTheme.bodyText1?.copyWith(height: 1.4),
       ),
@@ -132,7 +132,7 @@ class DetailShell extends StatelessWidget {
       alignment: Alignment.topLeft,
       child: Builder(builder: (context) {
         return Text(
-          genres!.join(", "),
+          subtitle!,
           style: Theme.of(context).textTheme.bodyText2?.copyWith(
                 color: Colors.grey.shade400,
                 fontSize: 20,
@@ -177,11 +177,11 @@ class DetailShell extends StatelessWidget {
                             Row(children: row),
                             const SizedBox(height: 10)
                           ],
-                        if (genres != null && genres!.isNotEmpty) ...[
+                        if (subtitle != null && subtitle!.isNotEmpty) ...[
                           const SizedBox(height: 10),
                           _buildGenres()
                         ],
-                        if (synopsis != null) ...[
+                        if (description != null) ...[
                           const SizedBox(height: 20),
                           Expanded(
                             child: TickerText(
@@ -191,7 +191,7 @@ class DetailShell extends StatelessWidget {
                           ),
                         ],
                         const SizedBox(height: 20),
-                        if (continueWidget != null) continueWidget!,
+                        if (bottomWidget != null) bottomWidget!,
                       ],
                     ),
                   ),

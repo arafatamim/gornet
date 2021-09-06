@@ -1,56 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:deferred_type/deferred_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:ticker_text/ticker_text.dart';
 
-import 'package:goribernetflix/models/models.dart';
-import 'package:goribernetflix/widgets/error.dart';
-import 'package:goribernetflix/widgets/shimmers.dart';
-
-class CoverListViewBuilder extends StatelessWidget {
-  final Future<List<SearchResult>> results;
-  final bool showIcon;
-  final bool separator;
-  final ScrollController? controller;
-
-  const CoverListViewBuilder({
-    required this.results,
-    this.showIcon = false,
-    this.separator = true,
-    this.controller,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder2<List<SearchResult>>(
-      future: results,
-      builder: (context, result) => result.where(
-        onInProgress: () => const ShimmerList(
-          itemCount: 6,
-        ),
-        onSuccess: (items) {
-          return CoverListView(
-            items,
-            controller: controller,
-            separator: separator,
-          );
-        },
-        onError: (error, stackTrace) => Center(child: ErrorMessage(error)),
-        orElse: () => const SizedBox.shrink(),
-      ),
-    );
-  }
-}
-
 class CoverListView extends StatelessWidget {
-  final List<SearchResult> items;
+  final List<Cover> covers;
   final bool showIcon;
   final bool separator;
   final ScrollController? controller;
 
   const CoverListView(
-    this.items, {
+    this.covers, {
     this.showIcon = false,
     this.separator = true,
     this.controller,
@@ -61,20 +21,18 @@ class CoverListView extends StatelessWidget {
       controller: controller,
       scrollDirection: Axis.horizontal,
       addAutomaticKeepAlives: true,
-      itemCount: items.length,
+      itemCount: covers.length,
       shrinkWrap: true,
       separatorBuilder: (context, index) => SizedBox(width: separator ? 12 : 0),
       itemBuilder: (BuildContext context, int index) {
-        SearchResult item = items[index];
+        Cover item = covers[index];
         return AspectRatio(
           aspectRatio: 0.55,
           child: Cover(
-            title: item.name,
-            subtitle: (item.year ?? "").toString(),
-            image: item.imageUris?.primary,
-            icon: showIcon
-                ? (item.isMovie ? FeatherIcons.film : FeatherIcons.tv)
-                : null,
+            title: item.title,
+            subtitle: item.subtitle,
+            image: item.image,
+            icon: showIcon ? item.icon : null,
             color: MaterialStateColor.resolveWith(
               (states) => states.contains(MaterialState.focused)
                   ? Colors.white
@@ -90,9 +48,7 @@ class CoverListView extends StatelessWidget {
                   ? Colors.grey.shade300
                   : Colors.grey.shade400,
             ),
-            onTap: () {
-              Navigator.pushNamed(context, "/detail", arguments: item);
-            },
+            onTap: item.onTap,
           ),
         );
       },
