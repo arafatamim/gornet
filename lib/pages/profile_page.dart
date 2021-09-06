@@ -91,7 +91,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             });
                             await Future.delayed(const Duration(seconds: 1));
 
-                            Navigator.of(context).pushNamed("/home");
+                            Navigator.of(context).pushReplacementNamed("/home");
                           }
                         },
                       ),
@@ -109,7 +109,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       style: Theme.of(context).textTheme.bodyText1,
                     ),
                     onPressed: () {
-                      Navigator.of(context).pushNamed("/home");
+                      Navigator.of(context).pushReplacementNamed("/home");
                     },
                   ),
                   const SizedBox(height: 64)
