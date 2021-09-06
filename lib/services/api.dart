@@ -20,15 +20,16 @@ class FtpbdService {
               'query': query,
             },
           ),
-          discover: (mediaType, genres, networks, people) =>
-              dio.get<Map<String, dynamic>>(
-            "/discover/${mediaType.value}",
-            queryParameters: {
-              'networks': networks?.join(","),
-              'genres': genres?.join(","),
-              'people': people?.join(",")
-            }..removeWhere((_, value) => value == null),
-          ),
+          discover: (mediaType, networks, genres, people) {
+            return dio.get<Map<String, dynamic>>(
+              "/discover/${mediaType.value}",
+              queryParameters: {
+                'networks': networks?.join(","),
+                'genres': genres?.join(","),
+                'people': people?.join(",")
+              }..removeWhere((_, value) => value == null),
+            );
+          },
           multiSearch: (query) => dio.get<Map<String, dynamic>>(
             "/search/multi",
             queryParameters: {'query': query},
