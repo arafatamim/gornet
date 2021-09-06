@@ -34,12 +34,12 @@ class MovieDetails extends StatelessWidget {
       imageUris: movie.imageUris,
       child: FutureBuilder2<List<MediaSource>>(
         future: Provider.of<FtpbdService>(context).getSources(id: movie.id),
-        builder: (context, result) => result.where(
-          onInProgress: () => const Center(
+        builder: (context, result) => result.maybeWhen(
+          inProgress: () => const Center(
             child: CircularProgressIndicator(),
           ),
-          onSuccess: (data) => _buildMovieSources(context, data),
-          onError: (error, _) => Center(
+          success: (data) => _buildMovieSources(context, data),
+          error: (error, _) => Center(
             child: ErrorMessage(error),
           ),
           orElse: () => const SizedBox.shrink(),

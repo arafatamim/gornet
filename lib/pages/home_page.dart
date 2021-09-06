@@ -102,8 +102,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       FutureBuilder2<User?>(
                         future:
                             Provider.of<UserService>(context).getCurrentUser(),
-                        builder: (context, result) => result.where(
-                          onSuccess: (user) {
+                        builder: (context, result) => result.maybeWhen(
+                          success: (user) {
                             if (user != null) {
                               return ItemsTab(
                                 future: Provider.of<FavoritesService>(context)
@@ -116,7 +116,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               );
                             }
                           },
-                          onError: (error, stackTrace) => ErrorMessage(error),
+                          error: (error, stackTrace) => ErrorMessage(error),
                           orElse: () => const SizedBox.shrink(),
                         ),
                       ),
@@ -270,9 +270,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           const SizedBox(width: 16),
           FutureBuilder2<User?>(
             future: Provider.of<UserService>(context).getCurrentUser(),
-            builder: (context, response) => response.where(
+            builder: (context, response) => response.maybeWhen(
               // add a child to fuurebuilder
-              onSuccess: (user) {
+              success: (user) {
                 if (user == null) {
                   return AnimatedIconButton(
                     icon: const Icon(FeatherIcons.settings),

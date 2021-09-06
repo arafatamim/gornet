@@ -31,12 +31,12 @@ class _FavoriteButtonState extends State<FavoriteButton> {
   Widget build(BuildContext context) {
     return FutureBuilder2<User?>(
       future: Provider.of<UserService>(context).getCurrentUser(),
-      builder: (context, result) => result.where(
-        onInProgress: () => _buildButton(
+      builder: (context, result) => result.maybeWhen(
+        inProgress: () => _buildButton(
           isFavorite: false,
           loading: true,
         ),
-        onSuccess: (user) {
+        success: (user) {
           if (user != null) {
             return resolveFavorite(user.id);
           } else {
@@ -53,13 +53,13 @@ class _FavoriteButtonState extends State<FavoriteButton> {
       future: Provider.of<FavoritesService>(context)
           .checkFavorite(widget.seriesId, userId),
       builder: (context, result) {
-        return result.where(
-          onInProgress: () => _buildButton(
+        return result.maybeWhen(
+          inProgress: () => _buildButton(
             userId: userId,
             isFavorite: false,
             loading: true,
           ),
-          onSuccess: (isFavorite) => _buildButton(
+          success: (isFavorite) => _buildButton(
             userId: userId,
             isFavorite: isFavorite,
             loading: false,

@@ -67,11 +67,11 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
                   future: Provider.of<FtpbdService>(context).getSeries(
                     seriesList[random.nextInt(seriesList.length)],
                   ),
-                  builder: (context, result) => result.where(
-                    onInProgress: () => const ShimmerItem(
+                  builder: (context, result) => result.maybeWhen(
+                    inProgress: () => const ShimmerItem(
                       child: SpotlightShimmer(),
                     ),
-                    onSuccess: (item) {
+                    success: (item) {
                       return Spotlight(
                         title: item.title ?? "Unknown Title",
                         backdrop:
@@ -102,7 +102,7 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
                         },
                       );
                     },
-                    onError: (error, stackTrace) => ErrorMessage(error),
+                    error: (error, stackTrace) => ErrorMessage(error),
                     orElse: () => const SizedBox.shrink(),
                   ),
                 );
@@ -155,11 +155,11 @@ class Section extends StatelessWidget {
             maxHeight: 450,
             child: FutureBuilder2<List<SearchResult>>(
               future: fetcher,
-              builder: (context, result) => result.where(
-                onInProgress: () => const ShimmerList(
+              builder: (context, result) => result.maybeWhen(
+                inProgress: () => const ShimmerList(
                   itemCount: 6,
                 ),
-                onSuccess: (items) {
+                success: (items) {
                   return CoverListView(
                     [
                       for (final item in items)
@@ -175,7 +175,7 @@ class Section extends StatelessWidget {
                     ],
                   );
                 },
-                onError: (error, stackTrace) =>
+                error: (error, stackTrace) =>
                     Center(child: ErrorMessage(error)),
                 orElse: () => const SizedBox.shrink(),
               ),

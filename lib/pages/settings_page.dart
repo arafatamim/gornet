@@ -37,8 +37,8 @@ class _SettingsPageState extends State<SettingsPage> {
             tiles: [
               FutureBuilder2<List<User>>(
                 future: Provider.of<UserService>(context).getUsers(),
-                builder: (context, result) => result.where(
-                  onSuccess: (users) {
+                builder: (context, result) => result.maybeWhen(
+                  success: (users) {
                     return UserSelector(
                       users: users,
                       currentUser: currentUser,
@@ -51,7 +51,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       },
                     );
                   },
-                  onError: (error, _stack) {
+                  error: (error, _stack) {
                     if (currentUser != null) {
                       Provider.of<UserService>(context)
                           .clearUser(currentUser!.id);
@@ -67,8 +67,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   future: Provider.of<UserService>(context)
                       .isTraktActivated(currentUser!.id),
                   builder: (context, state) {
-                    return state.where(
-                      onSuccess: (activated) {
+                    return state.maybeWhen(
+                      success: (activated) {
                         return TraktSelector(
                           activated: activated,
                           userId: currentUser!.id,

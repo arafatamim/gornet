@@ -254,8 +254,8 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
   }
 
   Widget _buildSearchResults(Deferred<List<SearchResult>> media) {
-    return media.where<Widget>(
-      onSuccess: (results) {
+    return media.when<Widget>(
+      success: (results) {
         if (results.isEmpty) {
           return const Center(child: ErrorMessage("No results found"));
         }
@@ -277,15 +277,15 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
           showIcon: true,
         );
       },
-      onError: (error, _) => Center(child: ErrorMessage(error)),
-      onInProgress: () => const Center(child: CircularProgressIndicator()),
-      onIdle: () => const SizedBox.shrink(),
+      error: (error, _) => Center(child: ErrorMessage(error)),
+      inProgress: () => const Center(child: CircularProgressIndicator()),
+      idle: () => const SizedBox.shrink(),
     );
   }
 
   Widget _buildPersonResults(Deferred<List<PersonResult>> people) {
-    return people.where<Widget>(
-      onSuccess: (results) {
+    return people.when<Widget>(
+      success: (results) {
         if (results.isEmpty) {
           return const Center(child: ErrorMessage("No results found"));
         }
@@ -307,9 +307,9 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
           showIcon: true,
         );
       },
-      onError: (error, _) => Center(child: ErrorMessage(error)),
-      onInProgress: () => const Center(child: CircularProgressIndicator()),
-      onIdle: () => const SizedBox.shrink(),
+      error: (error, _) => Center(child: ErrorMessage(error)),
+      inProgress: () => const Center(child: CircularProgressIndicator()),
+      idle: () => const SizedBox.shrink(),
     );
   }
 }

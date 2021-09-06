@@ -186,12 +186,10 @@ packages:
   deferred_type:
     dependency: "direct main"
     description:
-      path: "."
-      ref: main
-      resolved-ref: "7b867423e3ef84961a62e26a41374f8090f5e64a"
-      url: "git://github.com/arafatamim/deferred_type.git"
-    source: git
-    version: "1.0.0"
+      name: deferred_type
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0"
   dio:
     dependency: "direct main"
     description:

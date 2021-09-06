@@ -68,8 +68,8 @@ class _ItemsTabState extends State<ItemsTab>
     super.build(context);
     return FutureBuilder2<List<SearchResult>>(
       future: widget.future,
-      builder: (context, state) => state.where(
-        onSuccess: (items) {
+      builder: (context, state) => state.maybeWhen(
+        success: (items) {
           if (items.isEmpty) {
             return const Center(
               child: ErrorMessage("Watchlist is empty!"),
@@ -77,7 +77,7 @@ class _ItemsTabState extends State<ItemsTab>
           }
           return _buildGridView(context, items);
         },
-        onError: (error, stackTrace) => Center(child: ErrorMessage(error)),
+        error: (error, stackTrace) => Center(child: ErrorMessage(error)),
         orElse: () => ShimmerList(itemCount: itemCount),
       ),
     );

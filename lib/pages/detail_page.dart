@@ -40,13 +40,13 @@ class DetailPage extends StatelessWidget {
     return FutureBuilder2<DetailType>(
       future: _getData(context),
       builder: (context, result) {
-        return result.where(
-          onSuccess: (media) => media.when(
+        return result.maybeWhen(
+          success: (media) => media.when(
             movie: (movie) => MovieDetails(movie),
             series: (series) => SeriesDetails(series),
             person: (person) => PersonDetails(person),
           ),
-          onError: (error, stackTrace) {
+          error: (error, stackTrace) {
             print(error);
             return Center(
               child: ErrorMessage(error),

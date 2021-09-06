@@ -73,8 +73,8 @@ class TraktSelector extends StatelessWidget {
           child: FutureBuilder2<TraktCode>(
             future: Provider.of<TraktService>(context).generateDeviceCodes(),
             builder: (context, state) {
-              return state.where(
-                onSuccess: (code) {
+              return state.maybeWhen(
+                success: (code) {
                   pollToken(context, code);
 
                   return Center(
@@ -103,7 +103,7 @@ class TraktSelector extends StatelessWidget {
                     ),
                   );
                 },
-                onError: (error, stackTrace) {
+                error: (error, stackTrace) {
                   print(error);
                   return const SizedBox.shrink();
                 },

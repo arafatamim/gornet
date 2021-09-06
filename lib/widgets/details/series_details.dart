@@ -44,11 +44,11 @@ class SeriesDetails extends StatelessWidget {
   Widget _buildSeasons(BuildContext context) {
     return FutureBuilder2<List<Season>>(
       future: Provider.of<FtpbdService>(context).getSeasons(series.id),
-      builder: (context, result) => result.where(
-        onInProgress: () => const Center(child: CircularProgressIndicator()),
-        onIdle: () => const SizedBox.shrink(),
-        onError: (error, _) => Center(child: ErrorMessage(error)),
-        onSuccess: (data) {
+      builder: (context, result) => result.when(
+        inProgress: () => const Center(child: CircularProgressIndicator()),
+        idle: () => const SizedBox.shrink(),
+        error: (error, _) => Center(child: ErrorMessage(error)),
+        success: (data) {
           final seasons = data;
           final deviceSize = MediaQuery.of(context).size;
 
@@ -70,8 +70,8 @@ class SeriesDetails extends StatelessWidget {
             series.id,
             userId,
           ),
-          builder: (context, result) => result.where(
-            onSuccess: (item) {
+          builder: (context, result) => result.maybeWhen(
+            success: (item) {
               if (item != null) {
                 return FutureBuilder2<List<dynamic>>(
                   future: Future.wait([
@@ -86,8 +86,8 @@ class SeriesDetails extends StatelessWidget {
                     ),
                   ]),
                   builder: (context, result) {
-                    return result.where<Widget>(
-                      onSuccess: (data) {
+                    return result.maybeWhen<Widget>(
+                      success: (data) {
                         final Season season = data[0] as Season;
                         final Episode episode = data[1] as Episode;
 
@@ -118,7 +118,7 @@ class SeriesDetails extends StatelessWidget {
                           leading: const Icon(FeatherIcons.play),
                         );
                       },
-                      onInProgress: () => const Center(
+                      inProgress: () => const Center(
                         child: CircularProgressIndicator(),
                       ),
                       orElse: () => const SizedBox.shrink(),
@@ -129,15 +129,15 @@ class SeriesDetails extends StatelessWidget {
                 return const SizedBox.shrink();
               }
             },
-            onError: (e, _) => ErrorMessage(e),
+            error: (e, _) => ErrorMessage(e),
             orElse: () => const SizedBox.shrink(),
           ),
         );
 
     return FutureBuilder2<User?>(
       future: Provider.of<UserService>(context).getCurrentUser(),
-      builder: (context, result) => result.where<Widget>(
-        onSuccess: (user) {
+      builder: (context, result) => result.maybeWhen<Widget>(
+        success: (user) {
           if (user != null) {
             return buildWidget(user.id);
           } else {

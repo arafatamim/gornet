@@ -40,9 +40,9 @@ class _EpisodesState extends State<Episodes>
     return FutureBuilder2<List<Episode>>(
       future: Provider.of<FtpbdService>(context)
           .getEpisodes(widget.season.seriesId, widget.season.index),
-      builder: (context, result) => result.where(
-        onInProgress: () => const Center(child: CircularProgressIndicator()),
-        onSuccess: (episodes) {
+      builder: (context, result) => result.maybeWhen(
+        inProgress: () => const Center(child: CircularProgressIndicator()),
+        success: (episodes) {
           final deviceSize = MediaQuery.of(context).size;
 
           if (deviceSize.width > 720) {
@@ -51,7 +51,7 @@ class _EpisodesState extends State<Episodes>
             return _buildMobileEpisodesList(episodes);
           }
         },
-        onError: (error, stackTrace) => ErrorMessage(error),
+        error: (error, stackTrace) => ErrorMessage(error),
         orElse: () => const SizedBox.shrink(),
       ),
     );
@@ -282,8 +282,8 @@ class EpisodeDetails extends StatelessWidget {
     return Builder(
       builder: (context) => FutureBuilder2<User?>(
         future: Provider.of<UserService>(context).getCurrentUser(),
-        builder: (context, result) => result.where(
-          onSuccess: (user) {
+        builder: (context, result) => result.maybeWhen(
+          success: (user) {
             return EpisodeSources(
               episode.seriesId,
               episode.seasonIndex,
@@ -303,7 +303,7 @@ class EpisodeDetails extends StatelessWidget {
               },
             );
           },
-          onError: (err, stack) => ErrorMessage(err),
+          error: (err, stack) => ErrorMessage(err),
           orElse: () => const SizedBox.shrink(),
         ),
       ),
@@ -345,9 +345,9 @@ class EpisodeSources extends StatelessWidget {
         episodeIndex: episodeIndex,
       ),
       builder: (context, result) {
-        return result.where(
-          onInProgress: () => const Center(child: CircularProgressIndicator()),
-          onSuccess: (mediaSources) {
+        return result.when(
+          inProgress: () => const Center(child: CircularProgressIndicator()),
+          success: (mediaSources) {
             final deviceSize = MediaQuery.of(context).size;
 
             if (deviceSize.width > 720) {
@@ -356,8 +356,8 @@ class EpisodeSources extends StatelessWidget {
               return _buildMobileLayout(mediaSources);
             }
           },
-          onError: (err, stack) => ErrorMessage(err),
-          onIdle: () => const SizedBox.shrink(),
+          error: (err, stack) => ErrorMessage(err),
+          idle: () => const SizedBox.shrink(),
         );
       },
     );
