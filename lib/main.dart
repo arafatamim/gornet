@@ -3,6 +3,7 @@ import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:goribernetflix/freezed/detail_arguments.dart';
+import 'package:goribernetflix/pages/profile_page.dart';
 import 'package:goribernetflix/scale_page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:goribernetflix/pages/detail_page.dart';
@@ -78,7 +79,7 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           title: 'Goriber Netflix',
           theme: ModernTheme.darkTheme,
-          home: const HomePage(title: 'Goriber Netflix'),
+          home: const ProfilePage(),
           onGenerateRoute: (settings) {
             if (settings.name == "/detail") {
               return ScaleRoute(
@@ -96,6 +97,11 @@ class MyApp extends StatelessWidget {
               return ScaleRoute(
                 settings: const RouteSettings(name: "settings"),
                 page: SettingsPage(),
+              );
+            }
+            if (settings.name == "/home") {
+              return ScaleRoute(
+                page: const HomePage(title: "Goriber Netflix"),
               );
             }
           },

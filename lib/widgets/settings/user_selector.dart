@@ -21,19 +21,19 @@ class UserSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 100,
-      child: InkWell(
+      child: RawMaterialButton(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               currentUser?.username ?? "Select a profile",
-              style: Theme.of(context).textTheme.headline2,
+              style: Theme.of(context).textTheme.headline1,
             ),
             const SizedBox(width: 10),
             const Icon(FeatherIcons.chevronDown)
           ],
         ),
-        onTap: () => showUsersDialog(context, users),
+        onPressed: () => showUsersDialog(context, users),
       ),
     );
   }

@@ -148,6 +148,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         widget.title,
         style: GoogleFonts.gloriaHallelujah(fontSize: 20.0),
       ),
+      automaticallyImplyLeading: false,
       bottom: TabBar(
         indicatorColor: Theme.of(context).colorScheme.secondary,
         controller: _controller,

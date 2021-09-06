@@ -52,14 +52,14 @@ class DetailPage extends StatelessWidget {
               child: ErrorMessage(error),
             );
           },
-          orElse: () => DetailShell(
-            title: args.when(
-              media: (value) => value.name,
-              person: (value) => value.name,
+          orElse: () => args.when(
+            media: (media) => DetailShell(
+              title: media.name,
+              imageUris: media.imageUris,
             ),
-            imageUris: args.when(
-              media: (value) => value.imageUris,
-              person: (value) => value.imageUris,
+            person: (person) => DetailShell(
+              title: person.name,
+              imageUris: person.imageUris,
             ),
           ),
         );
