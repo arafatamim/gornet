@@ -1,22 +1,27 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:deferred_type/deferred_type.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:goribernetflix/freezed/detail_arguments.dart';
 import 'package:goribernetflix/freezed/result_endpoint.dart';
 import 'package:goribernetflix/models/models.dart';
 import 'package:goribernetflix/models/person.dart';
 import 'package:goribernetflix/services/api.dart';
+import 'package:goribernetflix/utils.dart';
 import 'package:goribernetflix/widgets/buttons/responsive_button.dart';
 import 'package:goribernetflix/widgets/cover.dart';
 import 'package:goribernetflix/widgets/error.dart';
 import 'package:goribernetflix/widgets/tabs/gn_tab_bar.dart';
 import 'package:goribernetflix/widgets/virtual_keyboard/virtual_keyboard.dart';
-import 'package:deferred_type/deferred_type.dart';
-import 'package:goribernetflix/utils.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+
+class SearchPage extends StatefulWidget {
+  @override
+  _SearchPageState createState() => _SearchPageState();
+}
 
 class SearchStore extends ChangeNotifier {
   // Give us ADTs!!
@@ -56,35 +61,62 @@ class SearchStore extends ChangeNotifier {
   }
 }
 
-class SearchPage extends StatefulWidget {
+class SearchWidget extends StatelessWidget {
+  final TextEditingController? controller;
+  final void Function(String)? onSubmitted;
+  final bool readOnly;
+  final bool autofocus;
+
+  const SearchWidget({
+    Key? key,
+    this.onSubmitted,
+    this.controller,
+    this.readOnly = false,
+    this.autofocus = false,
+  }) : super(key: key);
+
   @override
-  _SearchPageState createState() => _SearchPageState();
+  Widget build(BuildContext context) {
+    return TextField(
+      autofocus: autofocus,
+      readOnly: readOnly,
+      controller: controller,
+      textInputAction: TextInputAction.go,
+      textAlign: TextAlign.center,
+      style: Theme.of(context).textTheme.bodyText2?.copyWith(
+            color: Colors.white,
+            fontSize: 32.0,
+          ),
+      onSubmitted: onSubmitted,
+      decoration: InputDecoration(
+        fillColor: Colors.transparent,
+        filled: true,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 8,
+          vertical: 2,
+        ),
+        border: InputBorder.none,
+        hintText: "Search...",
+        hintStyle: Theme.of(context).textTheme.bodyText1?.copyWith(
+              fontSize: 32,
+              color: Colors.grey,
+            ),
+      ),
+    );
+  }
 }
 
+// bool _isUtf16Surrogate(int value) {
+//   return value & 0xF800 == 0xD800;
+// }
+
 class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
-  final _textController = TextEditingController();
+  late final TextEditingController _textController;
   late final TabController _tabController;
   late final SearchStore _searchStore;
   Timer? _debounce;
 
   String get query => _textController.text;
-
-  @override
-  void initState() {
-    _tabController = TabController(length: 2, vsync: this);
-    _searchStore = SearchStore();
-
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _textController.dispose();
-    _tabController.dispose();
-    _searchStore.dispose();
-    _debounce?.cancel();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,6 +154,24 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     );
   }
 
+  @override
+  void dispose() {
+    _textController.dispose();
+    _tabController.dispose();
+    _searchStore.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    _textController = TextEditingController();
+    _tabController = TabController(length: 2, vsync: this);
+    _searchStore = SearchStore();
+
+    super.initState();
+  }
+
   Container _buildMobileLayout() {
     return Container(
       height: MediaQuery.of(context).size.height * 0.75,
@@ -139,12 +189,75 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
             ),
           ),
           const SizedBox(height: 25),
-          // Expanded(
-          //   flex: 2,
-          //   child: _buildSearchResults(store.),
-          // )
+          Expanded(
+            flex: 2,
+            child: Consumer<SearchStore>(
+              builder: (context, store, child) =>
+                  _buildSearchResults(store.media),
+            ),
+          )
         ],
       ),
+    );
+  }
+
+  Widget _buildPersonResults(Deferred<List<PersonResult>> people) {
+    return people.when<Widget>(
+      success: (results) {
+        if (results.isEmpty) {
+          return const Center(child: ErrorMessage("No results found"));
+        }
+        return CoverListView(
+          [
+            for (final item in results)
+              Cover(
+                title: item.name,
+                subtitle: item.department,
+                icon: FeatherIcons.user,
+                key: ValueKey(item.id),
+                image: item.imageUris.primary,
+                onTap: () {
+                  Navigator.pushNamed(context, "/detail",
+                      arguments: DetailArgs.person(item));
+                },
+              )
+          ],
+          showIcon: true,
+        );
+      },
+      error: (error, _) => Center(child: ErrorMessage(error)),
+      inProgress: () => const Center(child: CircularProgressIndicator()),
+      idle: () => const SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildSearchResults(Deferred<List<SearchResult>> media) {
+    return media.when<Widget>(
+      success: (results) {
+        if (results.isEmpty) {
+          return const Center(child: ErrorMessage("No results found"));
+        }
+        return CoverListView(
+          [
+            for (final item in results)
+              Cover(
+                title: item.name,
+                subtitle: item.year?.toString(),
+                icon: item.isMovie ? FeatherIcons.film : FeatherIcons.tv,
+                image: item.imageUris?.primary,
+                key: ValueKey(item.id),
+                onTap: () {
+                  Navigator.pushNamed(context, "/detail",
+                      arguments: DetailArgs.media(item));
+                },
+              )
+          ],
+          showIcon: true,
+        );
+      },
+      error: (error, _) => Center(child: ErrorMessage(error)),
+      inProgress: () => const Center(child: CircularProgressIndicator()),
+      idle: () => const SizedBox.shrink(),
     );
   }
 
@@ -166,20 +279,24 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                       children: [
                         // search box
                         Expanded(
-                          child: FocusScope(
-                            canRequestFocus: false,
-                            child: SearchWidget(
-                              controller: _textController,
-                              readOnly: true,
+                          child: Center(
+                            child: FocusScope(
+                              canRequestFocus: false,
+                              child: SearchWidget(
+                                controller: _textController,
+                                readOnly: true,
+                              ),
                             ),
                           ),
                         ),
                         GNTabBar(
                           onTabChange: (index) {
-                            if (index == 0) {
-                              _searchStore.searchMedia(context, query);
-                            } else if (index == 1) {
-                              _searchStore.searchPerson(context, query);
+                            if (query.trim() != "") {
+                              if (index == 0) {
+                                _searchStore.searchMedia(context, query);
+                              } else if (index == 1) {
+                                _searchStore.searchPerson(context, query);
+                              }
                             }
                           },
                           controller: _tabController,
@@ -197,13 +314,11 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                       ],
                     ),
                   ),
-                  // Textbox
-                  const SizedBox(width: 25),
                   // Keyboard
                   Expanded(
                     child: VirtualKeyboard(
                       controller: _textController,
-                      keyboardHeight: 185,
+                      keyboardHeight: double.infinity,
                       textTransformer: (incomingValue) =>
                           incomingValue?.toLowerCase(),
                       onChanged: (value) {
@@ -249,112 +364,6 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildSearchResults(Deferred<List<SearchResult>> media) {
-    return media.when<Widget>(
-      success: (results) {
-        if (results.isEmpty) {
-          return const Center(child: ErrorMessage("No results found"));
-        }
-        return CoverListView(
-          [
-            for (final item in results)
-              Cover(
-                title: item.name,
-                subtitle: item.year?.toString(),
-                icon: item.isMovie ? FeatherIcons.film : FeatherIcons.tv,
-                image: item.imageUris?.primary,
-                key: ValueKey(item.id),
-                onTap: () {
-                  Navigator.pushNamed(context, "/detail",
-                      arguments: DetailArgs.media(item));
-                },
-              )
-          ],
-          showIcon: true,
-        );
-      },
-      error: (error, _) => Center(child: ErrorMessage(error)),
-      inProgress: () => const Center(child: CircularProgressIndicator()),
-      idle: () => const SizedBox.shrink(),
-    );
-  }
-
-  Widget _buildPersonResults(Deferred<List<PersonResult>> people) {
-    return people.when<Widget>(
-      success: (results) {
-        if (results.isEmpty) {
-          return const Center(child: ErrorMessage("No results found"));
-        }
-        return CoverListView(
-          [
-            for (final item in results)
-              Cover(
-                title: item.name,
-                subtitle: item.department,
-                icon: FeatherIcons.user,
-                key: ValueKey(item.id),
-                image: item.imageUris.primary,
-                onTap: () {
-                  Navigator.pushNamed(context, "/detail",
-                      arguments: DetailArgs.person(item));
-                },
-              )
-          ],
-          showIcon: true,
-        );
-      },
-      error: (error, _) => Center(child: ErrorMessage(error)),
-      inProgress: () => const Center(child: CircularProgressIndicator()),
-      idle: () => const SizedBox.shrink(),
-    );
-  }
-}
-
-// bool _isUtf16Surrogate(int value) {
-//   return value & 0xF800 == 0xD800;
-// }
-
-class SearchWidget extends StatelessWidget {
-  final TextEditingController? controller;
-  final void Function(String)? onSubmitted;
-  final bool readOnly;
-
-  const SearchWidget({
-    Key? key,
-    this.onSubmitted,
-    this.readOnly = false,
-    this.controller,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      readOnly: readOnly,
-      controller: controller,
-      textInputAction: TextInputAction.go,
-      textAlign: TextAlign.center,
-      style: Theme.of(context).textTheme.bodyText2?.copyWith(
-            color: Colors.white,
-            fontSize: 32.0,
-          ),
-      onSubmitted: onSubmitted,
-      decoration: InputDecoration(
-        fillColor: Colors.transparent,
-        filled: true,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 8,
-          vertical: 2,
-        ),
-        border: InputBorder.none,
-        hintText: "Search...",
-        hintStyle: Theme.of(context).textTheme.bodyText1?.copyWith(
-              fontSize: 32,
-              color: Colors.grey,
-            ),
       ),
     );
   }
