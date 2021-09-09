@@ -13,6 +13,7 @@ import 'package:goribernetflix/widgets/error.dart';
 import 'package:goribernetflix/widgets/buttons/favorite_button.dart';
 import 'package:goribernetflix/widgets/label.dart';
 import 'package:goribernetflix/widgets/buttons/responsive_button.dart';
+import 'package:goribernetflix/widgets/tabs/gn_tab_bar.dart';
 import 'package:goribernetflix/widgets/wide_tile.dart';
 import 'package:provider/provider.dart';
 import 'package:ticker_text/ticker_text.dart';
@@ -112,6 +113,7 @@ class SeriesDetails extends StatelessWidget {
                             );
 
                         return RoundedCard(
+                          key: ValueKey(episode.id),
                           title: title,
                           subtitle: subtitle,
                           onTap: onTap,
@@ -209,28 +211,11 @@ class SeriesDetails extends StatelessWidget {
               height: 51,
               child: Align(
                 alignment: Alignment.topCenter,
-                child: FocusTraversalGroup(
-                  policy: WidgetOrderTraversalPolicy(),
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: seasons.length,
-                    itemBuilder: (context, index) {
-                      return ResponsiveButton(
-                        borders: seasons.length == 1
-                            ? Borders.all
-                            : index == 0
-                                ? Borders.left
-                                : index == (seasons.length - 1)
-                                    ? Borders.right
-                                    : Borders.middle,
-                        label: "SEASON ${index + 1}",
-                        onPressed: () {
-                          DefaultTabController.of(context)?.index = index;
-                        },
-                      );
-                    },
-                    scrollDirection: Axis.horizontal,
-                  ),
+                child: GNTabBar(
+                  tabs: [
+                    for (final season in seasons)
+                      ResponsiveButton(label: season.name)
+                  ],
                 ),
               ),
             ),
