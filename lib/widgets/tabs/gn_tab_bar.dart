@@ -50,66 +50,38 @@ class _GNTabBarState extends State<GNTabBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: widget.mainAxisAlignment,
-      children: <Widget>[
-        for (var i = 0; i < widget.tabs.length; i++)
-          ResponsiveButton(
-            color: widget.color,
-            foregroundColor: widget.foregroundColor,
-            label: widget.tabs[i].label,
-            onPressed: () {
-              controller.animateTo(i);
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: widget.mainAxisAlignment,
+        children: <Widget>[
+          for (var i = 0; i < widget.tabs.length; i++)
+            ResponsiveButton(
+              key: ValueKey(widget.tabs[i].label),
+              color: widget.color,
+              foregroundColor: widget.foregroundColor,
+              label: widget.tabs[i].label,
+              onPressed: () {
+                setState(() {
+                  selectedIndex = i;
+                });
+                controller.animateTo(i);
 
-              widget.tabs[i].onPressed?.call();
+                widget.tabs[i].onPressed?.call();
 
-              widget.onTabChange?.call(i);
-            },
-            borders: widget.tabs.length == 1
-                ? Borders.all
-                : i == 0
-                    ? Borders.left
-                    : i == (widget.tabs.length - 1)
-                        ? Borders.right
-                        : Borders.middle,
-          )
-      ],
-
-      /* widget.tabs
-            .map((t) => GButton(
-                  key: t.key,
-                  border: t.border ?? widget.tabBorder,
-                  activeBorder: t.activeBorder ?? widget.tabActiveBorder,
-                  shadow: t.shadow ?? widget.tabShadow,
-                  borderRadius: t.borderRadius ??
-                      BorderRadius.all(
-                        Radius.circular(widget.tabBorderRadius),
-                      ),
-                  debug: widget.debug,
-                  margin: t.margin ?? widget.tabMargin,
-                  active: selectedIndex == widget.tabs.indexOf(t),
-                  gap: t.gap ?? widget.gap,
-                  iconActiveColor: t.iconActiveColor ?? widget.activeColor,
-                  iconColor: t.iconColor ?? widget.color,
-                  iconSize: t.iconSize ?? widget.iconSize,
-                  textColor: t.textColor ?? widget.activeColor,
-                  rippleColor: t.rippleColor ?? widget.rippleColor,
-                  hoverColor: t.hoverColor ?? widget.hoverColor,
-                  padding: t.padding ?? widget.padding,
-                  textStyle: t.textStyle ?? widget.textStyle,
-                  text: t.text,
-                  icon: t.icon,
-                  haptic: widget.haptic,
-                  leading: t.leading,
-                  curve: widget.curve,
-                  backgroundGradient:
-                      t.backgroundGradient ?? widget.tabBackgroundGradient,
-                  backgroundColor:
-                      t.backgroundColor ?? widget.tabBackgroundColor,
-                  duration: widget.duration,
-                ))
-            .toList()
-            */
+                widget.onTabChange?.call(i);
+              },
+              active: i == selectedIndex,
+              borders: widget.tabs.length == 1
+                  ? Borders.all
+                  : i == 0
+                      ? Borders.left
+                      : i == (widget.tabs.length - 1)
+                          ? Borders.right
+                          : Borders.middle,
+            )
+        ],
+      ),
     );
   }
 }
