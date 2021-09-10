@@ -62,8 +62,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final bool isWide = MediaQuery.of(context).size.width > 720;
     isWide
-        ? SystemChrome.setEnabledSystemUIOverlays([])
-        : SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+        ? SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive)
+        : SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
     return Scaffold(
       appBar: isWide ? null : _buildAppbar(context),
