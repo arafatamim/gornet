@@ -11,6 +11,7 @@ import 'package:goribernetflix/widgets/buttons/animated_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:goribernetflix/widgets/error.dart';
+import 'package:goribernetflix/widgets/scaffold_with_button.dart';
 import 'package:provider/provider.dart';
 import 'package:deferred_type/deferred_type.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
@@ -65,9 +66,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ? SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive)
         : SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
-    return Scaffold(
+    return ScaffoldWithButton(
       appBar: isWide ? null : _buildAppbar(context),
-      body: FocusTraversalGroup(
+      child: FocusTraversalGroup(
         policy: OrderedTraversalPolicy(),
         child: Container(
           decoration: BoxDecoration(

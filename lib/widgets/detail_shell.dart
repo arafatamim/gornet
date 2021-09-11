@@ -1,11 +1,9 @@
-import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:goribernetflix/models/models.dart';
 import 'package:flutter/material.dart';
 import 'package:goribernetflix/utils.dart';
+import 'package:goribernetflix/widgets/scaffold_with_button.dart';
 import 'package:ticker_text/ticker_text.dart';
 
 class DetailShell extends StatelessWidget {
@@ -286,33 +284,4 @@ class DetailShell extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
       );
-}
-
-class ScaffoldWithButton extends StatelessWidget {
-  final Widget child;
-
-  const ScaffoldWithButton({required this.child, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Shortcuts(
-      shortcuts: {
-        LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent()
-      },
-      child: Scaffold(
-        floatingActionButton: coalesceException(
-          () => Platform.isLinux
-              ? FloatingActionButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Icon(Icons.arrow_back),
-                )
-              : null,
-          null,
-        ),
-        floatingActionButtonLocation:
-            FloatingActionButtonLocation.miniStartFloat,
-        body: child,
-      ),
-    );
-  }
 }

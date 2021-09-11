@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:deferred_type/deferred_type.dart';
 import 'package:flutter/material.dart';
@@ -10,10 +9,10 @@ import 'package:goribernetflix/freezed/result_endpoint.dart';
 import 'package:goribernetflix/models/models.dart';
 import 'package:goribernetflix/models/person.dart';
 import 'package:goribernetflix/services/api.dart';
-import 'package:goribernetflix/utils.dart';
 import 'package:goribernetflix/widgets/buttons/responsive_button.dart';
 import 'package:goribernetflix/widgets/cover.dart';
 import 'package:goribernetflix/widgets/error.dart';
+import 'package:goribernetflix/widgets/scaffold_with_button.dart';
 import 'package:goribernetflix/widgets/tabs/gn_tab_bar.dart';
 import 'package:goribernetflix/widgets/virtual_keyboard/virtual_keyboard.dart';
 import 'package:provider/provider.dart';
@@ -120,34 +119,18 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Shortcuts(
-      shortcuts: {
-        LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent()
-      },
-      child: Scaffold(
-        floatingActionButton: coalesceException(
-          () => Platform.isLinux
-              ? FloatingActionButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Icon(Icons.arrow_back),
-                )
-              : null,
-          null,
-        ),
-        floatingActionButtonLocation:
-            FloatingActionButtonLocation.miniStartFloat,
-        body: SafeArea(
-          child: ChangeNotifierProvider(
-            create: (context) => _searchStore,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                if (constraints.maxWidth > 720) {
-                  return _buildWideLayout();
-                } else {
-                  return _buildMobileLayout();
-                }
-              },
-            ),
+    return ScaffoldWithButton(
+      child: SafeArea(
+        child: ChangeNotifierProvider(
+          create: (context) => _searchStore,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth > 720) {
+                return _buildWideLayout();
+              } else {
+                return _buildMobileLayout();
+              }
+            },
           ),
         ),
       ),
