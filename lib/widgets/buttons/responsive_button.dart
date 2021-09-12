@@ -38,6 +38,7 @@ class ResponsiveButton extends StatefulWidget {
   final IconData? icon;
   final VoidCallback? onPressed;
   final bool active;
+  final bool autofocus;
 
   const ResponsiveButton({
     Key? key,
@@ -49,6 +50,7 @@ class ResponsiveButton extends StatefulWidget {
     this.onPressed,
     this.icon,
     this.active = false,
+    this.autofocus = false,
   }) : super(key: key);
 
   @override
@@ -121,6 +123,7 @@ class ResponsiveButtonState<T extends ResponsiveButton>
       alignment: Alignment.center,
       children: [
         RawMaterialButton(
+          autofocus: widget.autofocus,
           focusNode: _focusNode,
           onPressed: widget.onPressed,
           splashColor: Colors.transparent,
