@@ -4,6 +4,7 @@ import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:goribernetflix/models/user.dart';
 import 'package:goribernetflix/services/user.dart';
 import 'package:goribernetflix/widgets/buttons/animated_icon_button.dart';
+import 'package:goribernetflix/widgets/error.dart';
 import 'package:goribernetflix/widgets/scaffold_with_button.dart';
 import 'package:goribernetflix/widgets/settings/user_selector.dart';
 import 'package:goribernetflix/widgets/wave_widget.dart';
@@ -94,6 +95,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     orElse: () => const Center(
                       child: CircularProgressIndicator(),
                     ),
+                    error: (error, stackTrace) => ErrorMessage(error),
                   ),
                 ),
                 const Spacer(),
