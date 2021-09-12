@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 enum MediaType {
   movie,
   series,
+  episode,
 }
 
 extension MediaTypeToString on MediaType {
@@ -13,6 +14,8 @@ extension MediaTypeToString on MediaType {
         return "movie";
       case MediaType.series:
         return "series";
+      case MediaType.episode:
+        return "episode";
     }
   }
 }
