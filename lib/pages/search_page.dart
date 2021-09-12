@@ -17,15 +17,11 @@ import 'package:goribernetflix/widgets/tabs/gn_tab_bar.dart';
 import 'package:goribernetflix/widgets/virtual_keyboard/virtual_keyboard.dart';
 import 'package:provider/provider.dart';
 
-class SearchPage extends StatefulWidget {
-  @override
-  _SearchPageState createState() => _SearchPageState();
-}
-
 class SearchStore extends ChangeNotifier {
   // Give us ADTs!!
   Deferred<List<SearchResult>> media = Deferred.idle();
   Deferred<List<PersonResult>> people = Deferred.idle();
+  bool _disposed = false;
 
   void searchMedia(BuildContext context, String query) async {
     try {
@@ -56,6 +52,14 @@ class SearchStore extends ChangeNotifier {
       people = Deferred.error(e, s);
     } finally {
       notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    if (!_disposed) {
+      super.dispose();
     }
   }
 }
@@ -108,6 +112,11 @@ class SearchWidget extends StatelessWidget {
 // bool _isUtf16Surrogate(int value) {
 //   return value & 0xF800 == 0xD800;
 // }
+
+class SearchPage extends StatefulWidget {
+  @override
+  _SearchPageState createState() => _SearchPageState();
+}
 
 class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
   late final TextEditingController _textController;
@@ -293,7 +302,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                             const ResponsiveButton(label: "Movies & Series"),
                             const ResponsiveButton(label: "Cast & Crew"),
                           ],
-                        )
+                        ),
                       ],
                     ),
                   ),
