@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum Borders { left, middle, right, all }
+enum Borders { topLeft, topRight, bottomLeft, bottomRight, all }
 
 class IndicatorPainter extends CustomPainter {
   final Color color;
@@ -32,7 +32,7 @@ class IndicatorPainter extends CustomPainter {
 class ResponsiveButton extends StatefulWidget {
   final MaterialStateProperty<Color>? color;
   final MaterialStateProperty<Color>? foregroundColor;
-  final Borders? borders;
+  final Set<Borders> borders;
   final String label;
   final String? tooltip;
   final IconData? icon;
@@ -44,7 +44,7 @@ class ResponsiveButton extends StatefulWidget {
     this.color,
     this.foregroundColor,
     this.tooltip,
-    this.borders,
+    this.borders = const {Borders.all},
     required this.label,
     this.onPressed,
     this.icon,
@@ -127,18 +127,34 @@ class ResponsiveButtonState<T extends ResponsiveButton>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             decoration: BoxDecoration(
-              borderRadius: widget.borders == Borders.right
-                  ? BorderRadius.only(
-                      topRight: Radius.circular(_borderRadius),
-                      bottomRight: Radius.circular(_borderRadius),
-                    )
-                  : widget.borders == Borders.left
-                      ? BorderRadius.only(
-                          topLeft: Radius.circular(_borderRadius),
-                          bottomLeft: Radius.circular(_borderRadius))
-                      : widget.borders == Borders.middle
-                          ? const BorderRadius.only()
-                          : BorderRadius.circular(_borderRadius),
+              borderRadius: widget.borders.contains(Borders.all)
+                  ? BorderRadius.circular(_borderRadius)
+                  : BorderRadius.only(
+                      topLeft: widget.borders.contains(Borders.topLeft)
+                          ? Radius.circular(_borderRadius)
+                          : Radius.zero,
+                      topRight: widget.borders.contains(Borders.topRight)
+                          ? Radius.circular(_borderRadius)
+                          : Radius.zero,
+                      bottomLeft: widget.borders.contains(Borders.bottomLeft)
+                          ? Radius.circular(_borderRadius)
+                          : Radius.zero,
+                      bottomRight: widget.borders.contains(Borders.bottomRight)
+                          ? Radius.circular(_borderRadius)
+                          : Radius.zero,
+                    ),
+              // borderRadius: widget.borders == Borders.right
+              //     ? BorderRadius.only(
+              //         topRight: Radius.circular(_borderRadius),
+              //         bottomRight: Radius.circular(_borderRadius),
+              //       )
+              //     : widget.borders == Borders.left
+              //         ? BorderRadius.only(
+              //             topLeft: Radius.circular(_borderRadius),
+              //             bottomLeft: Radius.circular(_borderRadius))
+              //         : widget.borders == Borders.middle
+              //             ? const BorderRadius.only()
+              //             : BorderRadius.circular(_borderRadius),
               color: primaryColor,
             ),
             child: Row(

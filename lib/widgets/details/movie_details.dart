@@ -111,7 +111,7 @@ class MovieDetails extends StatelessWidget {
           MetaLabel(movie.year.toString()),
           if (movie.criticRatings?.tmdb != null)
             MetaLabel(movie.criticRatings!.tmdb!.toString(),
-                leading: const Icon(Icons.star)),
+                leading: const Icon(FeatherIcons.star)),
           if (movie.runtime != null)
             MetaLabel(
               prettyDuration(

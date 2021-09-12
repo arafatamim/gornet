@@ -73,12 +73,12 @@ class _GNTabBarState extends State<GNTabBar> {
               },
               active: i == selectedIndex,
               borders: widget.tabs.length == 1
-                  ? Borders.all
+                  ? {Borders.all}
                   : i == 0
-                      ? Borders.left
+                      ? {Borders.topLeft, Borders.bottomLeft}
                       : i == (widget.tabs.length - 1)
-                          ? Borders.right
-                          : Borders.middle,
+                          ? {Borders.topRight, Borders.bottomRight}
+                          : {},
             )
         ],
       ),
