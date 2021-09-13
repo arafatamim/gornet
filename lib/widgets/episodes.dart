@@ -10,6 +10,8 @@ import 'package:goribernetflix/models/user.dart';
 import 'package:goribernetflix/services/api.dart';
 import 'package:goribernetflix/services/next_up.dart';
 import 'package:goribernetflix/services/user.dart';
+import 'package:goribernetflix/widgets/buttons/responsive_button.dart';
+import 'package:goribernetflix/widgets/dialogs/responsive_dialog.dart';
 import 'package:goribernetflix/widgets/error.dart';
 import 'package:goribernetflix/widgets/label.dart';
 import 'package:goribernetflix/widgets/wide_tile.dart';
@@ -280,33 +282,30 @@ class EpisodeDetails extends StatelessWidget {
 
   Widget _buildSourcesWidget() {
     return Builder(
-      builder: (context) => FutureBuilder2<User?>(
-        future: Provider.of<UserService>(context).getCurrentUser(),
-        builder: (context, result) => result.maybeWhen(
-          success: (user) {
-            return EpisodeSources(
-              episode.seriesId,
-              episode.seasonIndex,
-              episode.index,
-              onPlay: () {
-                if (user != null) {
-                  Provider.of<NextUpService>(
-                    context,
-                    listen: false,
-                  ).createNextUp(
-                    seriesId: episode.seriesId,
-                    seasonIndex: episode.seasonIndex,
-                    episodeIndex: episode.index,
-                    userId: user.id,
-                  );
-                }
-              },
-            );
+      builder: (context) {
+        return EpisodeSources(
+          episode.seriesId,
+          episode.seasonIndex,
+          episode.index,
+          onPlay: () async {
+            final user = await Provider.of<UserService>(context, listen: false)
+                .getCurrentUser();
+            if (user != null) {
+              await Provider.of<NextUpService>(
+                context,
+                listen: false,
+              ).createNextUp(
+                seriesId: episode.seriesId,
+                seasonIndex: episode.seasonIndex,
+                episodeIndex: episode.index,
+                userId: user.id,
+              );
+              await Future.delayed(const Duration(seconds: 1));
+              await showWatchedDialog(context, user);
+            }
           },
-          error: (err, stack) => ErrorMessage(err),
-          orElse: () => const SizedBox.shrink(),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -320,6 +319,50 @@ class EpisodeDetails extends StatelessWidget {
             ),
       );
     });
+  }
+
+  Future<dynamic> showWatchedDialog(BuildContext context, User user) {
+    Future<void> onPressed() async {
+      {
+        try {
+          Provider.of<UserService>(
+            context,
+            listen: false,
+          ).addToTraktHistory(
+            MediaType.episode,
+            user.id,
+            ids: episode.externalIds,
+          );
+          Navigator.of(context).pop();
+        } on ServerError catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.message),
+            ),
+          );
+        }
+      }
+    }
+
+    return showAdaptiveDialog(
+      context,
+      title: "Did you watch the full episode?",
+      buttons: [
+        ResponsiveButton(
+          icon: FeatherIcons.x,
+          label: "No, I didn't",
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        ResponsiveButton(
+          icon: FeatherIcons.check,
+          autofocus: true,
+          label: "Yes, mark watched",
+          onPressed: onPressed,
+        ),
+      ],
+    );
   }
 }
 
@@ -369,7 +412,7 @@ class EpisodeSources extends StatelessWidget {
       subtitle: source.fileName,
       height: null,
       scrollAxis: Axis.horizontal,
-      onTap: () {
+      onTap: () async {
         try {
           if (Platform.isAndroid) {
             final AndroidIntent intent = AndroidIntent(
@@ -383,7 +426,7 @@ class EpisodeSources extends StatelessWidget {
                 Flag.FLAG_GRANT_READ_URI_PERMISSION
               ],
             );
-            intent.launch();
+            await intent.launch();
             onPlay?.call();
           } else {
             print("DING DING DING");
