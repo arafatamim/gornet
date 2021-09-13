@@ -83,4 +83,15 @@ class UserService {
 
     return SearchResult.fromList(payload);
   }
+
+  Future<void> addToTraktHistory(
+    MediaType mediaType,
+    int userId, {
+    required ExternalIds ids,
+  }) async {
+    await dio
+        .post("/users/$userId/trakt/history/${mediaType.value}",
+            data: ids.toMap())
+        .catchError((e) => throw mapToServerError(e));
+  }
 }

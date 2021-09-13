@@ -93,10 +93,13 @@ Future<SearchResult> mapIdToSearchResult(
         imageUris: series.imageUris,
       );
       return item;
+    case MediaType.episode:
+      throw Exception("MediaType cannot be of type `episode`");
   }
 }
 
 ServerError mapToServerError(dynamic e) {
+  print(e);
   if (e is DioError) {
     if (e.response?.data != null) {
       return ServerError.fromMap(e.response!.data! as Map<String, dynamic>);
