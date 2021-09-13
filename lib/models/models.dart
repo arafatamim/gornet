@@ -84,6 +84,27 @@ class CriticRatings {
 }
 
 @immutable
+class ExternalIds {
+  final String? imdb;
+  final int? tmdb;
+  final int? tvdb;
+  const ExternalIds({
+    this.imdb,
+    this.tmdb,
+    this.tvdb,
+  });
+  ExternalIds.fromMap(Map<String, dynamic> map)
+      : imdb = map["imdb"] as String?,
+        tmdb = map["tmdb"] as int?,
+        tvdb = map["tvdb"] as int?;
+  Map<String, dynamic> toMap() => {
+        "imdb": imdb,
+        "tmdb": tmdb,
+        "tvdb": tvdb,
+      }..removeWhere((key, value) => value == null);
+}
+
+@immutable
 class MediaSource {
   final String streamUri;
   final int? bitrate;
@@ -178,6 +199,7 @@ class Media {
   final String? synopsis;
   final ImageUris? imageUris;
   final List<Cast>? cast;
+  final ExternalIds externalIds;
   const Media({
     required this.id,
     this.title,
@@ -188,6 +210,7 @@ class Media {
     this.synopsis,
     this.imageUris,
     this.cast,
+    this.externalIds = const ExternalIds(),
   });
 
   @override
@@ -232,6 +255,8 @@ class Movie extends Media {
           imageUris:
               ImageUris.fromMap(payload["imageUris"] as Map<String, dynamic>),
           cast: Cast.fromMapArray(payload["cast"] as List<dynamic>),
+          externalIds: ExternalIds.fromMap(
+              payload["externalIds"] as Map<String, dynamic>),
         );
 }
 
@@ -260,17 +285,18 @@ class Series extends Media {
                 .toList()
             : null,
         super(
-          id: payload["id"] as String,
-          ageRating: payload["ageRating"] as String?,
-          title: payload["title"] as String,
-          year: payload["year"] as int?,
-          genres: List.from(payload["genres"] as List<dynamic>),
-          imageUris: ImageUris.fromMap(
-            payload["imageUris"] as Map<String, dynamic>,
-          ),
-          synopsis: payload["synopsis"] as String?,
-          cast: Cast.fromMapArray(payload["cast"] as List<dynamic>),
-        );
+            id: payload["id"] as String,
+            ageRating: payload["ageRating"] as String?,
+            title: payload["title"] as String,
+            year: payload["year"] as int?,
+            genres: List.from(payload["genres"] as List<dynamic>),
+            imageUris: ImageUris.fromMap(
+              payload["imageUris"] as Map<String, dynamic>,
+            ),
+            synopsis: payload["synopsis"] as String?,
+            cast: Cast.fromMapArray(payload["cast"] as List<dynamic>),
+            externalIds: ExternalIds.fromMap(
+                payload["externalIds"] as Map<String, dynamic>));
 
   @override
   String toString() {
@@ -343,6 +369,7 @@ class Episode {
   final Duration? runtime;
   final DateTime? airDate;
   final ImageUris? imageUris;
+  final ExternalIds externalIds;
 
   Episode.fromMap(dynamic json)
       : id = json["id"] as String,
@@ -361,6 +388,8 @@ class Episode {
         airDate = json["airDate"] != null
             ? DateTime.parse(json["airDate"] as String)
             : null,
+        externalIds =
+            ExternalIds.fromMap(json["externalIds"] as Map<String, dynamic>),
         imageUris = ImageUris.fromMap(
           json["imageUris"] as Map<String, dynamic>,
         );
