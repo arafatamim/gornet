@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:goribernetflix/models/models.dart';
 import 'package:goribernetflix/models/trakt_token.dart';
@@ -31,20 +33,24 @@ class UserService {
 
   Future<User?> getCurrentUser() async {
     final instance = await SharedPreferences.getInstance();
-    final userId = instance.getInt("userId");
-    if (userId != null) {
-      return getUserDetails(userId);
+    final user = instance.getString("user");
+
+    if (user != null) {
+      final decoded = jsonDecode(user);
+      return User.fromJson(decoded);
     }
   }
 
-  Future<void> setUser(int id) async {
+  Future<void> setUser(User user) async {
     final instance = await SharedPreferences.getInstance();
-    instance.setInt("userId", id);
+    final encoded = jsonEncode(user.toJson());
+    print(encoded);
+    await instance.setString("user", encoded);
   }
 
-  Future<void> clearUser(int id) async {
+  Future<void> clearUser() async {
     final instance = await SharedPreferences.getInstance();
-    instance.remove("userId");
+    await instance.remove("user");
   }
 
   Future<void> createUser(String username) async {

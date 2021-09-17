@@ -16,7 +16,6 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   User? currentUser;
-  late final Future<SharedPreferences> _preferences;
 
   @override
   Widget build(BuildContext context) {
@@ -48,8 +47,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
                 error: (error, _stack) {
                   if (currentUser != null) {
-                    Provider.of<UserService>(context)
-                        .clearUser(currentUser!.id);
+                    Provider.of<UserService>(context).clearUser();
                     setState(() {});
                   }
                   return ErrorMessage(error);
@@ -82,22 +80,15 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void initState() {
-    _preferences = SharedPreferences.getInstance();
-    setUserId();
+    _setUserId();
     super.initState();
   }
 
-  void setUserId() async {
-    final instance = await _preferences;
-    final userId = instance.getInt("userId");
-    if (userId != null) {
-      Provider.of<UserService>(context, listen: false)
-          .getUserDetails(userId)
-          .then((user) {
-        setState(() {
-          currentUser = user;
-        });
-      });
-    }
+  void _setUserId() {
+    Provider.of<UserService>(context, listen: false).getCurrentUser().then(
+          (value) => setState(() {
+            currentUser = value;
+          }),
+        );
   }
 }

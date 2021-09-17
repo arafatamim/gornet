@@ -49,7 +49,7 @@ class UserSelector extends StatelessWidget {
                 title: Text(user.username),
                 onTap: () {
                   Provider.of<UserService>(context, listen: false)
-                      .setUser(user.id);
+                      .setUser(user);
                   onChange(user);
                   Navigator.of(context).pop();
                 },
@@ -95,7 +95,9 @@ class UserSelector extends StatelessWidget {
                               ),
                             );
                           }
-                          Navigator.of(context)..pop()..pop();
+                          Navigator.of(context)
+                            ..pop()
+                            ..pop();
                           onChange();
                         },
                       ),
