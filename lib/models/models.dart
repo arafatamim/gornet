@@ -324,7 +324,9 @@ class SearchResult {
       : id = json["id"] as String,
         name = json["name"] as String,
         year = json["year"] as int?,
-        imageUris = ImageUris.fromMap(json["imageUris"]),
+        imageUris = json["imageUris"] != null
+            ? ImageUris.fromMap(json["imageUris"])
+            : null,
         isMovie = json["isMovie"] as bool;
 
   static List<SearchResult> fromList(List<dynamic> data) {

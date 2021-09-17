@@ -44,7 +44,6 @@ class UserService {
   Future<void> setUser(User user) async {
     final instance = await SharedPreferences.getInstance();
     final encoded = jsonEncode(user.toJson());
-    print(encoded);
     await instance.setString("user", encoded);
   }
 
