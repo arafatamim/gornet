@@ -4,6 +4,7 @@ import 'package:deferred_type/deferred_type.dart';
 import 'package:flutter/material.dart';
 import 'package:goribernetflix/freezed/detail_arguments.dart';
 import 'package:goribernetflix/freezed/result_endpoint.dart';
+import 'package:goribernetflix/models/section.dart';
 import 'package:provider/provider.dart';
 import 'package:goribernetflix/models/models.dart';
 import 'package:goribernetflix/services/api.dart';
@@ -110,23 +111,30 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
             ),
           ),
           const SizedBox(height: 40),
-          Section(
-            title: "Trending this week",
-            fetcher: Provider.of<FtpbdService>(context).search(
-              ResultEndpoint.discover(MediaType.movie),
+          SectionBuilder(
+            section: Section(
+              title: "Trending this week",
+              itemFetcher: Provider.of<FtpbdService>(context).search(
+                ResultEndpoint.discover(MediaType.movie),
+              ),
             ),
           ),
           const SizedBox(height: 40),
-          Section(
-            title: "Airing on Disney+",
-            fetcher: Provider.of<FtpbdService>(context).search(
-                ResultEndpoint.discover(MediaType.series, networks: ["2739"])),
+          SectionBuilder(
+            section: Section(
+              title: "Airing on Disney+",
+              itemFetcher: Provider.of<FtpbdService>(context).search(
+                ResultEndpoint.discover(MediaType.series, networks: ["2739"]),
+              ),
+            ),
           ),
           const SizedBox(height: 40),
-          Section(
-            title: "Apple TV+ Originals",
-            fetcher: Provider.of<FtpbdService>(context).search(
-              ResultEndpoint.discover(MediaType.series, networks: ["2552"]),
+          SectionBuilder(
+            section: Section(
+              title: "Apple TV+ Originals",
+              itemFetcher: Provider.of<FtpbdService>(context).search(
+                ResultEndpoint.discover(MediaType.series, networks: ["2552"]),
+              ),
             ),
           ),
         ],
@@ -135,14 +143,12 @@ class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
   }
 }
 
-class Section extends StatelessWidget {
-  final String title;
-  final Future<List<SearchResult>> fetcher;
+class SectionBuilder extends StatelessWidget {
+  final Section section;
 
-  const Section({
+  const SectionBuilder({
     Key? key,
-    required this.title,
-    required this.fetcher,
+    required this.section,
   }) : super(key: key);
 
   @override
@@ -150,11 +156,11 @@ class Section extends StatelessWidget {
     return Container(
       child: Column(
         children: <Widget>[
-          _buildSectionTitle(title),
+          if (section.title != null) _buildSectionTitle(section.title!),
           LimitedBox(
             maxHeight: 450,
             child: FutureBuilder2<List<SearchResult>>(
-              future: fetcher,
+              future: section.itemFetcher,
               builder: (context, result) => result.maybeWhen(
                 inProgress: () => const ShimmerList(
                   itemCount: 6,
