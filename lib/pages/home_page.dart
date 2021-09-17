@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:goribernetflix/freezed/result_endpoint.dart';
 import 'package:goribernetflix/models/models.dart';
+import 'package:goribernetflix/models/section.dart';
 import 'package:goribernetflix/models/user.dart';
 import 'package:goribernetflix/services/api.dart';
 import 'package:goribernetflix/services/favorites.dart';
@@ -31,6 +32,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late final TabController _controller;
+  User? user;
+  bool isTraktActivated = false;
 
   @override
   void initState() {
@@ -39,25 +42,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _setValues();
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
-
-  // Future<List<SearchResult>> _getFavs() async {
-  //   final strings = await Provider.of<FavoritesService>(context, listen: false)
-  //       .getFavorites()
-  //       .then((value) => value
-  //           .map(
-  //             (e) => mapIdToSearchResult(
-  //               MediaType.Series,
-  //               e,
-  //               service: Provider.of<FtpbdService>(context, listen: false),
-  //             ),
-  //           )
-  //           .toList());
-  //   return Future.wait(strings);
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -100,36 +94,49 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     physics: const NeverScrollableScrollPhysics(),
                     children: <Widget>[
                       HomeTab(key: UniqueKey()),
-                      FutureBuilder2<User?>(
-                        future:
-                            Provider.of<UserService>(context).getCurrentUser(),
-                        builder: (context, result) => result.maybeWhen(
-                          success: (user) {
-                            if (user != null) {
-                              return ItemsTab(
-                                future: Provider.of<FavoritesService>(context)
-                                    .getFavorites(user.id),
-                                showIcon: true,
-                              );
-                            } else {
-                              return const Center(
-                                child: ErrorMessage("You're not logged in!"),
-                              );
-                            }
-                          },
-                          error: (error, stackTrace) => ErrorMessage(error),
-                          orElse: () => const SizedBox.shrink(),
-                        ),
+                      user != null
+                          ? ItemsTab(
+                              sections: [
+                                Section(
+                                  itemFetcher:
+                                      Provider.of<FavoritesService>(context)
+                                          .getFavorites(user!.id),
+                                ),
+                                if (isTraktActivated)
+                                  Section(
+                                    title: "Movies to watch",
+                                    itemFetcher:
+                                        Provider.of<UserService>(context)
+                                            .getTraktWatchlist(user!.id)
+                                            .then((value) =>
+                                                value.take(6).toList()),
+                                  ),
+                              ],
+                              showIcon: true,
+                            )
+                          : const Center(
+                              child: ErrorMessage(
+                                  "Select a profile to view watchlist here"),
+                            ),
+                      ItemsTab(
+                        sections: [
+                          Section(
+                            itemFetcher:
+                                Provider.of<FtpbdService>(context).search(
+                              ResultEndpoint.discover(MediaType.movie),
+                            ),
+                          ),
+                        ],
                       ),
                       ItemsTab(
-                        future: Provider.of<FtpbdService>(context).search(
-                          ResultEndpoint.discover(MediaType.movie),
-                        ),
-                      ),
-                      ItemsTab(
-                        future: Provider.of<FtpbdService>(context).search(
-                          ResultEndpoint.discover(MediaType.series),
-                        ),
+                        sections: [
+                          Section(
+                            itemFetcher:
+                                Provider.of<FtpbdService>(context).search(
+                              ResultEndpoint.discover(MediaType.series),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -313,5 +320,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ],
       ),
     );
+  }
+
+  Future<void> _setValues() async {
+    final user =
+        await Provider.of<UserService>(context, listen: false).getCurrentUser();
+    if (user != null) {
+      final isTraktActivated =
+          await Provider.of<UserService>(context, listen: false)
+              .isTraktActivated(user.id);
+
+      setState(() {
+        this.user = user;
+        this.isTraktActivated = isTraktActivated;
+      });
+    }
   }
 }

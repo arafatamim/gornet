@@ -1,17 +1,19 @@
+import 'package:deferred_type/deferred_type.dart';
+import 'package:flutter/material.dart';
 import 'package:goribernetflix/freezed/detail_arguments.dart';
 import 'package:goribernetflix/models/models.dart';
-import 'package:goribernetflix/widgets/error.dart';
-import 'package:goribernetflix/widgets/shimmers.dart';
-import 'package:flutter/material.dart';
-import 'package:deferred_type/deferred_type.dart';
+import 'package:goribernetflix/models/section.dart';
 import 'package:goribernetflix/widgets/cover.dart';
+import 'package:goribernetflix/widgets/error.dart';
+import 'package:goribernetflix/widgets/grid.dart';
+import 'package:goribernetflix/widgets/shimmers.dart';
 
 class ItemsTab extends StatefulWidget {
-  final Future<List<SearchResult>> future;
+  final List<Section> sections;
   final bool showIcon;
 
   const ItemsTab({
-    required this.future,
+    required this.sections,
     this.showIcon = false,
   });
   @override
@@ -20,43 +22,6 @@ class ItemsTab extends StatefulWidget {
 
 class _ItemsTabState extends State<ItemsTab>
     with AutomaticKeepAliveClientMixin {
-  // ScrollController _scrollController;
-
-  @override
-  void initState() {
-    // _scrollController = new ScrollController(
-    //   initialScrollOffset: 0.0,
-    //   keepScrollOffset: true,
-    // )
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    // _scrollController.dispose();
-    super.dispose();
-  }
-
-  // void _toEnd(int index, int items) {
-  //   var row = (index/6).floor();
-  //   var scrollCursor = row * 250;
-  //   // if(scrollCursor != cursor) cursor = scrollCursor;
-  //   print("scrolloffset");
-  //   print(_scrollController.offset);
-  //   print("cursor");
-  //   print(cursor);
-  //   print("maxscroll");
-  //   print(_scrollController.position.maxScrollExtent);
-  //   _scrollController.animateTo(                                      // NEW
-  //     scrollCursor.toDouble(),                     // NEW
-  //     duration: const Duration(milliseconds: 300),                    // NEW
-  //     curve: Curves.ease,                                             // NEW
-  //   );                                                                // NEW
-  // }
-
-  @override
-  bool get wantKeepAlive => true;
-
   int get itemCount {
     final deviceSize = MediaQuery.of(context).size;
     final int itemCount = deviceSize.width ~/ 200;
@@ -64,70 +29,91 @@ class _ItemsTabState extends State<ItemsTab>
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
-    return FutureBuilder2<List<SearchResult>>(
-      future: widget.future,
-      builder: (context, state) => state.maybeWhen(
-        success: (items) {
-          if (items.isEmpty) {
-            return const Center(
-              child: ErrorMessage("Watchlist is empty!"),
-            );
-          }
-          return _buildGridView(context, items);
-        },
-        error: (error, stackTrace) => Center(child: ErrorMessage(error)),
-        orElse: () => ShimmerList(itemCount: itemCount),
+
+    List<Widget> buildSections() => <Widget>[
+          for (int i = 0; i < widget.sections.length; i++)
+            FutureBuilder2<List<SearchResult>>(
+              future: widget.sections[i].itemFetcher,
+              builder: (context, state) => state.maybeWhen(
+                success: (items) {
+                  if (widget.sections[i].title != null && items.isNotEmpty) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.sections[i].title!.toUpperCase(),
+                          style: Theme.of(context).textTheme.headline2?.apply(
+                                fontSizeFactor: 0.6,
+                                color: Colors.grey.shade300,
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildItemsView(context, items)
+                      ],
+                    );
+                  } else {
+                    return _buildItemsView(context, items);
+                  }
+                },
+                error: (error, _) {
+                  return Center(
+                    child: ErrorMessage(error),
+                  );
+                },
+                orElse: () => SizedBox(
+                  height: 300,
+                  child: ShimmerList(itemCount: itemCount),
+                ),
+              ),
+            ),
+        ];
+
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: buildSections(),
       ),
     );
   }
 
-  Widget _buildGridView(BuildContext context, List<SearchResult> values) {
-    return GridView.builder(
-      // controller: _scrollController,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: itemCount,
-        childAspectRatio: 0.53,
-      ),
-      itemCount: values.length,
-
-      itemBuilder: (BuildContext context, int index) {
-        SearchResult item = values[index];
-        return Cover(
-          title: item.name,
-          subtitle: (item.year ?? "").toString(),
-          image: item.imageUris?.primary,
-
-          color: MaterialStateColor.resolveWith(
-            (states) => states.contains(MaterialState.focused)
-                ? Colors.white
-                : Colors.transparent,
+  Widget _buildItemsView(BuildContext context, List<SearchResult> items) {
+    return Grid(
+      columnCount: itemCount,
+      children: [
+        for (final item in items)
+          AspectRatio(
+            aspectRatio: 0.53,
+            child: Cover(
+              title: item.name,
+              subtitle: (item.year ?? "").toString(),
+              image: item.imageUris?.primary,
+              color: MaterialStateColor.resolveWith(
+                (states) => states.contains(MaterialState.focused)
+                    ? Colors.white
+                    : Colors.transparent,
+              ),
+              foregroundColor: MaterialStateColor.resolveWith(
+                (states) => states.contains(MaterialState.focused)
+                    ? Colors.white
+                    : Colors.grey.shade300,
+              ),
+              mutedForegroundColor: MaterialStateColor.resolveWith(
+                (states) => states.contains(MaterialState.focused)
+                    ? Colors.grey.shade300
+                    : Colors.grey.shade400,
+              ),
+              onTap: () {
+                Navigator.pushNamed(context, "/detail",
+                    arguments: DetailArgs.media(item));
+              },
+            ),
           ),
-          foregroundColor: MaterialStateColor.resolveWith(
-            (states) => states.contains(MaterialState.focused)
-                ? Colors.white
-                : Colors.grey.shade300,
-          ),
-          mutedForegroundColor: MaterialStateColor.resolveWith(
-            (states) => states.contains(MaterialState.focused)
-                ? Colors.grey.shade300
-                : Colors.grey.shade400,
-          ),
-          // style: CustomTouchableStyle(
-          //   primaryColor: Colors.transparent,
-          //   textColor: Colors.grey.shade300,
-          //   focusTextColor: Colors.white,
-          //   mutedTextColor: Colors.grey.shade400,
-          //   focusMutedTextColor: Colors.grey.shade300,
-          // ),
-          onTap: () {
-            Navigator.pushNamed(context, "/detail",
-                arguments: DetailArgs.media(item));
-          },
-          // onFocus: () {_toEnd(index, 4);}
-        );
-      },
+      ],
     );
   }
 }
