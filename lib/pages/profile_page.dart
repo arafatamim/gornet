@@ -9,7 +9,6 @@ import 'package:goribernetflix/widgets/scaffold_with_button.dart';
 import 'package:goribernetflix/widgets/settings/user_selector.dart';
 import 'package:goribernetflix/widgets/wave_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -20,26 +19,20 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   User? currentUser;
-  late final Future<SharedPreferences> _preferences;
 
-  void setUserId() async {
-    final instance = await _preferences;
-    final userId = instance.getInt("userId");
-    if (userId != null) {
-      Provider.of<UserService>(context, listen: false)
-          .getUserDetails(userId)
-          .then((user) {
-        setState(() {
-          currentUser = user;
-        });
+  void _setUser() async {
+    Provider.of<UserService>(context, listen: false)
+        .getCurrentUser()
+        .then((user) {
+      setState(() {
+        currentUser = user;
       });
-    }
+    });
   }
 
   @override
   void initState() {
-    _preferences = SharedPreferences.getInstance();
-    setUserId();
+    _setUser();
     super.initState();
   }
 
