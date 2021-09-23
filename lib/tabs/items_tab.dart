@@ -32,6 +32,11 @@ class _ItemsTabState extends State<ItemsTab>
   bool get wantKeepAlive => true;
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
 

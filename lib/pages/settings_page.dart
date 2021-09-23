@@ -7,7 +7,6 @@ import 'package:goribernetflix/widgets/scaffold_with_button.dart';
 import 'package:goribernetflix/widgets/settings/trakt_selector.dart';
 import 'package:goribernetflix/widgets/settings/user_selector.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
   @override

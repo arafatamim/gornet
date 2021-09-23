@@ -17,4 +17,10 @@ class User {
       "admin": admin,
     };
   }
+
+  @override
+  bool operator ==(Object other) => other is User && id == other.id;
+
+  @override
+  int get hashCode => Object.hash(id, username, admin);
 }
