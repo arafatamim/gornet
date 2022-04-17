@@ -16,10 +16,10 @@ import 'package:goribernetflix/widgets/spotlight.dart';
 class HomeTab extends StatefulWidget {
   const HomeTab({Key? key}) : super(key: key);
   @override
-  _HomeTabState createState() => _HomeTabState();
+  HomeTabState createState() => HomeTabState();
 }
 
-class _HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
+class HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
   late final ScrollController _controller;
 
   @override

@@ -17,11 +17,10 @@ class ItemsTab extends StatefulWidget {
     this.showIcon = false,
   });
   @override
-  _ItemsTabState createState() => _ItemsTabState();
+  ItemsTabState createState() => ItemsTabState();
 }
 
-class _ItemsTabState extends State<ItemsTab>
-    with AutomaticKeepAliveClientMixin {
+class ItemsTabState extends State<ItemsTab> with AutomaticKeepAliveClientMixin {
   int get itemCount {
     final deviceSize = MediaQuery.of(context).size;
     final int itemCount = deviceSize.width ~/ 200;

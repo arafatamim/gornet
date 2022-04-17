@@ -81,10 +81,10 @@ class Cover extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _CoverState createState() => _CoverState();
+  CoverState createState() => CoverState();
 }
 
-class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
+class CoverState extends State<Cover> with SingleTickerProviderStateMixin {
   late FocusNode _node;
   late AnimationController _animationController;
   late TickerTextController _autoScrollController;
@@ -209,7 +209,7 @@ class _CoverState extends State<Cover> with SingleTickerProviderStateMixin {
       return CachedNetworkImage(
         key: Key(widget.image!),
         fadeInDuration: const Duration(milliseconds: 300),
-        placeholder: (_context, _uri) => AspectRatio(
+        placeholder: (context, uri) => AspectRatio(
           aspectRatio: 0.6,
           child: Icon(
             widget.icon ?? FeatherIcons.video,

@@ -16,7 +16,6 @@ import 'package:goribernetflix/widgets/buttons/responsive_button.dart';
 import 'package:goribernetflix/widgets/tabs/gn_tab_bar.dart';
 import 'package:goribernetflix/widgets/wide_tile.dart';
 import 'package:provider/provider.dart';
-import 'package:ticker_text/ticker_text.dart';
 
 class SeriesDetails extends StatelessWidget {
   final Series series;
@@ -94,9 +93,7 @@ class SeriesDetails extends StatelessWidget {
 
                         const title = "Continue watching";
                         final subtitle =
-                            "S${season.index.toString().padLeft(2, "0")}"
-                                    "E${episode.index.toString().padLeft(2, "0")}" +
-                                (" - " + episode.name);
+                            "S${season.index.toString().padLeft(2, "0")}E${episode.index.toString().padLeft(2, "0")} - ${episode.name}";
                         void onTap() => showModalBottomSheet(
                               useRootNavigator: true,
                               isDismissible: false,
@@ -117,7 +114,7 @@ class SeriesDetails extends StatelessWidget {
                           title: title,
                           subtitle: subtitle,
                           onTap: onTap,
-                          leading: const Icon(FeatherIcons.play),
+                          /* leading: const Icon(FeatherIcons.play), */
                         );
                       },
                       inProgress: () => const Center(
@@ -131,7 +128,11 @@ class SeriesDetails extends StatelessWidget {
                 return const SizedBox.shrink();
               }
             },
-            error: (e, _) => ErrorMessage(e),
+            error: (e, stack) {
+              print(e);
+              print(stack);
+              return ErrorMessage(e);
+            },
             orElse: () => const SizedBox.shrink(),
           ),
         );
@@ -161,7 +162,7 @@ class SeriesDetails extends StatelessWidget {
                           ? (series.lastAired != null
                               ? (series.lastAired!.year == series.year
                                   ? ""
-                                  : " - " + series.lastAired!.year.toString())
+                                  : " - ${series.lastAired!.year}")
                               : " - ENDED")
                           : " - PRESENT")
                       : ""),
@@ -189,12 +190,9 @@ class SeriesDetails extends StatelessWidget {
         [
           if (series.cast != null && series.cast!.isNotEmpty)
             Expanded(
-              child: TickerText(
-                scrollDirection: Axis.horizontal,
-                child: MetaLabel(
-                  "Cast: " +
-                      series.cast!.take(10).map((i) => i.name).join(", "),
-                ),
+              child: MetaLabel(
+                series.cast!.take(10).map((i) => i.name).join(" • "),
+                title: "Cast",
               ),
             ),
         ]

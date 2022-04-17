@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
@@ -17,7 +16,6 @@ import 'package:goribernetflix/widgets/label.dart';
 import 'package:goribernetflix/widgets/wide_tile.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:duration/duration.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:provider/provider.dart';
@@ -28,11 +26,10 @@ class Episodes extends StatefulWidget {
   const Episodes(this.season);
 
   @override
-  _EpisodesState createState() => _EpisodesState();
+  EpisodesState createState() => EpisodesState();
 }
 
-class _EpisodesState extends State<Episodes>
-    with AutomaticKeepAliveClientMixin {
+class EpisodesState extends State<Episodes> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -291,6 +288,10 @@ class EpisodeDetails extends StatelessWidget {
             final user = await Provider.of<UserService>(context, listen: false)
                 .getCurrentUser();
             if (user != null) {
+              final isTraktActivated = await Provider.of<UserService>(
+                context,
+                listen: false,
+              ).isTraktActivated(user.id);
               await Provider.of<NextUpService>(
                 context,
                 listen: false,
@@ -300,8 +301,10 @@ class EpisodeDetails extends StatelessWidget {
                 episodeIndex: episode.index,
                 userId: user.id,
               );
-              await Future.delayed(const Duration(seconds: 1));
-              await showWatchedDialog(context, user);
+              if (isTraktActivated) {
+                await Future.delayed(const Duration(seconds: 1));
+                await showWatchedDialog(context, user);
+              }
             }
           },
         );
@@ -408,7 +411,7 @@ class EpisodeSources extends StatelessWidget {
 
   Widget _buildSourceCard(MediaSource source) {
     return RoundedCard(
-      title: source.displayName + ", " + formatBytes(source.fileSize),
+      title: "${source.displayName}, ${formatBytes(source.fileSize)}",
       subtitle: source.fileName,
       height: null,
       scrollAxis: Axis.horizontal,

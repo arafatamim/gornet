@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:ticker_text/ticker_text.dart';
 
 class MetaLabel extends StatelessWidget {
   final String label;
   final Widget? leading;
   final bool hasBackground;
+  final String? title;
 
   const MetaLabel(
     this.label, {
     Key? key,
     this.hasBackground = false,
     this.leading,
+    this.title,
   }) : super(key: key);
 
   Widget? _buildLeading() {
@@ -32,16 +35,39 @@ class MetaLabel extends StatelessWidget {
     }
   }
 
+  Widget _buildTitle() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade300.withAlpha(200),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Text(
+        title!.toUpperCase(),
+        style: TextStyle(
+          color: Colors.grey.shade900,
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Row(
-        children: [
-          if (_buildLeading() != null) ...[
-            _buildLeading()!,
-            const SizedBox(width: 10),
-          ],
-          Container(
+    return Row(
+      children: [
+        if (title != null) ...[
+          _buildTitle(),
+          const SizedBox(width: 10),
+        ],
+        if (_buildLeading() != null) ...[
+          _buildLeading()!,
+          const SizedBox(width: 10),
+        ],
+        Flexible(
+          flex: 0,
+          child: Container(
             padding: hasBackground
                 ? const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
                 : null,
@@ -51,23 +77,31 @@ class MetaLabel extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                   )
                 : null,
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                    color: hasBackground
-                        ? Colors.grey.shade900
-                        : Colors.grey.shade200,
-                    fontWeight:
-                        hasBackground ? FontWeight.bold : FontWeight.normal,
-                    fontSize: hasBackground ? 16 : 18,
-                  ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 300,
+              ), // TODO don't hardcode width
+              child: TickerText(
+                scrollDirection: Axis.horizontal,
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                        color: hasBackground
+                            ? Colors.grey.shade900
+                            : Colors.grey.shade200,
+                        fontWeight:
+                            hasBackground ? FontWeight.bold : FontWeight.normal,
+                        fontSize: hasBackground ? 16 : 18,
+                      ),
+                ),
+              ),
             ),
           ),
-          MediaQuery.of(context).size.width > 720
-              ? const SizedBox(width: 30)
-              : const SizedBox(width: 15),
-        ],
-      ),
+        ),
+        MediaQuery.of(context).size.width > 720
+            ? const SizedBox(width: 30)
+            : const SizedBox(width: 15),
+      ],
     );
   }
 }

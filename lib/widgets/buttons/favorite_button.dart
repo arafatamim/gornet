@@ -13,10 +13,10 @@ class FavoriteButton extends StatefulWidget {
   const FavoriteButton({required this.seriesId});
 
   @override
-  _FavoriteButtonState createState() => _FavoriteButtonState();
+  FavoriteButtonState createState() => FavoriteButtonState();
 }
 
-class _FavoriteButtonState extends State<FavoriteButton> {
+class FavoriteButtonState extends State<FavoriteButton> {
   Future<void> _setFavorite(int userId) async {
     return Provider.of<FavoritesService>(context, listen: false)
         .saveFavorite(widget.seriesId, userId);

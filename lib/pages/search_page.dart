@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:deferred_type/deferred_type.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:goribernetflix/freezed/detail_arguments.dart';
 import 'package:goribernetflix/freezed/result_endpoint.dart';
@@ -115,10 +114,10 @@ class SearchWidget extends StatelessWidget {
 
 class SearchPage extends StatefulWidget {
   @override
-  _SearchPageState createState() => _SearchPageState();
+  SearchPageState createState() => SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
+class SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
   late final TextEditingController _textController;
   late final TabController _tabController;
   late final SearchStore _searchStore;

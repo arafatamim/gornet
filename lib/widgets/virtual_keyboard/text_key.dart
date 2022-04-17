@@ -23,10 +23,10 @@ class TextKey extends StatefulWidget {
   final MaterialStateColor? foregroundColor;
 
   @override
-  _TextKeyState createState() => _TextKeyState();
+  TextKeyState createState() => TextKeyState();
 }
 
-class _TextKeyState extends State<TextKey> with TickerProviderStateMixin {
+class TextKeyState extends State<TextKey> with TickerProviderStateMixin {
   late FocusNode _node;
   late Color _primaryColor;
   late Color _textColor;

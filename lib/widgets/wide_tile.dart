@@ -27,10 +27,10 @@ class RoundedCard extends StatefulWidget {
   final double? height;
 
   @override
-  _RoundedCardState createState() => _RoundedCardState();
+  RoundedCardState createState() => RoundedCardState();
 }
 
-class _RoundedCardState extends State<RoundedCard>
+class RoundedCardState extends State<RoundedCard>
     with SingleTickerProviderStateMixin {
   late final FocusNode _node;
   late final AnimationController _controller;
@@ -198,10 +198,12 @@ class _RoundedCardState extends State<RoundedCard>
                 child: Center(
                   child: widget.leading != null
                       ? widget.leading!
-                      : Icon(FeatherIcons.playCircle,
+                      : Icon(
+                          FeatherIcons.playCircle,
                           color: focused
                               ? foregroundColor.resolve({MaterialState.focused})
-                              : foregroundColor.resolve({})),
+                              : foregroundColor.resolve({}),
+                        ),
                 ),
               ),
               Expanded(

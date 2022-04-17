@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:dio_cache_interceptor_file_store/dio_cache_interceptor_file_store.dart';
 import 'package:goribernetflix/models/models.dart';
 import 'package:goribernetflix/services/api.dart';
 import 'package:dio/dio.dart';
@@ -13,7 +14,7 @@ String formatBytes(int bytes, {int decimals = 1}) {
   final i = (math.log(bytes) / math.log(k)).floor();
   final finalSize =
       (bytes / math.pow(k, i)).toStringAsFixed(decimals.abs()); // 830.0
-  return finalSize + " " + sizes[i];
+  return "$finalSize ${sizes[i]}";
 }
 
 T coalesceException<T>(T Function() func, T defaultValue) {

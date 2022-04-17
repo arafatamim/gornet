@@ -5,22 +5,26 @@ class StorageFormat {
   final String seriesId;
   final int seasonIndex;
   final int episodeIndex;
+  final String episodeName;
 
   StorageFormat({
     required final this.seriesId,
     required final this.seasonIndex,
     required final this.episodeIndex,
+    required final this.episodeName,
   });
 
   StorageFormat.fromJson(Map<String, dynamic> json)
-      : seriesId = json["id"] as String,
+      : seriesId = json["seriesId"] as String,
         seasonIndex = json["seasonIndex"] as int,
-        episodeIndex = json["episodeIndex"] as int;
+        episodeIndex = json["episodeIndex"] as int,
+        episodeName = json["episodeName"] as String;
 
   Map<String, dynamic> toJson() => {
-        "id": seriesId,
+        "seriesId": seriesId,
         "seasonIndex": seasonIndex,
         "episodeIndex": episodeIndex,
+        "episodeName": episodeName,
       };
 
   static List<StorageFormat> fromJsonArray(List<Map<String, dynamic>> json) =>
@@ -31,7 +35,7 @@ class StorageFormat {
 
   @override
   String toString() {
-    return "StorageFormat { seriesId: $seriesId; seasonIndex: $seasonIndex; episodeIndex: $episodeIndex }";
+    return "StorageFormat { seriesId: $seriesId; seasonIndex: $seasonIndex; episodeIndex: $episodeIndex; episodeName: $episodeName }";
   }
 }
 
@@ -65,7 +69,7 @@ class NextUpService {
     await dio.post(
       '/users/$userId/nextup/create',
       data: {
-        "id": seriesId,
+        "seriesId": seriesId,
         "seasonIndex": seasonIndex.toString(),
         "episodeIndex": episodeIndex.toString(),
       },

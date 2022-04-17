@@ -69,7 +69,7 @@ class MyApp extends StatelessWidget {
               ),
             ),
           ),
-        )
+        ),
       ],
       child: Shortcuts(
         // needed for AndroidTV to be able to select
@@ -81,28 +81,28 @@ class MyApp extends StatelessWidget {
           theme: ModernTheme.darkTheme,
           home: const ProfilePage(),
           onGenerateRoute: (settings) {
-            if (settings.name == "/detail") {
-              return ScaleRoute(
-                settings: const RouteSettings(name: "detail"),
-                page: DetailPage(settings.arguments as DetailArgs),
-              );
-            }
-            if (settings.name == "/search") {
-              return ScaleRoute(
-                settings: const RouteSettings(name: "search"),
-                page: SearchPage(),
-              );
-            }
-            if (settings.name == "/settings") {
-              return ScaleRoute(
-                settings: const RouteSettings(name: "settings"),
-                page: SettingsPage(),
-              );
-            }
-            if (settings.name == "/home") {
-              return ScaleRoute(
-                page: const HomePage(title: "Goriber Netflix"),
-              );
+            switch (settings.name) {
+              case "/detail":
+                return ScaleRoute(
+                  settings: const RouteSettings(name: "detail"),
+                  page: DetailPage(settings.arguments as DetailArgs),
+                );
+              case "/search":
+                return ScaleRoute(
+                  settings: const RouteSettings(name: "search"),
+                  page: SearchPage(),
+                );
+              case "/settings":
+                return ScaleRoute(
+                  settings: const RouteSettings(name: "settings"),
+                  page: SettingsPage(),
+                );
+              case "/home":
+                return ScaleRoute(
+                  page: const HomePage(title: "Goriber Netflix"),
+                );
+              default:
+                return null;
             }
           },
         ),

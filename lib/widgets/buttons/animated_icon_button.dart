@@ -15,10 +15,10 @@ class AnimatedIconButton extends StatefulWidget {
     this.autofocus = false,
   });
   @override
-  _AnimatedIconButtonState createState() => _AnimatedIconButtonState();
+  AnimatedIconButtonState createState() => AnimatedIconButtonState();
 }
 
-class _AnimatedIconButtonState extends State<AnimatedIconButton>
+class AnimatedIconButtonState extends State<AnimatedIconButton>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late FocusNode _node;

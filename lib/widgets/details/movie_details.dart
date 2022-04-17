@@ -16,7 +16,6 @@ import 'package:goribernetflix/widgets/dialogs/responsive_dialog.dart';
 import 'package:goribernetflix/widgets/error.dart';
 import 'package:goribernetflix/widgets/label.dart';
 import 'package:goribernetflix/widgets/wide_tile.dart';
-import 'package:ticker_text/ticker_text.dart';
 import 'package:goribernetflix/utils.dart';
 import 'package:provider/provider.dart';
 
@@ -83,7 +82,7 @@ class MovieDetails extends StatelessWidget {
   Widget _buildSourceTile(MediaSource source) {
     return Builder(builder: (context) {
       return RoundedCard(
-        title: source.displayName + ", ${formatBytes(source.fileSize)}",
+        title: "${source.displayName}, ${formatBytes(source.fileSize)}",
         subtitle: source.fileName,
         scrollAxis: Axis.horizontal,
         onTap: () async {
@@ -107,8 +106,14 @@ class MovieDetails extends StatelessWidget {
               listen: false,
             ).getCurrentUser();
             if (user != null) {
-              await Future.delayed(const Duration(seconds: 1));
-              await showWatchedDialog(context, user);
+              final isTraktActivated = await Provider.of<UserService>(
+                context,
+                listen: false,
+              ).isTraktActivated(user.id);
+              if (isTraktActivated) {
+                await Future.delayed(const Duration(seconds: 2));
+                await showWatchedDialog(context, user);
+              }
             }
           } on UnsupportedError {
             print("It's the web!");
@@ -185,18 +190,22 @@ class MovieDetails extends StatelessWidget {
         ],
         <Widget>[
           if (movie.directors != null && movie.directors!.isNotEmpty)
-            MetaLabel("Directed by " + movie.directors![0]),
+            MetaLabel(
+              movie.directors![0],
+              title: "Director",
+            ),
+          if (movie.studios != null && movie.studios!.isNotEmpty)
+            MetaLabel(
+              movie.studios![0],
+              title: "Production",
+            ),
         ],
         [
-          if (movie.studios != null && movie.studios!.isNotEmpty)
-            MetaLabel("Production: " + movie.studios![0]),
           if (movie.cast != null)
             Expanded(
-              child: TickerText(
-                scrollDirection: Axis.horizontal,
-                child: MetaLabel(
-                  "Cast: " + movie.cast!.take(10).map((i) => i.name).join(", "),
-                ),
+              child: MetaLabel(
+                movie.cast!.take(10).map((i) => i.name).join(" • "),
+                title: "Cast",
               ),
             ),
         ]

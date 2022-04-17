@@ -22,10 +22,10 @@ class SeasonTab extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _SeasonTabState createState() => _SeasonTabState();
+  SeasonTabState createState() => SeasonTabState();
 }
 
-class _SeasonTabState extends State<SeasonTab>
+class SeasonTabState extends State<SeasonTab>
     with SingleTickerProviderStateMixin {
   late FocusNode _node;
   late AnimationController _controller;
@@ -119,7 +119,7 @@ class _SeasonTabState extends State<SeasonTab>
           ? CachedNetworkImage(
               key: Key(imageUris!.primary!),
               fadeInDuration: const Duration(milliseconds: 150),
-              placeholder: (_context, _url) => renderPlaceholderBox(),
+              placeholder: (context, url) => renderPlaceholderBox(),
               errorWidget: (context, url, err) => renderPlaceholderBox(),
               imageUrl: imageUris.primary!,
               fit: BoxFit.cover,

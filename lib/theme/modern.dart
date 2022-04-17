@@ -7,13 +7,13 @@ extension MetaStyles on TextTheme {
 
 class ModernTheme {
   static ThemeData get darkTheme {
-    const _orangePrimaryValue = 0xFFF55951;
+    const orangePrimaryValue = 0xFFF55951;
 
     return ThemeData(
       colorScheme: const ColorScheme.dark(
         primary: Color(0xFF543C52),
-        secondary: Color(_orangePrimaryValue),
-        secondaryVariant: Color(0xFFF22C22),
+        secondary: Color(orangePrimaryValue),
+        /* secondaryVariant: Color(0xFFF22C22), */
       ),
       primaryColor: const Color(0xFF543C52),
       visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -60,22 +60,22 @@ class ModernTheme {
         style: ButtonStyle(
           overlayColor: MaterialStateProperty.all(Colors.white.withAlpha(20)),
           foregroundColor: MaterialStateProperty.all(
-            const Color(_orangePrimaryValue),
+            const Color(orangePrimaryValue),
           ),
         ),
       ),
       inputDecorationTheme: const InputDecorationTheme(
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
-            color: Color(_orangePrimaryValue),
+            color: Color(orangePrimaryValue),
             width: 2.0,
           ),
         ),
       ),
       textSelectionTheme: const TextSelectionThemeData(
-          cursorColor: Color(_orangePrimaryValue),
-          selectionColor: Color(_orangePrimaryValue),
-          selectionHandleColor: Color(_orangePrimaryValue)),
+          cursorColor: Color(orangePrimaryValue),
+          selectionColor: Color(orangePrimaryValue),
+          selectionHandleColor: Color(orangePrimaryValue)),
     );
   }
 }

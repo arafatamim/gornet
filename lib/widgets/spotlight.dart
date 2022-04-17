@@ -245,9 +245,7 @@ class _SpotlightState extends State<Spotlight> {
               (hasEnded != null
                   ? (hasEnded
                       ? (endDate != null
-                          ? (endDate.year == year
-                              ? ""
-                              : " - " + endDate.year.toString())
+                          ? (endDate.year == year ? "" : " - ${endDate.year}")
                           : " - ENDED")
                       : " - PRESENT")
                   : ""),

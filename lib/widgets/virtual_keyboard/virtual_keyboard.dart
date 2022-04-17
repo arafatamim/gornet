@@ -28,10 +28,10 @@ class VirtualKeyboard extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _VirtualKeyboardState createState() => _VirtualKeyboardState();
+  VirtualKeyboardState createState() => VirtualKeyboardState();
 }
 
-class _VirtualKeyboardState extends State<VirtualKeyboard> {
+class VirtualKeyboardState extends State<VirtualKeyboard> {
   TextEditingController? _controller;
   late final List<List<String>> _keyLayout;
 
@@ -148,7 +148,7 @@ class _VirtualKeyboardState extends State<VirtualKeyboard> {
 
   void _spaceHandler() {
     if (effectiveController.text != "") {
-      effectiveController.text = effectiveController.text.trim() + " ";
+      effectiveController.text = "${effectiveController.text.trim()} ";
     }
     onChangedCallback();
   }

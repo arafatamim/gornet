@@ -35,10 +35,10 @@ class UserService {
     final instance = await SharedPreferences.getInstance();
     final user = instance.getString("user");
 
-    if (user != null) {
-      final decoded = jsonDecode(user);
-      return User.fromJson(decoded);
-    }
+    if (user == null) return null;
+
+    final decoded = jsonDecode(user);
+    return User.fromJson(decoded);
   }
 
   Future<void> setUser(User user) async {
