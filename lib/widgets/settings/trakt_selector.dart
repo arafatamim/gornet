@@ -1,5 +1,5 @@
 import 'package:async/async.dart';
-import 'package:deferred_type/deferred_type.dart';
+import 'package:deferred_type_flutter/deferred_type_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:goribernetflix/models/trakt_code.dart';

@@ -7,7 +7,7 @@ import 'package:goribernetflix/widgets/details/series_details.dart';
 import 'package:flutter/material.dart';
 import 'package:goribernetflix/widgets/error.dart';
 import 'package:provider/provider.dart';
-import 'package:deferred_type/deferred_type.dart';
+import 'package:deferred_type_flutter/deferred_type_flutter.dart';
 
 class DetailPage extends StatelessWidget {
   final DetailArgs args;

@@ -1,4 +1,4 @@
-import 'package:deferred_type/deferred_type.dart';
+import 'package:deferred_type_flutter/deferred_type_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:goribernetflix/freezed/detail_arguments.dart';
 import 'package:goribernetflix/models/models.dart';

@@ -4,7 +4,7 @@ import 'package:goribernetflix/services/favorites.dart';
 import 'package:goribernetflix/services/user.dart';
 import 'package:goribernetflix/widgets/buttons/responsive_button.dart';
 import 'package:flutter/material.dart';
-import 'package:deferred_type/deferred_type.dart';
+import 'package:deferred_type_flutter/deferred_type_flutter.dart';
 import 'package:provider/provider.dart';
 
 class FavoriteButton extends StatefulWidget {

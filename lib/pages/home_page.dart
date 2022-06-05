@@ -14,7 +14,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:goribernetflix/widgets/error.dart';
 import 'package:goribernetflix/widgets/scaffold_with_button.dart';
 import 'package:provider/provider.dart';
-import 'package:deferred_type/deferred_type.dart';
+import 'package:deferred_type_flutter/deferred_type_flutter.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
 

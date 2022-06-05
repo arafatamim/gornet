@@ -1,4 +1,4 @@
-import 'package:deferred_type/future_builder_deferred.dart';
+import 'package:deferred_type_flutter/deferred_type_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:goribernetflix/models/user.dart';

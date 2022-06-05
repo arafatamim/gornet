@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:deferred_type/deferred_type.dart';
+import 'package:deferred_type_flutter/deferred_type_flutter.dart';
 import 'package:goribernetflix/models/models.dart';
 import 'package:goribernetflix/models/user.dart';
 import 'package:goribernetflix/services/api.dart';

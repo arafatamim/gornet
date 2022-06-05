@@ -1,4 +1,4 @@
-import 'package:deferred_type/deferred_type.dart';
+import 'package:deferred_type_flutter/deferred_type_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:goribernetflix/models/user.dart';
 import 'package:goribernetflix/services/user.dart';
@@ -44,7 +44,7 @@ class SettingsPageState extends State<SettingsPage> {
                     },
                   );
                 },
-                error: (error, _stack) {
+                error: (error, stackTrace) {
                   if (currentUser != null) {
                     Provider.of<UserService>(context).clearUser();
                     setState(() {});
