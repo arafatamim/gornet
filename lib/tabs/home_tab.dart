@@ -13,6 +13,21 @@ import 'package:goribernetflix/widgets/error.dart';
 import 'package:goribernetflix/widgets/shimmers.dart';
 import 'package:goribernetflix/widgets/spotlight.dart';
 
+const seriesList = [
+  /* Expanse */ "63639",
+  /* B99 */ "48891",
+  /* Angie Tribeca */ "61969",
+  /* Good Place */ "66573",
+  /* Ted Lasso */ "97546",
+  /* Space Force */ "85922",
+  /* PnR */ "8592",
+  /* Mandalorian */ "82856",
+  /* Snowpiercer */ "79680",
+  /* For All Mankind */ "87917",
+  /* The Boys */ "76479",
+  /* Hawkeye */ "88329",
+];
+
 class HomeTab extends StatefulWidget {
   const HomeTab({Key? key}) : super(key: key);
   @override
@@ -51,18 +66,6 @@ class HomeTabState extends State<HomeTab> with AutomaticKeepAliveClientMixin {
             constraints: const BoxConstraints(maxHeight: 400),
             child: Builder(
               builder: (context) {
-                final seriesList = [
-                  /* Expanse */ "63639",
-                  /* B99 */ "48891",
-                  /* Angie Tribeca */ "61969",
-                  /* Good Place */ "66573",
-                  /* Ted Lasso */ "97546",
-                  /* Space Force */ "85922",
-                  /* PnR */ "8592",
-                  /* Mandalorian */ "82856",
-                  /* Snowpiercer */ "79680",
-                  /* For All Mankind */ "87917",
-                ];
                 final random = Random();
                 return FutureBuilder2<Series>(
                   future: Provider.of<FtpbdService>(context).getSeries(
